@@ -1,23 +1,29 @@
-package com.seraleman.regala_product_be.components.primary;
+package com.seraleman.regala_product_be.components.element;
+
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "primaries")
-public class Primary {
+@Document(collection = "elements")
+public class Element {
+
     @Id
     private String id;
-
-    @NotNull
-    private Float budget;
 
     @NotNull
     private String collection;
 
     @NotNull
+    private String description;
+
+    @NotNull
     private String name;
+
+    @NotNull
+    private List<ElementComposition> primaries;
 
     public String getId() {
         return id;
@@ -25,14 +31,6 @@ public class Primary {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public Float getBudget() {
-        return budget;
-    }
-
-    public void setBudget(Float budget) {
-        this.budget = budget;
     }
 
     public String getCollection() {
@@ -43,12 +41,28 @@ public class Primary {
         this.collection = collection;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<ElementComposition> getPrimaries() {
+        return primaries;
+    }
+
+    public void setPrimaries(List<ElementComposition> primaries) {
+        this.primaries = primaries;
     }
 
 }
