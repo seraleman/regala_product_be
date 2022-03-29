@@ -2,6 +2,8 @@ package com.seraleman.regala_product_be.components.primary;
 
 import javax.validation.constraints.NotNull;
 
+import com.seraleman.regala_product_be.components.collection.Collection;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,7 +16,7 @@ public class Primary {
     private Float budget;
 
     @NotNull
-    private String collection;
+    private Collection collection;
 
     @NotNull
     private String name;
@@ -35,11 +37,11 @@ public class Primary {
         this.budget = budget;
     }
 
-    public String getCollection() {
+    public Collection getCollection() {
         return collection;
     }
 
-    public void setCollection(String collection) {
+    public void setCollection(Collection collection) {
         this.collection = collection;
     }
 

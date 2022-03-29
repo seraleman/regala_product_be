@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.seraleman.regala_product_be.components.collection.Collection;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,7 +16,7 @@ public class Element {
     private String id;
 
     @NotNull
-    private String collection;
+    private Collection collection;
 
     @NotNull
     private String description;
@@ -33,11 +35,11 @@ public class Element {
         this.id = id;
     }
 
-    public String getCollection() {
+    public Collection getCollection() {
         return collection;
     }
 
-    public void setCollection(String collection) {
+    public void setCollection(Collection collection) {
         this.collection = collection;
     }
 
@@ -63,6 +65,14 @@ public class Element {
 
     public void setPrimaries(List<ElementComposition> primaries) {
         this.primaries = primaries;
+    }
+
+    public Float getCost() {
+        Float cost = 0f;
+        for (ElementComposition primary : primaries) {
+            cost += primary.getPartialPrimaryCost();
+        }
+        return cost;
     }
 
 }

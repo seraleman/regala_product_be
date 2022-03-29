@@ -35,6 +35,32 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
+    public ResponseEntity<?> getAllElementsByCollectionId(String collectionId) {
+        try {
+            List<Element> elements = elementDao.findAllByCollectionId(collectionId);
+            if (elements.isEmpty()) {
+                return response.empty();
+            }
+            return response.list(elements);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getAllElementsByPrimariesPrimaryId(String primaryId) {
+        try {
+            List<Element> elements = elementDao.findAllByPrimariesPrimaryId(primaryId);
+            if (elements.isEmpty()) {
+                return response.empty();
+            }
+            return response.list(elements);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @Override
     public ResponseEntity<?> getElementById(String id) {
         try {
             Element element = elementDao.findById(id).orElse(null);

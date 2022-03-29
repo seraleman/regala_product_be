@@ -28,6 +28,16 @@ public class ElementRestController {
         return elementService.getAllElements();
     }
 
+    @GetMapping("/byCollection/{collectionId}")
+    public ResponseEntity<?> getAllElementsByCollectionId(@PathVariable String collectionId) {
+        return elementService.getAllElementsByCollectionId(collectionId);
+    }
+
+    @GetMapping("/byPrimariesPrimary/{primaryId}")
+    public ResponseEntity<?> getAllElementsByPrimariesPrimaryId(@PathVariable String primaryId) {
+        return elementService.getAllElementsByPrimariesPrimaryId(primaryId);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getElementById(@PathVariable String id) {
         return elementService.getElementById(id);

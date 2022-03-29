@@ -28,6 +28,11 @@ public class PrimaryRestController {
         return primaryService.getAllPrimaries();
     }
 
+    @GetMapping("/byCollection/{collectionId}")
+    public ResponseEntity<?> getAllPrimariesByCollectionId(@PathVariable String collectionId) {
+        return primaryService.getAllPrimariesByCollectionId(collectionId);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getPrimaryById(@PathVariable String id) {
         return primaryService.getPrimaryById(id);
@@ -48,4 +53,5 @@ public class PrimaryRestController {
     public ResponseEntity<?> deletePrimaryById(@PathVariable String id) {
         return primaryService.deletePrimaryById(id);
     }
+
 }

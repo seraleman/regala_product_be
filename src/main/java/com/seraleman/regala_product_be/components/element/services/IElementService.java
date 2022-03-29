@@ -9,6 +9,10 @@ public interface IElementService {
 
     public ResponseEntity<?> getAllElements();
 
+    public ResponseEntity<?> getAllElementsByCollectionId(String collectionId);
+
+    public ResponseEntity<?> getAllElementsByPrimariesPrimaryId(String primaryId);
+
     public ResponseEntity<?> getElementById(String id);
 
     public ResponseEntity<?> createElement(Element element, BindingResult result);

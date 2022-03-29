@@ -4,17 +4,8 @@ import javax.validation.constraints.NotNull;
 
 import com.seraleman.regala_product_be.components.primary.Primary;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-@Document
 public class ElementComposition {
 
-    @Id
-    private String id;
-
-    @DBRef
     @NotNull
     private Primary primary;
 
@@ -35,6 +26,11 @@ public class ElementComposition {
 
     public void setQuantity(Float quantity) {
         this.quantity = quantity;
+    }
+
+    public Float getPartialPrimaryCost() {
+        Float cost = this.quantity * this.primary.getBudget();
+        return cost;
     }
 
 }

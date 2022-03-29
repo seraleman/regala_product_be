@@ -9,6 +9,8 @@ public interface IPrimaryService {
 
     public ResponseEntity<?> getAllPrimaries();
 
+    public ResponseEntity<?> getAllPrimariesByCollectionId(String collectionId);
+
     public ResponseEntity<?> getPrimaryById(String id);
 
     public ResponseEntity<?> createPrimary(Primary primary, BindingResult result);
@@ -16,4 +18,5 @@ public interface IPrimaryService {
     public ResponseEntity<?> updatePrimaryById(String id, Primary primary, BindingResult result);
 
     public ResponseEntity<?> deletePrimaryById(String id);
+
 }
