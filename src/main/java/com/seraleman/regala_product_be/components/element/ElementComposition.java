@@ -1,20 +1,21 @@
 package com.seraleman.regala_product_be.components.element;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.validation.constraints.NotNull;
 
 import com.seraleman.regala_product_be.components.primary.Primary;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+// @Entity
+// @Table(name = "elements_compositions")
 public class ElementComposition {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @DBRef
     @NotNull
     private Primary primary;
 

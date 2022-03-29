@@ -1,20 +1,25 @@
 package com.seraleman.regala_product_be.components.element;
 
-import java.util.List;
-
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.seraleman.regala_product_be.components.collection.Collection;
 
-@Document(collection = "elements")
+@Entity
+@Table(name = "elements")
 public class Element {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @NotNull
-    private String collection;
+    @ManyToOne
+    private Collection collection;
 
     @NotNull
     private String description;
@@ -22,22 +27,22 @@ public class Element {
     @NotNull
     private String name;
 
-    @NotNull
-    private List<ElementComposition> primaries;
+    // @NotNull
+    // private List<ElementComposition> primaries;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getCollection() {
+    public Collection getCollection() {
         return collection;
     }
 
-    public void setCollection(String collection) {
+    public void setCollection(Collection collection) {
         this.collection = collection;
     }
 
@@ -55,14 +60,6 @@ public class Element {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<ElementComposition> getPrimaries() {
-        return primaries;
-    }
-
-    public void setPrimaries(List<ElementComposition> primaries) {
-        this.primaries = primaries;
     }
 
 }

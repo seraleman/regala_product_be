@@ -1,29 +1,37 @@
 package com.seraleman.regala_product_be.components.primary;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.seraleman.regala_product_be.components.collection.Collection;
 
-@Document(collection = "primaries")
+@Entity
+@Table(name = "primaries")
 public class Primary {
+
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotNull
     private Float budget;
 
-    @NotNull
-    private String collection;
+    @ManyToOne
+    private Collection collection;
 
     @NotNull
     private String name;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -35,11 +43,11 @@ public class Primary {
         this.budget = budget;
     }
 
-    public String getCollection() {
+    public Collection getCollection() {
         return collection;
     }
 
-    public void setCollection(String collection) {
+    public void setCollection(Collection collection) {
         this.collection = collection;
     }
 

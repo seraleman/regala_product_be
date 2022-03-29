@@ -27,7 +27,7 @@ public class PrimaryServiceImpl implements IPrimaryService {
     public ResponseEntity<?> getAllPrimaries() {
 
         try {
-            List<Primary> primaries = primaryDao.findAll();
+            List<Primary> primaries = (List<Primary>) primaryDao.findAll();
             if (primaries.isEmpty()) {
                 return response.empty();
             }
@@ -38,7 +38,7 @@ public class PrimaryServiceImpl implements IPrimaryService {
     }
 
     @Override
-    public ResponseEntity<?> getPrimaryById(String id) {
+    public ResponseEntity<?> getPrimaryById(Long id) {
 
         try {
             Primary primary = primaryDao.findById(id).orElse(null);
@@ -66,7 +66,7 @@ public class PrimaryServiceImpl implements IPrimaryService {
     }
 
     @Override
-    public ResponseEntity<?> updatePrimaryById(String id, Primary primary, BindingResult result) {
+    public ResponseEntity<?> updatePrimaryById(Long id, Primary primary, BindingResult result) {
 
         if (result.hasErrors()) {
             return response.invalidObject(result);
@@ -86,7 +86,7 @@ public class PrimaryServiceImpl implements IPrimaryService {
     }
 
     @Override
-    public ResponseEntity<?> deletePrimaryById(String id) {
+    public ResponseEntity<?> deletePrimaryById(Long id) {
         try {
             Primary primary = primaryDao.findById(id).orElse(null);
             if (primary == null) {

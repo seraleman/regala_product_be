@@ -29,7 +29,7 @@ public class ElementRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getElementById(@PathVariable String id) {
+    public ResponseEntity<?> getElementById(@PathVariable Long id) {
         return elementService.getElementById(id);
     }
 
@@ -39,13 +39,13 @@ public class ElementRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateElementById(@PathVariable String id, @Valid @RequestBody Element element,
+    public ResponseEntity<?> updateElementById(@PathVariable Long id, @Valid @RequestBody Element element,
             BindingResult result) {
         return elementService.updateElementById(id, element, result);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteElementById(@PathVariable String id) {
+    public ResponseEntity<?> deleteElementById(@PathVariable Long id) {
         return elementService.deleteElementById(id);
     }
 

@@ -24,7 +24,7 @@ public class ElementServiceImpl implements IElementService {
     @Override
     public ResponseEntity<?> getAllElements() {
         try {
-            List<Element> elements = elementDao.findAll();
+            List<Element> elements = (List<Element>) elementDao.findAll();
             if (elements.isEmpty()) {
                 return response.empty();
             }
@@ -35,7 +35,7 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
-    public ResponseEntity<?> getElementById(String id) {
+    public ResponseEntity<?> getElementById(Long id) {
         try {
             Element element = elementDao.findById(id).orElse(null);
             if (element == null) {
@@ -61,7 +61,7 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
-    public ResponseEntity<?> updateElementById(String id, Element element, BindingResult result) {
+    public ResponseEntity<?> updateElementById(Long id, Element element, BindingResult result) {
         if (result.hasErrors()) {
             return response.invalidObject(result);
         }
@@ -80,7 +80,7 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
-    public ResponseEntity<?> deleteElementById(String id) {
+    public ResponseEntity<?> deleteElementById(Long id) {
         try {
             Element element = elementDao.findById(id).orElse(null);
             if (element == null) {

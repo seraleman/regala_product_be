@@ -9,11 +9,11 @@ public interface IPrimaryService {
 
     public ResponseEntity<?> getAllPrimaries();
 
-    public ResponseEntity<?> getPrimaryById(String id);
+    public ResponseEntity<?> getPrimaryById(Long id);
 
     public ResponseEntity<?> createPrimary(Primary primary, BindingResult result);
 
-    public ResponseEntity<?> updatePrimaryById(String id, Primary primary, BindingResult result);
+    public ResponseEntity<?> updatePrimaryById(Long id, Primary primary, BindingResult result);
 
-    public ResponseEntity<?> deletePrimaryById(String id);
+    public ResponseEntity<?> deletePrimaryById(Long id);
 }

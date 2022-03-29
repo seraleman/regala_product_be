@@ -1,7 +1,7 @@
 package com.seraleman.regala_product_be.components.element;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface IElementDao extends MongoRepository<Element, String> {
+public interface IElementDao extends CrudRepository<Element, Long> {
 
 }

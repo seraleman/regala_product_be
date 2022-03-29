@@ -29,7 +29,7 @@ public class PrimaryRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPrimaryById(@PathVariable String id) {
+    public ResponseEntity<?> getPrimaryById(@PathVariable Long id) {
         return primaryService.getPrimaryById(id);
     }
 
@@ -39,13 +39,13 @@ public class PrimaryRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePrimary(@PathVariable String id, @Valid @RequestBody Primary primary,
+    public ResponseEntity<?> updatePrimary(@PathVariable Long id, @Valid @RequestBody Primary primary,
             BindingResult result) {
         return primaryService.updatePrimaryById(id, primary, result);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePrimaryById(@PathVariable String id) {
+    public ResponseEntity<?> deletePrimaryById(@PathVariable Long id) {
         return primaryService.deletePrimaryById(id);
     }
 }
