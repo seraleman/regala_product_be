@@ -70,6 +70,7 @@ public class ResponseServiceImpl implements IResponseService {
     public ResponseEntity<Map<String, Object>> list(List<?> objs) {
         response = new HashMap<>();
         response.put("message", "Lista de objetos disponible");
+        response.put("quantity", objs.size());
         response.put("data", objs);
         return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.OK);
     }

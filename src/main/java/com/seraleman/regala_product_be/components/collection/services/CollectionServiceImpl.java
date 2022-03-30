@@ -6,10 +6,6 @@ import java.util.Map;
 
 import com.seraleman.regala_product_be.components.collection.Collection;
 import com.seraleman.regala_product_be.components.collection.ICollectionDao;
-import com.seraleman.regala_product_be.components.element.Element;
-import com.seraleman.regala_product_be.components.element.IElementDao;
-import com.seraleman.regala_product_be.components.primary.IPrimaryDao;
-import com.seraleman.regala_product_be.components.primary.Primary;
 import com.seraleman.regala_product_be.services.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +22,7 @@ public class CollectionServiceImpl implements ICollectionService {
     private ICollectionDao collectionDao;
 
     @Autowired
-    private IPrimaryDao primaryDao;
-
-    @Autowired
-    private IElementDao elementDao;
+    private IUpdateCollectionInEntitiesService updateCollectionInEntitiesService;
 
     @Autowired
     private IResponseService response;
@@ -79,6 +72,7 @@ public class CollectionServiceImpl implements ICollectionService {
             return response.invalidObject(result);
         }
         try {
+            Map<String, Object> responseUpdated = new HashMap<>();
 
             Collection collectionCurrent = collectionDao.findById(id).orElse(null);
             if (collectionCurrent == null) {
@@ -88,33 +82,8 @@ public class CollectionServiceImpl implements ICollectionService {
             collectionCurrent.setDescription(collection.getDescription());
             collectionDao.save(collectionCurrent);
 
-            Map<String, Object> responseUpdated = new HashMap<>();
-            List<Primary> primaries = (List<Primary>) primaryDao.findAllByCollectionId(collectionCurrent.getId());
-            List<Element> elements = elementDao.findAllByCollectionId(collectionCurrent.getId());
-            if (primaries.isEmpty() && elements.isEmpty()) {
-                responseUpdated.put("data", collectionCurrent);
-                responseUpdated.put("message", "updated collection with no other entities to update");
-                return new ResponseEntity<Map<String, Object>>(responseUpdated, HttpStatus.OK);
-            }
-
-            for (Element element : elements) {
-                element.setCollection(collectionCurrent);
-                elementDao.save(element);
-            }
-
-            for (Primary primary : primaries) {
-                primary.setCollection(collectionCurrent);
-                primaryDao.save(primary);
-            }
-
-            Map<String, Object> data = new HashMap<>();
-            Map<String, Object> otherEntitiesUpdated = new HashMap<>();
-
-            otherEntitiesUpdated.put("updatedPrimariesEntities:", elements.size());
-            otherEntitiesUpdated.put("updatedElementsEntities:", primaries.size());
-            data.put("objectUpdated:", collectionCurrent);
-            data.put("otherEntitiesUpdated", otherEntitiesUpdated);
-            responseUpdated.put("data", data);
+            responseUpdated.put("data",
+                    updateCollectionInEntitiesService.updateCollectionInEntities(collectionCurrent));
             responseUpdated.put("message", "object updated");
 
             return new ResponseEntity<Map<String, Object>>(responseUpdated, HttpStatus.OK);
