@@ -17,6 +17,8 @@ public class Gift {
 
     private List<Category> categories;
 
+    private List<GitfComposition> elements;
+
     @NotNull
     private String name;
 
@@ -34,6 +36,14 @@ public class Gift {
 
     public void setCategories(List<Category> categories) {
         this.categories = categories;
+    }
+
+    public List<GitfComposition> getElements() {
+        return elements;
+    }
+
+    public void setElements(List<GitfComposition> elements) {
+        this.elements = elements;
     }
 
     public String getName() {
