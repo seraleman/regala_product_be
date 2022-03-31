@@ -1,22 +1,19 @@
 package com.seraleman.regala_product_be.components.primary.services;
 
-import com.seraleman.regala_product_be.components.primary.Primary;
+import java.util.List;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import com.seraleman.regala_product_be.components.primary.Primary;
 
 public interface IPrimaryService {
 
-    public ResponseEntity<?> getAllPrimaries();
+    public List<Primary> getAllPrimaries();
 
-    public ResponseEntity<?> getAllPrimariesByCollectionId(String collectionId);
+    public List<Primary> getAllPrimariesByCollectionId(String collectionId);
 
-    public ResponseEntity<?> getPrimaryById(String id);
+    public Primary getPrimaryById(String id);
 
-    public ResponseEntity<?> createPrimary(Primary primary, BindingResult result);
+    public Primary savePrimary(Primary primary);
 
-    public ResponseEntity<?> updatePrimaryById(String id, Primary primary, BindingResult result);
-
-    public ResponseEntity<?> deletePrimaryById(String id);
+    public void deletePrimaryById(String id);
 
 }

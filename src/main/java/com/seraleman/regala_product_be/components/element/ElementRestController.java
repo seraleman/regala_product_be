@@ -1,10 +1,14 @@
 package com.seraleman.regala_product_be.components.element;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.element.services.IElementService;
+import com.seraleman.regala_product_be.services.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,40 +27,106 @@ public class ElementRestController {
     @Autowired
     private IElementService elementService;
 
+    @Autowired
+    private IResponseService response;
+
     @GetMapping("/")
     public ResponseEntity<?> getAllElements() {
-        return elementService.getAllElements();
+        try {
+            List<Element> elements = elementService.getAllElements();
+            if (elements.isEmpty()) {
+                return response.empty();
+            }
+            return response.list(elements);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
     }
 
     @GetMapping("/byCollection/{collectionId}")
     public ResponseEntity<?> getAllElementsByCollectionId(@PathVariable String collectionId) {
-        return elementService.getAllElementsByCollectionId(collectionId);
+        try {
+            List<Element> elements = elementService.getAllElementsByCollectionId(collectionId);
+            if (elements.isEmpty()) {
+                return response.empty();
+            }
+            return response.list(elements);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
     }
 
     @GetMapping("/byPrimariesPrimary/{primaryId}")
     public ResponseEntity<?> getAllElementsByPrimariesPrimaryId(@PathVariable String primaryId) {
-        return elementService.getAllElementsByPrimariesPrimaryId(primaryId);
+        try {
+            List<Element> elements = elementService.getAllElementsByPrimariesPrimaryId(primaryId);
+            if (elements.isEmpty()) {
+                return response.empty();
+            }
+            return response.list(elements);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getElementById(@PathVariable String id) {
-        return elementService.getElementById(id);
+        try {
+            Element element = elementService.getElementById(id);
+            if (element == null) {
+                return response.notFound(id);
+            }
+            return response.found(element);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
     }
 
     @PostMapping("/")
     public ResponseEntity<?> createElement(@Valid @RequestBody Element element, BindingResult result) {
-        return elementService.createElement(element, result);
+        if (result.hasErrors()) {
+            return response.invalidObject(result);
+        }
+        try {
+            Element elementCreated = elementService.saveElement(element);
+            return response.created(elementCreated);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateElementById(@PathVariable String id, @Valid @RequestBody Element element,
             BindingResult result) {
-        return elementService.updateElementById(id, element, result);
+        if (result.hasErrors()) {
+            return response.invalidObject(result);
+        }
+        try {
+            Element currentElement = elementService.getElementById(id);
+            if (currentElement == null) {
+                return response.notFound(id);
+            }
+            currentElement.setCollection(element.getCollection());
+            currentElement.setDescription(element.getDescription());
+            currentElement.setName(element.getName());
+            return response.updated(elementService.saveElement(currentElement));
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteElementById(@PathVariable String id) {
-        return elementService.deleteElementById(id);
+        try {
+            Element element = elementService.getElementById(id);
+            if (element == null) {
+                return response.notFound(id);
+            }
+            elementService.deleteElementById(id);
+            return response.deleted();
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
     }
 
 }

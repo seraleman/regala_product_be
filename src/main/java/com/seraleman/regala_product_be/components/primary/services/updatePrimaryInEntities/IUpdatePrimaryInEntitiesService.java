@@ -1,4 +1,4 @@
-package com.seraleman.regala_product_be.components.primary.services;
+package com.seraleman.regala_product_be.components.primary.services.updatePrimaryInEntities;
 
 import java.util.Map;
 
@@ -8,8 +8,8 @@ public interface IUpdatePrimaryInEntitiesService {
 
     public Map<String, Object> updatePrimaryInEntities(Primary primary);
 
-    public Map<String, Object> updatePrimaryInElements(Primary primary);
+    public Integer updatePrimaryInElements(Primary primary);
 
-    public Map<String, Object> updatePrimaryInGifts(Primary primary);
+    public Integer updatePrimaryInGifts(Primary primary);
 
 }

@@ -1,19 +1,16 @@
 package com.seraleman.regala_product_be.components.collection.services;
 
-import com.seraleman.regala_product_be.components.collection.Collection;
+import java.util.List;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import com.seraleman.regala_product_be.components.collection.Collection;
 
 public interface ICollectionService {
 
-    public ResponseEntity<?> getAllCollections();
+    public List<Collection> getAllCollections();
 
-    public ResponseEntity<?> getCollectionById(String id);
+    public Collection getCollectionById(String id);
 
-    public ResponseEntity<?> createCollection(Collection collection, BindingResult result);
+    public Collection saveCollection(Collection collection);
 
-    public ResponseEntity<?> updateCollectionById(String id, Collection collection, BindingResult result);
-
-    public ResponseEntity<?> deleteCollectionById(String id);
+    public void deleteCollectionById(String id);
 }
