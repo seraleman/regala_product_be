@@ -8,6 +8,10 @@ import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.collection.services.ICollectionService;
 import com.seraleman.regala_product_be.components.collection.services.updateCollectionInEntities.IUpdateCollectionInEntitiesService;
+import com.seraleman.regala_product_be.components.element.Element;
+import com.seraleman.regala_product_be.components.element.services.IElementService;
+import com.seraleman.regala_product_be.components.primary.Primary;
+import com.seraleman.regala_product_be.components.primary.services.IPrimaryService;
 import com.seraleman.regala_product_be.services.ILocalDateTimeService;
 import com.seraleman.regala_product_be.services.IResponseService;
 
@@ -40,6 +44,12 @@ public class CollectionRestController {
 
     @Autowired
     private ILocalDateTimeService localDateTime;
+
+    @Autowired
+    private IPrimaryService primaryService;
+
+    @Autowired
+    private IElementService elementService;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllCollections() {
@@ -112,13 +122,31 @@ public class CollectionRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCollectionById(@PathVariable String id) {
+
         try {
-            Collection collection = collectionService.getCollectionById(id);
-            if (collection == null) {
-                return response.notFound(id);
+            Map<String, Object> responseCouldNotDelete = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
+
+            List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(id);
+            List<Element> elements = elementService.getAllElementsByCollectionId(id);
+
+            if (primaries.isEmpty() && elements.isEmpty()) {
+                Collection collection = collectionService.getCollectionById(id);
+                if (collection == null) {
+                    return response.notFound(id);
+                }
+                collectionService.deleteCollectionById(id);
+                return response.deleted();
             }
-            collectionService.deleteCollectionById(id);
-            return response.deleted();
+
+            data.put("isInPrimaries", primaries.size());
+            data.put("isInElements", elements.size());
+
+            responseCouldNotDelete.put("data", data);
+            responseCouldNotDelete.put("message",
+                    "No se puede eliminar la collección porque está presente en otras entidades");
+
+            return new ResponseEntity<Map<String, Object>>(responseCouldNotDelete, HttpStatus.PRECONDITION_REQUIRED);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -126,8 +154,12 @@ public class CollectionRestController {
 
     @DeleteMapping("/deleteCollections")
     public ResponseEntity<?> deleteCollectionById() {
-        collectionService.deleteAllCollections();
-        return response.deleted();
+        try {
+            collectionService.deleteAllCollections();
+            return response.deleted();
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
     }
 
 }
