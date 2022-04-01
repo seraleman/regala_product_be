@@ -30,6 +30,11 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
+    public List<Element> getAllElementsByCategoryId(String categoryId) {
+        return elementDao.findAllByCategoriesId(categoryId);
+    }
+
+    @Override
     public Element getElementById(String id) {
         return elementDao.findById(id).orElse(null);
     }

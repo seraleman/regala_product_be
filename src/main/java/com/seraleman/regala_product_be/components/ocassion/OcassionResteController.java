@@ -1,10 +1,10 @@
-package com.seraleman.regala_product_be.components.gift;
+package com.seraleman.regala_product_be.components.ocassion;
 
 import java.util.List;
 
 import javax.validation.Valid;
 
-import com.seraleman.regala_product_be.components.gift.services.IGiftService;
+import com.seraleman.regala_product_be.components.ocassion.services.IOcassionService;
 import com.seraleman.regala_product_be.services.ILocalDateTimeService;
 import com.seraleman.regala_product_be.services.IResponseService;
 
@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/gift")
-public class GiftRestControll {
+@RequestMapping("/ocassion")
+public class OcassionResteController {
 
     @Autowired
-    private IGiftService giftService;
+    private IOcassionService ocassionService;
 
     @Autowired
     private IResponseService response;
@@ -35,83 +35,82 @@ public class GiftRestControll {
     private ILocalDateTimeService localDateTime;
 
     @GetMapping("/")
-    public ResponseEntity<?> getAllGifts() {
+    public ResponseEntity<?> getAllOcassions() {
         try {
-            List<Gift> gifts = giftService.getAllGifts();
-            if (gifts.isEmpty()) {
+            List<Ocassion> ocassions = ocassionService.getAllOcassions();
+            if (ocassions.isEmpty()) {
                 return response.empty();
             }
-            return response.list(gifts);
+            return response.list(ocassions);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getGiftById(@PathVariable String id) {
+    public ResponseEntity<?> getOcassionById(@PathVariable String id) {
         try {
-            Gift gift = giftService.getGiftById(id);
-            if (gift == null) {
+            Ocassion ocassion = ocassionService.getOcassionById(id);
+            if (ocassion == null) {
                 return response.notFound(id);
             }
-            return response.found(gift);
+            return response.found(ocassion);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> createGift(@Valid @RequestBody Gift gift, BindingResult result) {
+    public ResponseEntity<?> createOcassion(@Valid @RequestBody Ocassion ocassion, BindingResult result) {
         if (result.hasErrors()) {
             return response.invalidObject(result);
         }
         try {
-            gift.setCreated(localDateTime.getLocalDateTime());
-            return response.created(giftService.saveGift(gift));
+            ocassion.setCreated(localDateTime.getLocalDateTime());
+            return response.created(ocassionService.saveOcassion(ocassion));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateGiftById(@PathVariable String id, @Valid @RequestBody Gift gift,
+    public ResponseEntity<?> updateOcassionById(@PathVariable String id, @Valid @RequestBody Ocassion ocassion,
             BindingResult result) {
         if (result.hasErrors()) {
             return response.invalidObject(result);
         }
         try {
-            Gift currentGift = giftService.getGiftById(id);
-            if (currentGift == null) {
+            Ocassion currentOcassion = ocassionService.getOcassionById(id);
+            if (currentOcassion == null) {
                 return response.notFound(id);
             }
-            currentGift.setOcassions(gift.getOcassions());
-            currentGift.setElements(gift.getElements());
-            currentGift.setName(gift.getName());
-            currentGift.setUpdated(localDateTime.getLocalDateTime());
-
-            return response.updated(giftService.saveGift(gift));
+            currentOcassion.setDescription(ocassion.getDescription());
+            currentOcassion.setName(ocassion.getName());
+            currentOcassion.setUpdated(localDateTime.getLocalDateTime());
+            return response.updated(ocassionService.saveOcassion(ocassion));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteGiftById(@PathVariable String id) {
+    public ResponseEntity<?> deleteOcassionById(@PathVariable String id) {
         try {
-            Gift gift = giftService.getGiftById(id);
-            if (gift == null) {
+            Ocassion ocassion = ocassionService.getOcassionById(id);
+            if (ocassion == null) {
                 return response.notFound(id);
             }
-            giftService.deleteGiftById(id);
+            ocassionService.deleteOcassionById(id);
             return response.deleted();
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
     }
 
-    @DeleteMapping("/deleteGifts")
-    public ResponseEntity<?> deleteAllGifts() {
-        giftService.deleteAllGifts();
+    @DeleteMapping("/deleteOcassions")
+    public ResponseEntity<?> deleteAllOcassions() {
+        ocassionService.deleteAllOcassions();
         return response.deleted();
     }
+
 }

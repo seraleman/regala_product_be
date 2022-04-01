@@ -34,8 +34,4 @@ public class CollectionServiceImpl implements ICollectionService {
         collectionDao.deleteById(id);
     }
 
-    @Override
-    public void deleteAllCollections() {
-        collectionDao.deleteAll();
-    }
 }

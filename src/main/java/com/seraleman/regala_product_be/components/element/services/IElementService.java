@@ -12,6 +12,8 @@ public interface IElementService {
 
     public List<Element> getAllElementsByPrimariesPrimaryId(String primaryId);
 
+    public List<Element> getAllElementsByCategoryId(String categoryId);
+
     public Element getElementById(String id);
 
     public Element saveElement(Element element);

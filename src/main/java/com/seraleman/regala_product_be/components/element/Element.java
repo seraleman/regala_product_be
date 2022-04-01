@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.seraleman.regala_product_be.components.category.Category;
 import com.seraleman.regala_product_be.components.collection.Collection;
 
 import org.springframework.data.annotation.Id;
@@ -28,6 +29,8 @@ public class Element {
 
     @NotNull
     private List<ElementComposition> primaries;
+
+    private List<Category> categories;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
@@ -75,6 +78,14 @@ public class Element {
         this.primaries = primaries;
     }
 
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
     public LocalDateTime getCreated() {
         return created;
     }
@@ -97,6 +108,10 @@ public class Element {
             cost += primary.getCost();
         }
         return cost;
+    }
+
+    public Integer getCategoriesQuantity() {
+        return categories.size();
     }
 
 }

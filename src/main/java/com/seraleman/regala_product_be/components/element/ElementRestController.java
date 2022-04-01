@@ -73,6 +73,19 @@ public class ElementRestController {
         }
     }
 
+    @GetMapping("/byCategory/{categoryId}")
+    public ResponseEntity<?> getAllElementsByCategoryId(@PathVariable String categoryId) {
+        try {
+            List<Element> elements = elementService.getAllElementsByCategoryId(categoryId);
+            if (elements.isEmpty()) {
+                return response.empty();
+            }
+            return response.list(elements);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getElementById(@PathVariable String id) {
         try {
@@ -110,6 +123,7 @@ public class ElementRestController {
             if (currentElement == null) {
                 return response.notFound(id);
             }
+            currentElement.setCategories(element.getCategories());
             currentElement.setCollection(element.getCollection());
             currentElement.setDescription(element.getDescription());
             currentElement.setName(element.getName());

@@ -7,4 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface IPrimaryDao extends MongoRepository<Primary, String> {
 
     List<Primary> findAllByCollectionId(String collectionId);
+
 }

@@ -1,5 +1,6 @@
 package com.seraleman.regala_product_be.components.collection;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,7 +145,7 @@ public class CollectionRestController {
 
             responseCouldNotDelete.put("data", data);
             responseCouldNotDelete.put("message",
-                    "No se puede eliminar la collección porque está presente en otras entidades");
+                    "no se puede eliminar la collección porque está presente en otras entidades");
 
             return new ResponseEntity<Map<String, Object>>(responseCouldNotDelete, HttpStatus.PRECONDITION_REQUIRED);
         } catch (DataAccessException e) {
@@ -152,11 +153,65 @@ public class CollectionRestController {
         }
     }
 
-    @DeleteMapping("/deleteCollections")
-    public ResponseEntity<?> deleteCollectionById() {
+    @DeleteMapping("/deleteUnusedCollections")
+    public ResponseEntity<?> deleteUnusedCollections() {
         try {
-            collectionService.deleteAllCollections();
-            return response.deleted();
+            Map<String, Object> deletedResponse = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
+
+            List<Collection> collections = collectionService.getAllCollections();
+            List<Collection> undeletedCollectionsList = new ArrayList<>();
+            Integer deletedCollections = 0;
+            for (Collection collection : collections) {
+                List<Element> elements = elementService.getAllElementsByCollectionId(collection.getId());
+                List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(collection.getId());
+
+                if (elements.isEmpty() && primaries.isEmpty()) {
+                    collectionService.deleteCollectionById(collection.getId());
+                    deletedCollections++;
+                } else {
+                    undeletedCollectionsList.add(collection);
+                }
+            }
+
+            Integer undeletedCollections = collections.size() - deletedCollections;
+            data.put("deletedCollections", deletedCollections);
+            data.put("undeletedCollections", undeletedCollections);
+            data.put("undeletedCollectionsList", undeletedCollectionsList);
+
+            deletedResponse.put("data", data);
+
+            if (deletedCollections == 0) {
+                deletedResponse.put("message",
+                        "no se eliminaron collecciones porque todas están presentes en otras entidades");
+            } else if (deletedCollections == 1) {
+                if (undeletedCollections == 0) {
+                    deletedResponse.put("message", "se eliminó una collección");
+                } else if (undeletedCollections == 1) {
+                    deletedResponse.put("message",
+                            "se eliminó una colleccion, la collección no eliminada pertenece a otros elementos o primarios");
+                } else {
+                    deletedResponse.put("message", "se eliminó una collección, las "
+                            .concat(String.valueOf(undeletedCollections))
+                            .concat(" collecciones no eliminadas pertenecen a otros elementos o primarios"));
+                }
+            } else {
+                if (undeletedCollections == 0) {
+                    deletedResponse.put("message", "se eliminaron todas las colleciones");
+                } else if (undeletedCollections == 1) {
+                    deletedResponse.put("message", "se eliminaron "
+                            .concat(String.valueOf(deletedCollections))
+                            .concat(" collecciones, la collección no eliminada pertenece a otros elementos o primarios"));
+                } else {
+                    deletedResponse.put("message", "se eliminaron "
+                            .concat(String.valueOf(deletedCollections))
+                            .concat(" collecciones. Las ")
+                            .concat(String.valueOf(undeletedCollections))
+                            .concat(" colleciones no eliminadas pertenecen a otros elementos o primarios"));
+                }
+            }
+
+            return new ResponseEntity<Map<String, Object>>(deletedResponse, HttpStatus.OK);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

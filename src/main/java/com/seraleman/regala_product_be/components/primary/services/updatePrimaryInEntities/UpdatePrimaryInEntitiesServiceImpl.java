@@ -5,11 +5,12 @@ import java.util.Map;
 
 import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.primary.Primary;
+import com.seraleman.regala_product_be.services.ILocalDateTimeService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -19,7 +20,10 @@ import org.springframework.stereotype.Service;
 public class UpdatePrimaryInEntitiesServiceImpl implements IUpdatePrimaryInEntitiesService {
 
     @Autowired
-    MongoTemplate mongoTemplate;
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private ILocalDateTimeService localDateTime;
 
     @Override
     public Map<String, Object> updatePrimaryInEntities(Primary primary) {
@@ -38,10 +42,15 @@ public class UpdatePrimaryInEntitiesServiceImpl implements IUpdatePrimaryInEntit
     @Override
     public Integer updatePrimaryInElements(Primary primary) {
 
-        Query query = new Query().addCriteria(Criteria.where("primaries").elemMatch(Criteria.where("primary.id").is(
-                primary.getId())));
+        Query query = new Query().addCriteria(Criteria
+                .where("primaries")
+                .elemMatch(Criteria
+                        .where("primary.id")
+                        .is(primary.getId())));
 
-        Update update = new Update().set("primaries.$.primary", primary);
+        Update update = new Update()
+                .set("primaries.$.primary", primary)
+                .set("updated", localDateTime.getLocalDateTime());
 
         return mongoTemplate.bulkOps(BulkMode.ORDERED, Element.class)
                 .updateMulti(query, update).execute().getModifiedCount();

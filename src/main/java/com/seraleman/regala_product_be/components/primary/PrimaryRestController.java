@@ -172,20 +172,93 @@ public class PrimaryRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePrimaryById(@PathVariable String id) {
         try {
-            Primary primary = primaryService.getPrimaryById(id);
-            if (primary == null) {
-                return response.notFound(id);
+            Map<String, Object> responseCouldNotDelete = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
+
+            List<Element> elements = elementService.getAllElementsByPrimariesPrimaryId(id);
+
+            if (elements.isEmpty()) {
+                Primary primary = primaryService.getPrimaryById(id);
+                if (primary == null) {
+                    return response.notFound(id);
+                }
+                primaryService.deletePrimaryById(id);
+                return response.deleted();
             }
-            primaryService.deletePrimaryById(id);
-            return response.deleted();
+
+            data.put("isInElements", elements.size());
+
+            responseCouldNotDelete.put("data", data);
+            responseCouldNotDelete.put("message",
+                    "no se puede eliminar el primario porque está presente en otra entidad");
+
+            return new ResponseEntity<Map<String, Object>>(responseCouldNotDelete, HttpStatus.PRECONDITION_REQUIRED);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
     }
 
-    @DeleteMapping("/deletePrimaries")
-    public ResponseEntity<?> deleteAllPrimaries() {
-        primaryService.deleteAllPrimaries();
-        return response.deleted();
+    @DeleteMapping("/deleteUnusedPrimaries")
+    public ResponseEntity<?> deleteUnusedPrimaries() {
+        try {
+            Map<String, Object> deletedResponse = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
+
+            List<Primary> primaries = primaryService.getAllPrimaries();
+            List<Primary> undeletedPrimaryList = new ArrayList<>();
+
+            Integer deletedPrimaries = 0;
+            for (Primary primary : primaries) {
+                List<Element> elements = elementService.getAllElementsByPrimariesPrimaryId(primary.getId());
+
+                if (elements.isEmpty()) {
+                    primaryService.deletePrimaryById(primary.getId());
+                    deletedPrimaries++;
+                } else {
+                    undeletedPrimaryList.add(primary);
+                }
+            }
+
+            Integer undeletedPrimary = primaries.size() - deletedPrimaries;
+            data.put("deletePrimaries", deletedPrimaries);
+            data.put("undeletedPrimary", undeletedPrimary);
+            data.put("undeletedPrimaryList", undeletedPrimaryList);
+
+            deletedResponse.put("data", data);
+
+            if (deletedPrimaries == 0) {
+                deletedResponse.put("message",
+                        "no se eliminaron primarios porque todos están presentes en otras entidades");
+            } else if (deletedPrimaries == 1) {
+                if (undeletedPrimary == 0) {
+                    deletedResponse.put("message", "se eliminó un primario");
+                } else if (undeletedPrimary == 1) {
+                    deletedResponse.put("message",
+                            "se eliminó un primario, el primario no eliminado pertenece a otros elementos");
+                } else {
+                    deletedResponse.put("message", "se eliminó un primario, los "
+                            .concat(String.valueOf(undeletedPrimary))
+                            .concat(" primarios no eliminados pertenecen a otros elementos"));
+                }
+            } else {
+                if (undeletedPrimary == 0) {
+                    deletedResponse.put("message", "se eliminaron todos los primarios");
+                } else if (undeletedPrimary == 1) {
+                    deletedResponse.put("message", "se eliminaron "
+                            .concat(String.valueOf(deletedPrimaries))
+                            .concat(" primarios, el primario no eliminado pertenece a otros elementos"));
+                } else {
+                    deletedResponse.put("message", "se eliminaron "
+                            .concat(String.valueOf(undeletedPrimary))
+                            .concat(" primarios, los ")
+                            .concat(String.valueOf(undeletedPrimary))
+                            .concat(" primarios no eliminados pertenecen a otros elementos"));
+                }
+            }
+
+            return new ResponseEntity<Map<String, Object>>(deletedResponse, HttpStatus.OK);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
     }
 }
