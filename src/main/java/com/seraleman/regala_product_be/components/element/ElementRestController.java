@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.element.services.IElementService;
+import com.seraleman.regala_product_be.services.ILocalDateTimeService;
 import com.seraleman.regala_product_be.services.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class ElementRestController {
 
     @Autowired
     private IResponseService response;
+
+    @Autowired
+    private ILocalDateTimeService localDateTime;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllElements() {
@@ -88,8 +92,8 @@ public class ElementRestController {
             return response.invalidObject(result);
         }
         try {
-            Element elementCreated = elementService.saveElement(element);
-            return response.created(elementCreated);
+            element.setCreated(localDateTime.getLocalDateTime());
+            return response.created(elementService.saveElement(element));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -109,6 +113,8 @@ public class ElementRestController {
             currentElement.setCollection(element.getCollection());
             currentElement.setDescription(element.getDescription());
             currentElement.setName(element.getName());
+            currentElement.setPrimaries(element.getPrimaries());
+            currentElement.setUpdated(localDateTime.getLocalDateTime());
             return response.updated(elementService.saveElement(currentElement));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
@@ -129,4 +135,9 @@ public class ElementRestController {
         }
     }
 
+    @DeleteMapping("/deleteElements")
+    public ResponseEntity<?> deleteElementById() {
+        elementService.deleteAllElements();
+        return response.deleted();
+    }
 }

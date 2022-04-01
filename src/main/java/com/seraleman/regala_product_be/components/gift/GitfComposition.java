@@ -11,4 +11,25 @@ public class GitfComposition {
 
     @NotNull
     private Float quantity;
+
+    public Element getElement() {
+        return element;
+    }
+
+    public void setElement(Element element) {
+        this.element = element;
+    }
+
+    public Float getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Float quantity) {
+        this.quantity = quantity;
+    }
+
+    public Float getCost() {
+        return quantity * element.getCost();
+    }
+
 }

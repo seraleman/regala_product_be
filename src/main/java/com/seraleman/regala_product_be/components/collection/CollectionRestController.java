@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.collection.services.ICollectionService;
 import com.seraleman.regala_product_be.components.collection.services.updateCollectionInEntities.IUpdateCollectionInEntitiesService;
+import com.seraleman.regala_product_be.services.ILocalDateTimeService;
 import com.seraleman.regala_product_be.services.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class CollectionRestController {
 
     @Autowired
     private IUpdateCollectionInEntitiesService updateCollection;
+
+    @Autowired
+    private ILocalDateTimeService localDateTime;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllCollections() {
@@ -69,6 +73,7 @@ public class CollectionRestController {
             return response.invalidObject(result);
         }
         try {
+            collection.setCreated(localDateTime.getLocalDateTime());
             return response.created(collectionService.saveCollection(collection));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
@@ -89,8 +94,9 @@ public class CollectionRestController {
             if (currentCollection == null) {
                 return response.notFound(id);
             }
-            currentCollection.setName(collection.getName());
             currentCollection.setDescription(collection.getDescription());
+            currentCollection.setName(collection.getName());
+            currentCollection.setUpdated(localDateTime.getLocalDateTime());
 
             data.put("updatePrimary", collectionService.saveCollection(currentCollection));
             data.put("updatedEntities",
@@ -117,4 +123,11 @@ public class CollectionRestController {
             return response.errorDataAccess(e);
         }
     }
+
+    @DeleteMapping("/deleteCollections")
+    public ResponseEntity<?> deleteCollectionById() {
+        collectionService.deleteAllCollections();
+        return response.deleted();
+    }
+
 }

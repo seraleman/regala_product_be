@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.category.services.ICategoryService;
+import com.seraleman.regala_product_be.services.ILocalDateTimeService;
 import com.seraleman.regala_product_be.services.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,10 @@ public class CategoryRestController {
     private ICategoryService categoryService;
 
     @Autowired
-    IResponseService response;
+    private IResponseService response;
+
+    @Autowired
+    private ILocalDateTimeService localDateTime;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllCategories() {
@@ -62,6 +66,7 @@ public class CategoryRestController {
             return response.invalidObject(result);
         }
         try {
+            category.setCreated(localDateTime.getLocalDateTime());
             return response.created(categoryService.saveCategory(category));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
@@ -81,6 +86,7 @@ public class CategoryRestController {
             }
             currentCategory.setDescription(category.getDescription());
             currentCategory.setName(category.getName());
+            currentCategory.setUpdated(localDateTime.getLocalDateTime());
             return response.updated(categoryService.saveCategory(currentCategory));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
@@ -94,6 +100,12 @@ public class CategoryRestController {
             return response.notFound(id);
         }
         categoryService.deleteCategoryById(id);
+        return response.deleted();
+    }
+
+    @DeleteMapping("/deleteCategories")
+    public ResponseEntity<?> deleteAllCategories() {
+        categoryService.deleteAllCategories();
         return response.deleted();
     }
 }

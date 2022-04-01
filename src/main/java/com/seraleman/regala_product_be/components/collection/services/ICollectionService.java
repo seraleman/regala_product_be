@@ -13,4 +13,6 @@ public interface ICollectionService {
     public Collection saveCollection(Collection collection);
 
     public void deleteCollectionById(String id);
+
+    public void deleteAllCollections(); // borrar
 }

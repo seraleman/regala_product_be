@@ -39,4 +39,9 @@ public class PrimaryServiceImpl implements IPrimaryService {
         primaryDao.deleteById(id);
     }
 
+    @Override
+    public void deleteAllPrimaries() {
+        primaryDao.deleteAll();
+    }
+
 }

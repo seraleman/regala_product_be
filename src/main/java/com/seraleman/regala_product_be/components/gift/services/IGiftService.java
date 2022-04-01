@@ -13,4 +13,6 @@ public interface IGiftService {
     public Gift saveGift(Gift gift);
 
     public void deleteGiftById(String id);
+
+    public void deleteAllGifts();
 }

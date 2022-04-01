@@ -16,4 +16,6 @@ public interface IPrimaryService {
 
     public void deletePrimaryById(String id);
 
+    public void deleteAllPrimaries();
+
 }

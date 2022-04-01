@@ -1,9 +1,11 @@
 package com.seraleman.regala_product_be.components.gift;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.seraleman.regala_product_be.components.category.Category;
 
 import org.springframework.data.annotation.Id;
@@ -18,6 +20,12 @@ public class Gift {
     private List<Category> categories;
 
     private List<GitfComposition> elements;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime created;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updated;
 
     @NotNull
     private String name;
@@ -52,6 +60,30 @@ public class Gift {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
+    }
+
+    public Float getCost() {
+        Float cost = 0f;
+        for (GitfComposition element : elements) {
+            cost += element.getCost();
+        }
+        return cost;
     }
 
 }

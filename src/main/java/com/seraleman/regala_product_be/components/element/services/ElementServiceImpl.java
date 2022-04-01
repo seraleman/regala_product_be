@@ -44,4 +44,9 @@ public class ElementServiceImpl implements IElementService {
         elementDao.deleteById(id);
     }
 
+    @Override
+    public void deleteAllElements() {
+        elementDao.deleteAll();
+    }
+
 }

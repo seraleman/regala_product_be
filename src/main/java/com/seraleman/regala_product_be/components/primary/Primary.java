@@ -1,7 +1,10 @@
 package com.seraleman.regala_product_be.components.primary;
 
+import java.time.LocalDateTime;
+
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.seraleman.regala_product_be.components.collection.Collection;
 
 import org.springframework.data.annotation.Id;
@@ -20,6 +23,12 @@ public class Primary {
 
     @NotNull
     private String name;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime created;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updated;
 
     public String getId() {
         return id;
@@ -51,6 +60,22 @@ public class Primary {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
     }
 
 }

@@ -18,4 +18,6 @@ public interface IElementService {
 
     public void deleteElementById(String id);
 
+    public void deleteAllElements(); // borrar
+
 }

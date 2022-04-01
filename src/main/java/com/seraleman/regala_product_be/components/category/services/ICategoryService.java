@@ -13,4 +13,6 @@ public interface ICategoryService {
     public Category saveCategory(Category category);
 
     public void deleteCategoryById(String id);
+
+    public void deleteAllCategories(); // temporal
 }

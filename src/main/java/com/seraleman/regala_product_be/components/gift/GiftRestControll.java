@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.gift.services.IGiftService;
+import com.seraleman.regala_product_be.services.ILocalDateTimeService;
 import com.seraleman.regala_product_be.services.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class GiftRestControll {
 
     @Autowired
     private IResponseService response;
+
+    @Autowired
+    private ILocalDateTimeService localDateTime;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllGifts() {
@@ -62,6 +66,7 @@ public class GiftRestControll {
             return response.invalidObject(result);
         }
         try {
+            gift.setCreated(localDateTime.getLocalDateTime());
             return response.created(giftService.saveGift(gift));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
@@ -80,7 +85,10 @@ public class GiftRestControll {
                 return response.notFound(id);
             }
             currentGift.setCategories(gift.getCategories());
+            currentGift.setElements(gift.getElements());
             currentGift.setName(gift.getName());
+            currentGift.setUpdated(localDateTime.getLocalDateTime());
+
             return response.updated(giftService.saveGift(gift));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
@@ -99,5 +107,11 @@ public class GiftRestControll {
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
+    }
+
+    @DeleteMapping("/deleteGifts")
+    public ResponseEntity<?> deleteAllGifts() {
+        giftService.deleteAllGifts();
+        return response.deleted();
     }
 }

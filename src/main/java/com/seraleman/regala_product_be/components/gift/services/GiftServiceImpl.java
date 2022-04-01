@@ -6,7 +6,9 @@ import com.seraleman.regala_product_be.components.gift.Gift;
 import com.seraleman.regala_product_be.components.gift.IGiftDao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class GiftServiceImpl implements IGiftService {
 
     @Autowired
@@ -30,6 +32,11 @@ public class GiftServiceImpl implements IGiftService {
     @Override
     public void deleteGiftById(String id) {
         giftDao.deleteById(id);
+    }
+
+    @Override
+    public void deleteAllGifts() {
+        giftDao.deleteAll();
     }
 
 }

@@ -6,7 +6,9 @@ import com.seraleman.regala_product_be.components.category.Category;
 import com.seraleman.regala_product_be.components.category.ICategoryDao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CategoryServiceImpl implements ICategoryService {
 
     @Autowired
@@ -30,6 +32,11 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public void deleteCategoryById(String id) {
         categoryDao.deleteById(id);
+    }
+
+    @Override
+    public void deleteAllCategories() {
+        categoryDao.deleteAll();
     }
 
 }

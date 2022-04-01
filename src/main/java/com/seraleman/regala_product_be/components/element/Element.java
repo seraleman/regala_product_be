@@ -1,9 +1,11 @@
 package com.seraleman.regala_product_be.components.element;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.seraleman.regala_product_be.components.collection.Collection;
 
 import org.springframework.data.annotation.Id;
@@ -26,6 +28,12 @@ public class Element {
 
     @NotNull
     private List<ElementComposition> primaries;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime created;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updated;
 
     public String getId() {
         return id;
@@ -67,10 +75,26 @@ public class Element {
         this.primaries = primaries;
     }
 
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
+    }
+
     public Float getCost() {
         Float cost = 0f;
         for (ElementComposition primary : primaries) {
-            cost += primary.getPartialPrimaryCost();
+            cost += primary.getCost();
         }
         return cost;
     }

@@ -1,13 +1,18 @@
 package com.seraleman.regala_product_be.components.primary;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import com.seraleman.regala_product_be.components.element.Element;
+import com.seraleman.regala_product_be.components.element.ElementComposition;
+import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.services.IPrimaryService;
 import com.seraleman.regala_product_be.components.primary.services.updatePrimaryInEntities.IUpdatePrimaryInEntitiesService;
+import com.seraleman.regala_product_be.services.ILocalDateTimeService;
 import com.seraleman.regala_product_be.services.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +41,12 @@ public class PrimaryRestController {
 
     @Autowired
     private IUpdatePrimaryInEntitiesService updatePrimary;
+
+    @Autowired
+    private ILocalDateTimeService localDateTime;
+
+    @Autowired
+    private IElementService elementService;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllPrimaries() {
@@ -82,7 +93,47 @@ public class PrimaryRestController {
             return response.invalidObject(result);
         }
         try {
+            primary.setCreated(localDateTime.getLocalDateTime());
             return response.created(primaryService.savePrimary(primary));
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @PostMapping("/withElement")
+    public ResponseEntity<?> createPrimaryWithElement(@Valid @RequestBody Primary primary,
+            BindingResult result) {
+        if (result.hasErrors()) {
+            return response.invalidObject(result);
+        }
+        try {
+            Map<String, Object> response = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
+
+            primary.setCreated(localDateTime.getLocalDateTime());
+            Primary createdPrimary = primaryService.savePrimary(primary);
+
+            ElementComposition component = new ElementComposition();
+            component.setPrimary(createdPrimary);
+            component.setQuantity(1f);
+
+            List<ElementComposition> primaries = new ArrayList<>();
+            primaries.add(component);
+
+            Element newElement = new Element();
+
+            newElement.setCollection(createdPrimary.getCollection());
+            newElement.setCreated(localDateTime.getLocalDateTime());
+            newElement.setDescription(createdPrimary.getName());
+            newElement.setName(createdPrimary.getName());
+            newElement.setPrimaries(primaries);
+
+            data.put("createdPrimary", createdPrimary);
+            data.put("createdElement", elementService.saveElement(newElement));
+            response.put("data", data);
+            response.put("message", "Primario y elemento creados");
+
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -105,6 +156,7 @@ public class PrimaryRestController {
             currentPrimary.setBudget(primary.getBudget());
             currentPrimary.setCollection(primary.getCollection());
             currentPrimary.setName(primary.getName());
+            currentPrimary.setUpdated(localDateTime.getLocalDateTime());
 
             data.put("updatedPrimary", primaryService.savePrimary(currentPrimary));
             data.put("updatedEntities", updatePrimary.updatePrimaryInEntities(currentPrimary));
@@ -131,4 +183,9 @@ public class PrimaryRestController {
         }
     }
 
+    @DeleteMapping("/deletePrimaries")
+    public ResponseEntity<?> deleteAllPrimaries() {
+        primaryService.deleteAllPrimaries();
+        return response.deleted();
+    }
 }

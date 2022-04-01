@@ -28,8 +28,8 @@ public class ElementComposition {
         this.quantity = quantity;
     }
 
-    public Float getPartialPrimaryCost() {
-        Float cost = this.quantity * this.primary.getBudget();
+    public Float getCost() {
+        Float cost = quantity * primary.getBudget();
         return cost;
     }
 
