@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.seraleman.regala_product_be.components.category.Category;
 
-public interface IUpdateCategoryInEntitiesService {
+public interface IUpdateCategoryInEntities {
 
     public Map<String, Object> updateCategoryInEntities(Category category);
 

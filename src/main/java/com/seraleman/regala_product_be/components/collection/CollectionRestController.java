@@ -1,5 +1,6 @@
 package com.seraleman.regala_product_be.components.collection;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,13 +9,13 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.collection.services.ICollectionService;
-import com.seraleman.regala_product_be.components.collection.services.updateCollectionInEntities.IUpdateCollectionInEntitiesService;
+import com.seraleman.regala_product_be.components.collection.services.updateCollectionInEntities.IUpdateCollectionInEntities;
 import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.Primary;
 import com.seraleman.regala_product_be.components.primary.services.IPrimaryService;
-import com.seraleman.regala_product_be.services.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.IResponseService;
+import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
+import com.seraleman.regala_product_be.services.response.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -41,7 +42,7 @@ public class CollectionRestController {
     private IResponseService response;
 
     @Autowired
-    private IUpdateCollectionInEntitiesService updateCollection;
+    private IUpdateCollectionInEntities updateCollection;
 
     @Autowired
     private ILocalDateTimeService localDateTime;
@@ -84,7 +85,9 @@ public class CollectionRestController {
             return response.invalidObject(result);
         }
         try {
-            collection.setCreated(localDateTime.getLocalDateTime());
+            LocalDateTime ldt = localDateTime.getLocalDateTime();
+            collection.setCreated(ldt);
+            collection.setUpdated(ldt);
             return response.created(collectionService.saveCollection(collection));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);

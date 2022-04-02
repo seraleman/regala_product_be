@@ -1,17 +1,24 @@
 package com.seraleman.regala_product_be.components.element;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
+import com.seraleman.regala_product_be.components.category.Category;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
-import com.seraleman.regala_product_be.services.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.IResponseService;
+import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
+import com.seraleman.regala_product_be.services.response.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -73,6 +80,19 @@ public class ElementRestController {
         }
     }
 
+    @GetMapping("/null")
+    public ResponseEntity<?> getAlleElemntsByCategoryNull() {
+        try {
+            List<Element> elements = elementService.getAllElementsByCategoryIsNull();
+            if (elements.isEmpty()) {
+                return response.empty();
+            }
+            return response.list(elements);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
     @GetMapping("/byCategory/{categoryId}")
     public ResponseEntity<?> getAllElementsByCategoryId(@PathVariable String categoryId) {
         try {
@@ -101,11 +121,19 @@ public class ElementRestController {
 
     @PostMapping("/")
     public ResponseEntity<?> createElement(@Valid @RequestBody Element element, BindingResult result) {
+        if (element.getCategories() == null) {
+            FieldError categoriesNullError = new FieldError("element", "categories",
+                    "debe de existir, puede ser un array vacío");
+            result.addError(categoriesNullError);
+        }
         if (result.hasErrors()) {
             return response.invalidObject(result);
         }
+
         try {
-            element.setCreated(localDateTime.getLocalDateTime());
+            LocalDateTime ldt = localDateTime.getLocalDateTime();
+            element.setCreated(ldt);
+            element.setUpdated(ldt);
             return response.created(elementService.saveElement(element));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
@@ -130,6 +158,35 @@ public class ElementRestController {
             currentElement.setPrimaries(element.getPrimaries());
             currentElement.setUpdated(localDateTime.getLocalDateTime());
             return response.updated(elementService.saveElement(currentElement));
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @PutMapping("/updateWithoutNulls")
+    public ResponseEntity<?> updateElementWithoutNulls() {
+        try {
+            Map<String, Object> responseDeleted = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
+
+            List<Element> elements = elementService.getAllElementsByCategoryIsNull();
+
+            List<Category> newCategories = new ArrayList<>();
+            for (Element element : elements) {
+                for (Category category : element.getCategories()) {
+                    if (category != null) {
+                        newCategories.add(category);
+                    }
+                }
+                element.setCategories(newCategories);
+                elementService.saveElement(element);
+                newCategories.clear();
+            }
+
+            data.put("updatedElements", elements.size());
+            responseDeleted.put("message", "Se han eliminado las categorias null de todos los elementos");
+
+            return new ResponseEntity<Map<String, Object>>(responseDeleted, HttpStatus.OK);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

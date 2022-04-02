@@ -1,5 +1,6 @@
 package com.seraleman.regala_product_be.components.category;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,9 +8,9 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.category.services.ICategoryService;
-import com.seraleman.regala_product_be.components.category.services.updateCategoryInEntities.IUpdateCategoryInEntitiesService;
-import com.seraleman.regala_product_be.services.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.IResponseService;
+import com.seraleman.regala_product_be.components.category.services.updateCategoryInEntities.IUpdateCategoryInEntities;
+import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
+import com.seraleman.regala_product_be.services.response.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -39,7 +40,7 @@ public class CategoryRestController {
     private ILocalDateTimeService localDateTime;
 
     @Autowired
-    private IUpdateCategoryInEntitiesService updateCategory;
+    private IUpdateCategoryInEntities updateCategory;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllCategories() {
@@ -73,7 +74,9 @@ public class CategoryRestController {
             return response.invalidObject(result);
         }
         try {
-            category.setCreated(localDateTime.getLocalDateTime());
+            LocalDateTime ldt = localDateTime.getLocalDateTime();
+            category.setCreated(ldt);
+            category.setUpdated(ldt);
             return response.created(categoryService.saveCategory(category));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);

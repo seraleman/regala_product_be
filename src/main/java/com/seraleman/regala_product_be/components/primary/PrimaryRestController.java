@@ -1,5 +1,6 @@
 package com.seraleman.regala_product_be.components.primary;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,9 +12,10 @@ import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.ElementComposition;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.services.IPrimaryService;
-import com.seraleman.regala_product_be.components.primary.services.updatePrimaryInEntities.IUpdatePrimaryInEntitiesService;
-import com.seraleman.regala_product_be.services.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.IResponseService;
+import com.seraleman.regala_product_be.components.primary.services.updatePrimaryInEntities.IUpdatePrimaryInEntities;
+import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
+import com.seraleman.regala_product_be.services.response.IResponseService;
+import com.seraleman.regala_product_be.services.validate.IValidateService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -40,13 +42,16 @@ public class PrimaryRestController {
     private IResponseService response;
 
     @Autowired
-    private IUpdatePrimaryInEntitiesService updatePrimary;
+    private IUpdatePrimaryInEntities updatePrimary;
 
     @Autowired
     private ILocalDateTimeService localDateTime;
 
     @Autowired
     private IElementService elementService;
+
+    @Autowired
+    private IValidateService validateService;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllPrimaries() {
@@ -89,11 +94,16 @@ public class PrimaryRestController {
 
     @PostMapping("/")
     public ResponseEntity<?> createPrimary(@Valid @RequestBody Primary primary, BindingResult result) {
-        if (result.hasErrors()) {
+
+        BindingResult resultCollection = validateService.validateCollection(result, primary.getCollection());
+        if (resultCollection.hasErrors()) {
             return response.invalidObject(result);
         }
+
         try {
-            primary.setCreated(localDateTime.getLocalDateTime());
+            LocalDateTime ldt = localDateTime.getLocalDateTime();
+            primary.setCreated(ldt);
+            primary.setUpdated(ldt);
             return response.created(primaryService.savePrimary(primary));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
@@ -103,6 +113,7 @@ public class PrimaryRestController {
     @PostMapping("/withElement")
     public ResponseEntity<?> createPrimaryWithElement(@Valid @RequestBody Primary primary,
             BindingResult result) {
+
         if (result.hasErrors()) {
             return response.invalidObject(result);
         }
@@ -110,7 +121,9 @@ public class PrimaryRestController {
             Map<String, Object> response = new HashMap<>();
             Map<String, Object> data = new HashMap<>();
 
-            primary.setCreated(localDateTime.getLocalDateTime());
+            LocalDateTime ldt = localDateTime.getLocalDateTime();
+            primary.setCreated(ldt);
+            primary.setUpdated(ldt);
             Primary createdPrimary = primaryService.savePrimary(primary);
 
             ElementComposition component = new ElementComposition();

@@ -18,6 +18,7 @@ public class Category {
     @NotNull
     private String name;
 
+    @NotNull
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

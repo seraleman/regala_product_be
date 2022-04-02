@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.seraleman.regala_product_be.components.collection.Collection;
 
-public interface IUpdateCollectionInEntitiesService {
+public interface IUpdateCollectionInEntities {
 
     public Map<String, Object> updateCollectionInEntities(Collection collection);
 

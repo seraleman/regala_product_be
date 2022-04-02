@@ -1,4 +1,4 @@
-package com.seraleman.regala_product_be.services;
+package com.seraleman.regala_product_be.services.response;
 
 import java.util.List;
 import java.util.Map;

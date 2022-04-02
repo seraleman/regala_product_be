@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.seraleman.regala_product_be.components.category.Category;
 import com.seraleman.regala_product_be.components.element.Element;
-import com.seraleman.regala_product_be.services.ILocalDateTimeService;
+import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UpdateCategoryInEntitiesServiceImpl implements IUpdateCategoryInEntitiesService {
+public class UpdateCategoryInEntitiesImpl implements IUpdateCategoryInEntities {
 
     @Autowired
     private MongoTemplate mongoTemplate;

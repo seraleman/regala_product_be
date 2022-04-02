@@ -1,12 +1,13 @@
 package com.seraleman.regala_product_be.components.ocassion;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.ocassion.services.IOcassionService;
-import com.seraleman.regala_product_be.services.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.IResponseService;
+import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
+import com.seraleman.regala_product_be.services.response.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -66,7 +67,9 @@ public class OcassionResteController {
             return response.invalidObject(result);
         }
         try {
-            ocassion.setCreated(localDateTime.getLocalDateTime());
+            LocalDateTime ldt = localDateTime.getLocalDateTime();
+            ocassion.setCreated(ldt);
+            ocassion.setUpdated(localDateTime.getLocalDateTime());
             return response.created(ocassionService.saveOcassion(ocassion));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);

@@ -1,12 +1,13 @@
 package com.seraleman.regala_product_be.components.gift;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.gift.services.IGiftService;
-import com.seraleman.regala_product_be.services.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.IResponseService;
+import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
+import com.seraleman.regala_product_be.services.response.IResponseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -66,7 +67,9 @@ public class GiftRestControll {
             return response.invalidObject(result);
         }
         try {
-            gift.setCreated(localDateTime.getLocalDateTime());
+            LocalDateTime ldt = localDateTime.getLocalDateTime();
+            gift.setCreated(ldt);
+            gift.setUpdated(ldt);
             return response.created(giftService.saveGift(gift));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);

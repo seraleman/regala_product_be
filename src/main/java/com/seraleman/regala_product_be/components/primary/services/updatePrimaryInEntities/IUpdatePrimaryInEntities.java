@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.seraleman.regala_product_be.components.primary.Primary;
 
-public interface IUpdatePrimaryInEntitiesService {
+public interface IUpdatePrimaryInEntities {
 
     public Map<String, Object> updatePrimaryInEntities(Primary primary);
 
