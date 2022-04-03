@@ -54,4 +54,9 @@ public class PrimaryResponseImpl implements IPrimaryResponse {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<?> deletedUnused(Map<String, Object> deletedPrimariesUnusedResponse) {
+        return new ResponseEntity<Map<String, Object>>(deletedPrimariesUnusedResponse, HttpStatus.OK);
+    }
+
 }

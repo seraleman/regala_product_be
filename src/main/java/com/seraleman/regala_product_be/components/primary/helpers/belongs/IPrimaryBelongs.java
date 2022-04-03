@@ -16,4 +16,6 @@ public interface IPrimaryBelongs {
 
     public Element createElementFromPrimary(Primary primary);
 
+    public Map<String, Object> deleteUnusedPrimaries();
+
 }

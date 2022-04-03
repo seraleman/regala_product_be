@@ -14,4 +14,6 @@ public interface IPrimaryResponse {
     public ResponseEntity<?> updated(Primary primary, Map<String, Object> updatedPrimaryInEntities);
 
     public ResponseEntity<?> deleted(Map<String, Object> deletePrimaryInEntities);
+
+    public ResponseEntity<?> deletedUnused(Map<String, Object> deletedPrimariesUnusedResponse);
 }
