@@ -10,8 +10,8 @@ import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.category.Category;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
-import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.response.IResponseService;
+import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
+import com.seraleman.regala_product_be.helpers.response.IResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -36,19 +36,19 @@ public class ElementRestController {
     private IElementService elementService;
 
     @Autowired
-    private IResponseService response;
+    private IResponse response;
 
     @Autowired
-    private ILocalDateTimeService localDateTime;
+    private ILocalDateTime localDateTime;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllElements() {
         try {
             List<Element> elements = elementService.getAllElements();
             if (elements.isEmpty()) {
-                return response.empty();
+                return response.empty("Element");
             }
-            return response.list(elements);
+            return response.list(elements, "Element");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -59,9 +59,9 @@ public class ElementRestController {
         try {
             List<Element> elements = elementService.getAllElementsByCollectionId(collectionId);
             if (elements.isEmpty()) {
-                return response.empty();
+                return response.empty("Element");
             }
-            return response.list(elements);
+            return response.list(elements, "Element");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -72,9 +72,9 @@ public class ElementRestController {
         try {
             List<Element> elements = elementService.getAllElementsByPrimariesPrimaryId(primaryId);
             if (elements.isEmpty()) {
-                return response.empty();
+                return response.empty("Element");
             }
-            return response.list(elements);
+            return response.list(elements, "Element");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -85,9 +85,9 @@ public class ElementRestController {
         try {
             List<Element> elements = elementService.getAllElementsByCategoryIsNull();
             if (elements.isEmpty()) {
-                return response.empty();
+                return response.empty("Element");
             }
-            return response.list(elements);
+            return response.list(elements, "Element");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -98,9 +98,9 @@ public class ElementRestController {
         try {
             List<Element> elements = elementService.getAllElementsByCategoryId(categoryId);
             if (elements.isEmpty()) {
-                return response.empty();
+                return response.empty("Element");
             }
-            return response.list(elements);
+            return response.list(elements, "Element");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -111,7 +111,7 @@ public class ElementRestController {
         try {
             Element element = elementService.getElementById(id);
             if (element == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Element");
             }
             return response.found(element);
         } catch (DataAccessException e) {
@@ -149,7 +149,7 @@ public class ElementRestController {
         try {
             Element currentElement = elementService.getElementById(id);
             if (currentElement == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Element");
             }
             currentElement.setCategories(element.getCategories());
             currentElement.setCollection(element.getCollection());
@@ -197,10 +197,10 @@ public class ElementRestController {
         try {
             Element element = elementService.getElementById(id);
             if (element == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Element");
             }
             elementService.deleteElementById(id);
-            return response.deleted();
+            return response.deleted("Element");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -209,6 +209,6 @@ public class ElementRestController {
     @DeleteMapping("/deleteElements")
     public ResponseEntity<?> deleteElementById() {
         elementService.deleteAllElements();
-        return response.deleted();
+        return response.deletedAll("Element");
     }
 }

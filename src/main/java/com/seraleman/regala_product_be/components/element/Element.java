@@ -30,6 +30,7 @@ public class Element {
     @NotNull
     private List<ElementComposition> primaries;
 
+    @NotNull
     private List<Category> categories;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -37,6 +38,30 @@ public class Element {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updated;
+
+    public Element() {
+    }
+
+    public Element(@NotNull Collection collection, @NotNull String description, @NotNull String name,
+            @NotNull List<ElementComposition> primaries, @NotNull List<Category> categories) {
+        this.collection = collection;
+        this.description = description;
+        this.name = name;
+        this.primaries = primaries;
+        this.categories = categories;
+    }
+
+    public Element(@NotNull Collection collection, @NotNull String description, @NotNull String name,
+            @NotNull List<ElementComposition> primaries, @NotNull List<Category> categories,
+            @NotNull LocalDateTime created, @NotNull LocalDateTime updated) {
+        this.collection = collection;
+        this.description = description;
+        this.name = name;
+        this.primaries = primaries;
+        this.categories = categories;
+        this.created = created;
+        this.updated = updated;
+    }
 
     public String getId() {
         return id;

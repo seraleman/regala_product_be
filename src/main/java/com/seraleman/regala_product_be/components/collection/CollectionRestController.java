@@ -2,24 +2,20 @@ package com.seraleman.regala_product_be.components.collection;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.validation.Valid;
 
-import com.seraleman.regala_product_be.components.collection.services.ICollectionService;
-import com.seraleman.regala_product_be.components.collection.services.updateCollectionInEntities.IUpdateCollectionInEntities;
+import com.seraleman.regala_product_be.components.collection.helpers.belongs.ICollectionBelongs;
+import com.seraleman.regala_product_be.components.collection.helpers.response.ICollectionResponse;
+import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
 import com.seraleman.regala_product_be.components.element.Element;
-import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.Primary;
-import com.seraleman.regala_product_be.components.primary.services.IPrimaryService;
-import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.response.IResponseService;
+import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
+import com.seraleman.regala_product_be.helpers.response.IResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,28 +35,25 @@ public class CollectionRestController {
     private ICollectionService collectionService;
 
     @Autowired
-    private IResponseService response;
+    private ICollectionBelongs collectionBelongs;
 
     @Autowired
-    private IUpdateCollectionInEntities updateCollection;
+    private ICollectionResponse collectionResponse;
 
     @Autowired
-    private ILocalDateTimeService localDateTime;
+    private ILocalDateTime localDateTime;
 
     @Autowired
-    private IPrimaryService primaryService;
-
-    @Autowired
-    private IElementService elementService;
+    private IResponse response;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllCollections() {
         try {
             List<Collection> collections = collectionService.getAllCollections();
             if (collections.isEmpty()) {
-                return response.empty();
+                return response.empty("Collection");
             }
-            return response.list(collections);
+            return response.list(collections, "Collection");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -71,7 +64,7 @@ public class CollectionRestController {
         try {
             Collection collection = collectionService.getCollectionById(id);
             if (collection == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Collection");
             }
             return response.found(collection);
         } catch (DataAccessException e) {
@@ -80,7 +73,9 @@ public class CollectionRestController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> createCollection(@Valid @RequestBody Collection collection, BindingResult result) {
+    public ResponseEntity<?> createCollection(
+            @Valid @RequestBody Collection collection,
+            BindingResult result) {
         if (result.hasErrors()) {
             return response.invalidObject(result);
         }
@@ -95,30 +90,27 @@ public class CollectionRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCollection(@PathVariable String id, @Valid @RequestBody Collection collection,
+    public ResponseEntity<?> updateCollectionById(
+            @PathVariable String id,
+            @Valid @RequestBody Collection collection,
             BindingResult result) {
+
         if (result.hasErrors()) {
             return response.invalidObject(result);
         }
         try {
-            Map<String, Object> updatedResponse = new HashMap<>();
-            Map<String, Object> data = new HashMap<>();
-
             Collection currentCollection = collectionService.getCollectionById(id);
             if (currentCollection == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Collection");
             }
             currentCollection.setDescription(collection.getDescription());
             currentCollection.setName(collection.getName());
             currentCollection.setUpdated(localDateTime.getLocalDateTime());
 
-            data.put("updatePrimary", collectionService.saveCollection(currentCollection));
-            data.put("updatedEntities",
-                    updateCollection.updateCollectionInEntities(currentCollection));
-            updatedResponse.put("data", data);
-            updatedResponse.put("message", "object updated");
+            return collectionResponse.updated(
+                    collectionService.saveCollection(currentCollection),
+                    collectionBelongs.updateCollectionInEntities(currentCollection));
 
-            return new ResponseEntity<Map<String, Object>>(updatedResponse, HttpStatus.OK);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -128,29 +120,17 @@ public class CollectionRestController {
     public ResponseEntity<?> deleteCollectionById(@PathVariable String id) {
 
         try {
-            Map<String, Object> responseCouldNotDelete = new HashMap<>();
-            Map<String, Object> data = new HashMap<>();
-
-            List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(id);
-            List<Element> elements = elementService.getAllElementsByCollectionId(id);
-
-            if (primaries.isEmpty() && elements.isEmpty()) {
-                Collection collection = collectionService.getCollectionById(id);
-                if (collection == null) {
-                    return response.notFound(id);
-                }
-                collectionService.deleteCollectionById(id);
-                return response.deleted();
+            if (collectionService.getCollectionById(id) == null) {
+                return response.notFound(id, "Collection");
             }
 
-            data.put("isInPrimaries", primaries.size());
-            data.put("isInElements", elements.size());
-
-            responseCouldNotDelete.put("data", data);
-            responseCouldNotDelete.put("message",
-                    "no se puede eliminar la collección porque está presente en otras entidades");
-
-            return new ResponseEntity<Map<String, Object>>(responseCouldNotDelete, HttpStatus.PRECONDITION_REQUIRED);
+            List<Primary> primaries = collectionBelongs.getPrimariesThatBelongsCollectionById(id);
+            List<Element> elements = collectionBelongs.getElementsThatBelongsCollectionById(id);
+            if (!primaries.isEmpty() || !elements.isEmpty()) {
+                return collectionResponse.notDeleted(primaries, elements);
+            }
+            collectionService.deleteCollectionById(id);
+            return response.deleted("Collection");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -159,62 +139,25 @@ public class CollectionRestController {
     @DeleteMapping("/deleteUnusedCollections")
     public ResponseEntity<?> deleteUnusedCollections() {
         try {
-            Map<String, Object> deletedResponse = new HashMap<>();
-            Map<String, Object> data = new HashMap<>();
-
             List<Collection> collections = collectionService.getAllCollections();
             List<Collection> undeletedCollectionsList = new ArrayList<>();
-            Integer deletedCollections = 0;
+
+            List<Primary> primaries = new ArrayList<>();
+            List<Element> elements = new ArrayList<>();
             for (Collection collection : collections) {
-                List<Element> elements = elementService.getAllElementsByCollectionId(collection.getId());
-                List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(collection.getId());
+                primaries = collectionBelongs
+                        .getPrimariesThatBelongsCollectionById(collection.getId());
+                elements = collectionBelongs
+                        .getElementsThatBelongsCollectionById(collection.getId());
 
                 if (elements.isEmpty() && primaries.isEmpty()) {
                     collectionService.deleteCollectionById(collection.getId());
-                    deletedCollections++;
+
                 } else {
                     undeletedCollectionsList.add(collection);
                 }
             }
-
-            Integer undeletedCollections = collections.size() - deletedCollections;
-            data.put("deletedCollections", deletedCollections);
-            data.put("undeletedCollections", undeletedCollections);
-            data.put("undeletedCollectionsList", undeletedCollectionsList);
-
-            deletedResponse.put("data", data);
-
-            if (deletedCollections == 0) {
-                deletedResponse.put("message",
-                        "no se eliminaron collecciones porque todas están presentes en otras entidades");
-            } else if (deletedCollections == 1) {
-                if (undeletedCollections == 0) {
-                    deletedResponse.put("message", "se eliminó una collección");
-                } else if (undeletedCollections == 1) {
-                    deletedResponse.put("message",
-                            "se eliminó una colleccion, la collección no eliminada pertenece a otros elementos o primarios");
-                } else {
-                    deletedResponse.put("message", "se eliminó una collección, las "
-                            .concat(String.valueOf(undeletedCollections))
-                            .concat(" collecciones no eliminadas pertenecen a otros elementos o primarios"));
-                }
-            } else {
-                if (undeletedCollections == 0) {
-                    deletedResponse.put("message", "se eliminaron todas las colleciones");
-                } else if (undeletedCollections == 1) {
-                    deletedResponse.put("message", "se eliminaron "
-                            .concat(String.valueOf(deletedCollections))
-                            .concat(" collecciones, la collección no eliminada pertenece a otros elementos o primarios"));
-                } else {
-                    deletedResponse.put("message", "se eliminaron "
-                            .concat(String.valueOf(deletedCollections))
-                            .concat(" collecciones. Las ")
-                            .concat(String.valueOf(undeletedCollections))
-                            .concat(" colleciones no eliminadas pertenecen a otros elementos o primarios"));
-                }
-            }
-
-            return new ResponseEntity<Map<String, Object>>(deletedResponse, HttpStatus.OK);
+            return collectionResponse.deleted(collections, undeletedCollectionsList);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

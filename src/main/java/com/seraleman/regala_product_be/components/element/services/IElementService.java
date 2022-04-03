@@ -24,4 +24,6 @@ public interface IElementService {
 
     public void deleteAllElements(); // borrar
 
+    public List<Element> clearPrimariesNull();
+
 }

@@ -6,8 +6,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.ocassion.services.IOcassionService;
-import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.response.IResponseService;
+import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
+import com.seraleman.regala_product_be.helpers.response.IResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -30,19 +30,19 @@ public class OcassionResteController {
     private IOcassionService ocassionService;
 
     @Autowired
-    private IResponseService response;
+    private IResponse response;
 
     @Autowired
-    private ILocalDateTimeService localDateTime;
+    private ILocalDateTime localDateTime;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllOcassions() {
         try {
             List<Ocassion> ocassions = ocassionService.getAllOcassions();
             if (ocassions.isEmpty()) {
-                return response.empty();
+                return response.empty("Ocassion");
             }
-            return response.list(ocassions);
+            return response.list(ocassions, "Ocassion");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -53,7 +53,7 @@ public class OcassionResteController {
         try {
             Ocassion ocassion = ocassionService.getOcassionById(id);
             if (ocassion == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Ocassion");
             }
             return response.found(ocassion);
         } catch (DataAccessException e) {
@@ -85,7 +85,7 @@ public class OcassionResteController {
         try {
             Ocassion currentOcassion = ocassionService.getOcassionById(id);
             if (currentOcassion == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Ocassion");
             }
             currentOcassion.setDescription(ocassion.getDescription());
             currentOcassion.setName(ocassion.getName());
@@ -101,10 +101,10 @@ public class OcassionResteController {
         try {
             Ocassion ocassion = ocassionService.getOcassionById(id);
             if (ocassion == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Ocassion");
             }
             ocassionService.deleteOcassionById(id);
-            return response.deleted();
+            return response.deleted("Ocassion");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -113,7 +113,7 @@ public class OcassionResteController {
     @DeleteMapping("/deleteOcassions")
     public ResponseEntity<?> deleteAllOcassions() {
         ocassionService.deleteAllOcassions();
-        return response.deleted();
+        return response.deletedAll("Ocassion");
     }
 
 }

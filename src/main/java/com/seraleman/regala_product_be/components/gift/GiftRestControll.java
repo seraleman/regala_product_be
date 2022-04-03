@@ -6,8 +6,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.gift.services.IGiftService;
-import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.response.IResponseService;
+import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
+import com.seraleman.regala_product_be.helpers.response.IResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -30,19 +30,19 @@ public class GiftRestControll {
     private IGiftService giftService;
 
     @Autowired
-    private IResponseService response;
+    private IResponse response;
 
     @Autowired
-    private ILocalDateTimeService localDateTime;
+    private ILocalDateTime localDateTime;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllGifts() {
         try {
             List<Gift> gifts = giftService.getAllGifts();
             if (gifts.isEmpty()) {
-                return response.empty();
+                return response.empty("Gift");
             }
-            return response.list(gifts);
+            return response.list(gifts, "Gift");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -53,7 +53,7 @@ public class GiftRestControll {
         try {
             Gift gift = giftService.getGiftById(id);
             if (gift == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Gift");
             }
             return response.found(gift);
         } catch (DataAccessException e) {
@@ -85,7 +85,7 @@ public class GiftRestControll {
         try {
             Gift currentGift = giftService.getGiftById(id);
             if (currentGift == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Gift");
             }
             currentGift.setOcassions(gift.getOcassions());
             currentGift.setElements(gift.getElements());
@@ -103,10 +103,10 @@ public class GiftRestControll {
         try {
             Gift gift = giftService.getGiftById(id);
             if (gift == null) {
-                return response.notFound(id);
+                return response.notFound(id, "Gift");
             }
             giftService.deleteGiftById(id);
-            return response.deleted();
+            return response.deleted("Gift");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -115,6 +115,6 @@ public class GiftRestControll {
     @DeleteMapping("/deleteGifts")
     public ResponseEntity<?> deleteAllGifts() {
         giftService.deleteAllGifts();
-        return response.deleted();
+        return response.deletedAll("Gift");
     }
 }

@@ -1,8 +1,10 @@
 package com.seraleman.regala_product_be.components.element.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.seraleman.regala_product_be.components.element.Element;
+import com.seraleman.regala_product_be.components.element.ElementComposition;
 import com.seraleman.regala_product_be.components.element.IElementDao;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +59,27 @@ public class ElementServiceImpl implements IElementService {
     @Override
     public void deleteAllElements() {
         elementDao.deleteAll();
+    }
+
+    @Override
+    public List<Element> clearPrimariesNull() {
+
+        List<Element> elements = elementDao.findAllByPrimariesIsNull();
+        List<Element> updatedElements = new ArrayList<>();
+        List<ElementComposition> newPrimaries = new ArrayList<>();
+
+        for (Element element : elements) {
+            for (ElementComposition composition : element.getPrimaries()) {
+                if (composition != null) {
+                    newPrimaries.add(composition);
+                }
+            }
+            element.setPrimaries(newPrimaries);
+            updatedElements.add(elementDao.save(element));
+            newPrimaries.clear();
+        }
+
+        return updatedElements;
     }
 
 }

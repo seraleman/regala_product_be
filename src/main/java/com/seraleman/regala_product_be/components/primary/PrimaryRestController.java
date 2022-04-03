@@ -8,14 +8,15 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import com.seraleman.regala_product_be.components.collection.Collection;
 import com.seraleman.regala_product_be.components.element.Element;
-import com.seraleman.regala_product_be.components.element.ElementComposition;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
-import com.seraleman.regala_product_be.components.primary.services.IPrimaryService;
-import com.seraleman.regala_product_be.components.primary.services.updatePrimaryInEntities.IUpdatePrimaryInEntities;
-import com.seraleman.regala_product_be.services.localDataTime.ILocalDateTimeService;
-import com.seraleman.regala_product_be.services.response.IResponseService;
-import com.seraleman.regala_product_be.services.validate.IValidateService;
+import com.seraleman.regala_product_be.components.primary.helpers.belongs.IPrimaryBelongs;
+import com.seraleman.regala_product_be.components.primary.helpers.response.IPrimaryResponse;
+import com.seraleman.regala_product_be.components.primary.helpers.service.IPrimaryService;
+import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
+import com.seraleman.regala_product_be.helpers.response.IResponse;
+import com.seraleman.regala_product_be.helpers.validate.IValidate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -35,32 +36,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/primary")
 public class PrimaryRestController {
 
+    private static final String ENTITY = "Primary";
+
     @Autowired
     private IPrimaryService primaryService;
 
     @Autowired
-    private IResponseService response;
+    private IPrimaryBelongs primaryBelongs;
 
     @Autowired
-    private IUpdatePrimaryInEntities updatePrimary;
+    private IPrimaryResponse primaryResponse;
 
     @Autowired
-    private ILocalDateTimeService localDateTime;
+    private IResponse response;
+
+    @Autowired
+    private ILocalDateTime localDateTime;
 
     @Autowired
     private IElementService elementService;
 
     @Autowired
-    private IValidateService validateService;
+    private IValidate validate;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllPrimaries() {
         try {
             List<Primary> primaries = primaryService.getAllPrimaries();
             if (primaries.isEmpty()) {
-                return response.empty();
+                return response.empty(ENTITY);
             }
-            return response.list(primaries);
+            return response.list(primaries, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -71,9 +77,9 @@ public class PrimaryRestController {
         try {
             List<Primary> primaries = (List<Primary>) primaryService.getAllPrimariesByCollectionId(collectionId);
             if (primaries.isEmpty()) {
-                return response.empty();
+                return response.empty(ENTITY);
             }
-            return response.list(primaries);
+            return response.list(primaries, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -84,7 +90,7 @@ public class PrimaryRestController {
         try {
             Primary primary = primaryService.getPrimaryById(id);
             if (primary == null) {
-                return response.notFound(id);
+                return response.notFound(id, ENTITY);
             }
             return response.found(primary);
         } catch (DataAccessException e) {
@@ -93,15 +99,18 @@ public class PrimaryRestController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> createPrimary(@Valid @RequestBody Primary primary, BindingResult result) {
-
-        BindingResult resultCollection = validateService.validateCollection(result, primary.getCollection());
-        if (resultCollection.hasErrors()) {
-            return response.invalidObject(result);
-        }
+    public ResponseEntity<?> createPrimary(
+            @Valid @RequestBody Primary primary,
+            BindingResult result) {
 
         try {
+            Collection collection = primaryBelongs
+                    .getCollectionById(primary.getCollection().getId());
+            if (validate.validateCollection(result, collection).hasErrors()) {
+                return response.invalidObject(result);
+            }
             LocalDateTime ldt = localDateTime.getLocalDateTime();
+            primary.setCollection(collection);
             primary.setCreated(ldt);
             primary.setUpdated(ldt);
             return response.created(primaryService.savePrimary(primary));
@@ -111,72 +120,56 @@ public class PrimaryRestController {
     }
 
     @PostMapping("/withElement")
-    public ResponseEntity<?> createPrimaryWithElement(@Valid @RequestBody Primary primary,
+    public ResponseEntity<?> createPrimaryWithElement(
+            @Valid @RequestBody Primary primary,
             BindingResult result) {
 
-        if (result.hasErrors()) {
-            return response.invalidObject(result);
-        }
         try {
-            Map<String, Object> response = new HashMap<>();
-            Map<String, Object> data = new HashMap<>();
-
+            Collection collection = primaryBelongs
+                    .getCollectionById(primary.getCollection().getId());
+            if (validate.validateCollection(result, collection).hasErrors()) {
+                return response.invalidObject(result);
+            }
             LocalDateTime ldt = localDateTime.getLocalDateTime();
+            primary.setCollection(collection);
             primary.setCreated(ldt);
             primary.setUpdated(ldt);
             Primary createdPrimary = primaryService.savePrimary(primary);
 
-            ElementComposition component = new ElementComposition();
-            component.setPrimary(createdPrimary);
-            component.setQuantity(1f);
-
-            List<ElementComposition> primaries = new ArrayList<>();
-            primaries.add(component);
-
-            Element newElement = new Element();
-
-            newElement.setCollection(createdPrimary.getCollection());
-            newElement.setCreated(localDateTime.getLocalDateTime());
-            newElement.setDescription(createdPrimary.getName());
-            newElement.setName(createdPrimary.getName());
-            newElement.setPrimaries(primaries);
-
-            data.put("createdPrimary", createdPrimary);
-            data.put("createdElement", elementService.saveElement(newElement));
-            response.put("data", data);
-            response.put("message", "Primario y elemento creados");
-
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+            return primaryResponse.created(
+                    createdPrimary,
+                    primaryBelongs.createElementFromPrimary(createdPrimary));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePrimary(@PathVariable String id, @Valid @RequestBody Primary primary,
+    public ResponseEntity<?> updatePrimary(
+            @PathVariable String id,
+            @Valid @RequestBody Primary primary,
             BindingResult result) {
-        if (result.hasErrors()) {
-            return response.invalidObject(result);
-        }
-        try {
-            Map<String, Object> updatedResponse = new HashMap<>();
-            Map<String, Object> data = new HashMap<>();
 
+        try {
             Primary currentPrimary = primaryService.getPrimaryById(id);
             if (currentPrimary == null) {
-                return response.notFound(id);
+                return response.notFound(id, ENTITY);
             }
+
+            Collection collection = primaryBelongs
+                    .getCollectionById(primary.getCollection().getId());
+            if (validate.validateCollection(result, collection).hasErrors()) {
+                return response.invalidObject(result);
+            }
+
             currentPrimary.setBudget(primary.getBudget());
-            currentPrimary.setCollection(primary.getCollection());
+            currentPrimary.setCollection(collection);
             currentPrimary.setName(primary.getName());
             currentPrimary.setUpdated(localDateTime.getLocalDateTime());
 
-            data.put("updatedPrimary", primaryService.savePrimary(currentPrimary));
-            data.put("updatedEntities", updatePrimary.updatePrimaryInEntities(currentPrimary));
-            updatedResponse.put("data", data);
-            updatedResponse.put("message", "object updated");
+            return primaryResponse.updated(primaryService.savePrimary(currentPrimary),
+                    primaryBelongs.updatePrimaryInEntities(currentPrimary));
 
-            return new ResponseEntity<Map<String, Object>>(updatedResponse, HttpStatus.OK);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -185,27 +178,15 @@ public class PrimaryRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePrimaryById(@PathVariable String id) {
         try {
-            Map<String, Object> responseCouldNotDelete = new HashMap<>();
-            Map<String, Object> data = new HashMap<>();
-
-            List<Element> elements = elementService.getAllElementsByPrimariesPrimaryId(id);
-
-            if (elements.isEmpty()) {
-                Primary primary = primaryService.getPrimaryById(id);
-                if (primary == null) {
-                    return response.notFound(id);
-                }
-                primaryService.deletePrimaryById(id);
-                return response.deleted();
+            Primary primary = primaryService.getPrimaryById(id);
+            if (primary == null) {
+                return response.notFound(id, ENTITY);
             }
+            Map<String, Object> deletePrimaryInEntities = primaryBelongs
+                    .deletePrimaryInEntities(primary);
+            primaryService.deletePrimaryById(id);
 
-            data.put("isInElements", elements.size());
-
-            responseCouldNotDelete.put("data", data);
-            responseCouldNotDelete.put("message",
-                    "no se puede eliminar el primario porque está presente en otra entidad");
-
-            return new ResponseEntity<Map<String, Object>>(responseCouldNotDelete, HttpStatus.PRECONDITION_REQUIRED);
+            return primaryResponse.deleted(deletePrimaryInEntities);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

@@ -1,5 +1,6 @@
 package com.seraleman.regala_product_be.components.element;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.seraleman.regala_product_be.components.primary.Primary;
@@ -10,7 +11,16 @@ public class ElementComposition {
     private Primary primary;
 
     @NotNull
+    @Min(1)
     private Float quantity;
+
+    public ElementComposition() {
+    }
+
+    public ElementComposition(@NotNull Primary primary, @NotNull Float quantity) {
+        this.primary = primary;
+        this.quantity = quantity;
+    }
 
     public Primary getPrimary() {
         return primary;
