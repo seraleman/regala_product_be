@@ -9,16 +9,21 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.category.Category;
+import com.seraleman.regala_product_be.components.category.helpers.service.ICategoryService;
+import com.seraleman.regala_product_be.components.collection.Collection;
+import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
+import com.seraleman.regala_product_be.components.primary.Primary;
+import com.seraleman.regala_product_be.components.primary.helpers.service.IPrimaryService;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 import com.seraleman.regala_product_be.helpers.response.IResponse;
+import com.seraleman.regala_product_be.helpers.validate.IValidate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +37,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/element")
 public class ElementRestController {
 
+    private static final String ENTITY = "Element";
+
     @Autowired
     private IElementService elementService;
 
@@ -41,14 +48,26 @@ public class ElementRestController {
     @Autowired
     private ILocalDateTime localDateTime;
 
+    @Autowired
+    private IValidate validate;
+
+    @Autowired
+    private ICollectionService collectionService;
+
+    @Autowired
+    private IPrimaryService primaryService;
+
+    @Autowired
+    private ICategoryService categoryService;
+
     @GetMapping("/")
     public ResponseEntity<?> getAllElements() {
         try {
             List<Element> elements = elementService.getAllElements();
             if (elements.isEmpty()) {
-                return response.empty("Element");
+                return response.empty(ENTITY);
             }
-            return response.list(elements, "Element");
+            return response.list(elements, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -59,9 +78,9 @@ public class ElementRestController {
         try {
             List<Element> elements = elementService.getAllElementsByCollectionId(collectionId);
             if (elements.isEmpty()) {
-                return response.empty("Element");
+                return response.empty(ENTITY);
             }
-            return response.list(elements, "Element");
+            return response.list(elements, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -72,9 +91,9 @@ public class ElementRestController {
         try {
             List<Element> elements = elementService.getAllElementsByPrimariesPrimaryId(primaryId);
             if (elements.isEmpty()) {
-                return response.empty("Element");
+                return response.empty(ENTITY);
             }
-            return response.list(elements, "Element");
+            return response.list(elements, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -85,9 +104,9 @@ public class ElementRestController {
         try {
             List<Element> elements = elementService.getAllElementsByCategoryIsNull();
             if (elements.isEmpty()) {
-                return response.empty("Element");
+                return response.empty(ENTITY);
             }
-            return response.list(elements, "Element");
+            return response.list(elements, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -98,9 +117,9 @@ public class ElementRestController {
         try {
             List<Element> elements = elementService.getAllElementsByCategoryId(categoryId);
             if (elements.isEmpty()) {
-                return response.empty("Element");
+                return response.empty(ENTITY);
             }
-            return response.list(elements, "Element");
+            return response.list(elements, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -111,7 +130,7 @@ public class ElementRestController {
         try {
             Element element = elementService.getElementById(id);
             if (element == null) {
-                return response.notFound(id, "Element");
+                return response.notFound(id, ENTITY);
             }
             return response.found(element);
         } catch (DataAccessException e) {
@@ -121,17 +140,44 @@ public class ElementRestController {
 
     @PostMapping("/")
     public ResponseEntity<?> createElement(@Valid @RequestBody Element element, BindingResult result) {
-        if (element.getCategories() == null) {
-            FieldError categoriesNullError = new FieldError("element", "categories",
-                    "debe de existir, puede ser un array vacío");
-            result.addError(categoriesNullError);
-        }
-        if (result.hasErrors()) {
-            return response.invalidObject(result);
-        }
 
         try {
+            Collection collection = collectionService.getCollectionById(element.getCollection().getId());
+            if (validate.validateCollection(result, collection, element.getCollection().getId()).hasErrors()) {
+                return response.invalidObject(result);
+            }
+
+            List<Category> categories = new ArrayList<>();
+            for (Category ctgry : element.getCategories()) {
+                Category category = categoryService.getCategoryById(ctgry.getId());
+                if (validate.validateCategory(result, category, ctgry.getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                categories.add(category);
+            }
+
+            List<ElementComposition> primaries = new ArrayList<>();
+            if (validate.validatePrimariesInNotEmpty(result, element.getPrimaries()).hasErrors()) {
+                return response.invalidObject(result);
+            }
+            for (ElementComposition component : element.getPrimaries()) {
+                Primary primary = primaryService.getPrimaryById(component.getPrimary().getId());
+                if (validate.validatePrimary(result, primary, component.getPrimary().getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                if (validate.validateQuantityComposition(result, "Primary", component.getQuantity(),
+                        component.getPrimary().getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                component.setPrimary(primary);
+                primaries.add(component);
+            }
+
             LocalDateTime ldt = localDateTime.getLocalDateTime();
+
+            element.setCollection(collection);
+            element.setCategories(categories);
+            element.setPrimaries(primaries);
             element.setCreated(ldt);
             element.setUpdated(ldt);
             return response.created(elementService.saveElement(element));
@@ -149,7 +195,7 @@ public class ElementRestController {
         try {
             Element currentElement = elementService.getElementById(id);
             if (currentElement == null) {
-                return response.notFound(id, "Element");
+                return response.notFound(id, ENTITY);
             }
             currentElement.setCategories(element.getCategories());
             currentElement.setCollection(element.getCollection());
@@ -197,10 +243,10 @@ public class ElementRestController {
         try {
             Element element = elementService.getElementById(id);
             if (element == null) {
-                return response.notFound(id, "Element");
+                return response.notFound(id, ENTITY);
             }
             elementService.deleteElementById(id);
-            return response.deleted("Element");
+            return response.deleted(ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -209,6 +255,6 @@ public class ElementRestController {
     @DeleteMapping("/deleteElements")
     public ResponseEntity<?> deleteElementById() {
         elementService.deleteAllElements();
-        return response.deletedAll("Element");
+        return response.deletedAll(ENTITY);
     }
 }

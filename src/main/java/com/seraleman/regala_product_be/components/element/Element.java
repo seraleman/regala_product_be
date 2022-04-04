@@ -19,19 +19,19 @@ public class Element {
     private String id;
 
     @NotNull
-    private Collection collection;
+    private String name;
 
     @NotNull
     private String description;
 
     @NotNull
-    private String name;
-
-    @NotNull
-    private List<ElementComposition> primaries;
+    private Collection collection;
 
     @NotNull
     private List<Category> categories;
+
+    @NotNull
+    private List<ElementComposition> primaries;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
@@ -71,12 +71,12 @@ public class Element {
         this.id = id;
     }
 
-    public Collection getCollection() {
-        return collection;
+    public String getName() {
+        return name;
     }
 
-    public void setCollection(Collection collection) {
-        this.collection = collection;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -87,20 +87,12 @@ public class Element {
         this.description = description;
     }
 
-    public String getName() {
-        return name;
+    public Collection getCollection() {
+        return collection;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<ElementComposition> getPrimaries() {
-        return primaries;
-    }
-
-    public void setPrimaries(List<ElementComposition> primaries) {
-        this.primaries = primaries;
+    public void setCollection(Collection collection) {
+        this.collection = collection;
     }
 
     public List<Category> getCategories() {
@@ -109,6 +101,14 @@ public class Element {
 
     public void setCategories(List<Category> categories) {
         this.categories = categories;
+    }
+
+    public List<ElementComposition> getPrimaries() {
+        return primaries;
+    }
+
+    public void setPrimaries(List<ElementComposition> primaries) {
+        this.primaries = primaries;
     }
 
     public LocalDateTime getCreated() {
@@ -127,6 +127,14 @@ public class Element {
         this.updated = updated;
     }
 
+    public Integer getCategoriesQuantity() {
+        return categories.size();
+    }
+
+    public Integer getPrimariesQuantity() {
+        return primaries.size();
+    }
+
     public Float getCost() {
         Float cost = 0f;
         for (ElementComposition primary : primaries) {
@@ -134,9 +142,4 @@ public class Element {
         }
         return cost;
     }
-
-    public Integer getCategoriesQuantity() {
-        return categories.size();
-    }
-
 }

@@ -16,19 +16,19 @@ public class Primary {
     private String id;
 
     @NotNull
-    private Float budget;
+    private String name;
 
     @NotNull
     private Collection collection;
-
-    @NotNull
-    private String name;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updated;
+
+    @NotNull
+    private Float budget;
 
     public String getId() {
         return id;
@@ -38,12 +38,12 @@ public class Primary {
         this.id = id;
     }
 
-    public Float getBudget() {
-        return budget;
+    public String getName() {
+        return name;
     }
 
-    public void setBudget(Float budget) {
-        this.budget = budget;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Collection getCollection() {
@@ -52,14 +52,6 @@ public class Primary {
 
     public void setCollection(Collection collection) {
         this.collection = collection;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public LocalDateTime getCreated() {
@@ -76,6 +68,14 @@ public class Primary {
 
     public void setUpdated(LocalDateTime updated) {
         this.updated = updated;
+    }
+
+    public Float getBudget() {
+        return budget;
+    }
+
+    public void setBudget(Float budget) {
+        this.budget = budget;
     }
 
 }

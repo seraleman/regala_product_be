@@ -98,7 +98,7 @@ public class PrimaryRestController {
         try {
             Collection collection = primaryBelongs
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.validateCollection(result, collection).hasErrors()) {
+            if (validate.validateCollection(result, collection, primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
             LocalDateTime ldt = localDateTime.getLocalDateTime();
@@ -119,7 +119,7 @@ public class PrimaryRestController {
         try {
             Collection collection = primaryBelongs
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.validateCollection(result, collection).hasErrors()) {
+            if (validate.validateCollection(result, collection, primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
             LocalDateTime ldt = localDateTime.getLocalDateTime();
@@ -150,7 +150,7 @@ public class PrimaryRestController {
 
             Collection collection = primaryBelongs
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.validateCollection(result, collection).hasErrors()) {
+            if (validate.validateCollection(result, collection, primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
 
