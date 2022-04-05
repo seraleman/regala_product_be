@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.collection.Collection;
+import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
+import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.helpers.belongs.IPrimaryBelongs;
 import com.seraleman.regala_product_be.components.primary.helpers.response.IPrimaryResponse;
 import com.seraleman.regala_product_be.components.primary.helpers.service.IPrimaryService;
@@ -50,6 +52,12 @@ public class PrimaryRestController {
 
     @Autowired
     private IValidate validate;
+
+    @Autowired
+    private ICollectionService collectionService;
+
+    @Autowired
+    private IElementService elementService;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllPrimaries() {
@@ -96,9 +104,10 @@ public class PrimaryRestController {
             BindingResult result) {
 
         try {
-            Collection collection = primaryBelongs
+            Collection collection = collectionService
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.validateCollection(result, collection, primary.getCollection().getId()).hasErrors()) {
+            if (validate.validateCollection(result, collection,
+                    primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
             LocalDateTime ldt = localDateTime.getLocalDateTime();
@@ -117,9 +126,10 @@ public class PrimaryRestController {
             BindingResult result) {
 
         try {
-            Collection collection = primaryBelongs
+            Collection collection = collectionService
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.validateCollection(result, collection, primary.getCollection().getId()).hasErrors()) {
+            if (validate.validateCollection(result, collection,
+                    primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
             LocalDateTime ldt = localDateTime.getLocalDateTime();
@@ -130,7 +140,7 @@ public class PrimaryRestController {
 
             return primaryResponse.created(
                     createdPrimary,
-                    primaryBelongs.createElementFromPrimary(createdPrimary));
+                    elementService.createElementFromPrimary(createdPrimary));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -148,9 +158,10 @@ public class PrimaryRestController {
                 return response.notFound(id, ENTITY);
             }
 
-            Collection collection = primaryBelongs
+            Collection collection = collectionService
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.validateCollection(result, collection, primary.getCollection().getId()).hasErrors()) {
+            if (validate.validateCollection(result, collection,
+                    primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
 
@@ -159,7 +170,8 @@ public class PrimaryRestController {
             currentPrimary.setName(primary.getName());
             currentPrimary.setUpdated(localDateTime.getLocalDateTime());
 
-            return primaryResponse.updated(primaryService.savePrimary(currentPrimary),
+            return primaryResponse.updated(
+                    primaryService.savePrimary(currentPrimary),
                     primaryBelongs.updatePrimaryInEntities(currentPrimary));
 
         } catch (DataAccessException e) {
@@ -176,9 +188,12 @@ public class PrimaryRestController {
             }
             Map<String, Object> deletePrimaryInEntities = primaryBelongs
                     .deletePrimaryInEntities(primary);
+
+            Integer deletedElements = elementService.deleteElementsWithoutPrimaries();
+
             primaryService.deletePrimaryById(id);
 
-            return primaryResponse.deleted(deletePrimaryInEntities);
+            return primaryResponse.deleted(deletePrimaryInEntities, deletedElements);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

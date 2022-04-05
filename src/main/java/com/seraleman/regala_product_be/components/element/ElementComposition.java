@@ -43,4 +43,9 @@ public class ElementComposition {
         return cost;
     }
 
+    @Override
+    public String toString() {
+        return "ElementComposition [primary=" + primary + ", quantity=" + quantity + "]";
+    }
+
 }

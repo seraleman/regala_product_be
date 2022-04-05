@@ -78,4 +78,10 @@ public class Primary {
         this.budget = budget;
     }
 
+    @Override
+    public String toString() {
+        return "Primary [budget=" + budget + ", collection=" + collection + ", created=" + created + ", id=" + id
+                + ", name=" + name + ", updated=" + updated + "]";
+    }
+
 }

@@ -142,8 +142,10 @@ public class ElementRestController {
     public ResponseEntity<?> createElement(@Valid @RequestBody Element element, BindingResult result) {
 
         try {
-            Collection collection = collectionService.getCollectionById(element.getCollection().getId());
-            if (validate.validateCollection(result, collection, element.getCollection().getId()).hasErrors()) {
+            Collection collection = collectionService.getCollectionById(
+                    element.getCollection().getId());
+            if (validate.validateCollection(result, collection,
+                    element.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
 
@@ -162,7 +164,8 @@ public class ElementRestController {
             }
             for (ElementComposition component : element.getPrimaries()) {
                 Primary primary = primaryService.getPrimaryById(component.getPrimary().getId());
-                if (validate.validatePrimary(result, primary, component.getPrimary().getId()).hasErrors()) {
+                if (validate.validatePrimary(result, primary,
+                        component.getPrimary().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
                 if (validate.validateQuantityComposition(result, "Primary", component.getQuantity(),
@@ -187,7 +190,9 @@ public class ElementRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateElementById(@PathVariable String id, @Valid @RequestBody Element element,
+    public ResponseEntity<?> updateElementById(
+            @PathVariable String id,
+            @Valid @RequestBody Element element,
             BindingResult result) {
         if (result.hasErrors()) {
             return response.invalidObject(result);

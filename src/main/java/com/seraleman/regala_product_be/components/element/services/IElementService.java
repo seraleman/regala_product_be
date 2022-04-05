@@ -3,27 +3,32 @@ package com.seraleman.regala_product_be.components.element.services;
 import java.util.List;
 
 import com.seraleman.regala_product_be.components.element.Element;
+import com.seraleman.regala_product_be.components.primary.Primary;
 
 public interface IElementService {
 
-    public List<Element> getAllElements();
+    List<Element> getAllElements();
 
-    public List<Element> getAllElementsByCollectionId(String collectionId);
+    List<Element> getAllElementsByCollectionId(String collectionId);
 
-    public List<Element> getAllElementsByPrimariesPrimaryId(String primaryId);
+    List<Element> getAllElementsByPrimariesPrimaryId(String primaryId);
 
-    public List<Element> getAllElementsByCategoryIsNull();
+    List<Element> getAllElementsByCategoryIsNull();
 
-    public List<Element> getAllElementsByCategoryId(String categoryId);
+    List<Element> getAllElementsByCategoryId(String categoryId);
 
-    public Element getElementById(String id);
+    Element getElementById(String id);
 
-    public Element saveElement(Element element);
+    Element saveElement(Element element);
 
-    public void deleteElementById(String id);
+    Element createElementFromPrimary(Primary primary);
 
-    public void deleteAllElements(); // borrar
+    List<Element> cleanElementsFromNullPrimaries();
 
-    public List<Element> clearPrimariesNull();
+    void deleteElementById(String id);
+
+    Integer deleteElementsWithoutPrimaries();
+
+    void deleteAllElements(); // borrar
 
 }

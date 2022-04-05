@@ -44,10 +44,13 @@ public class PrimaryResponseImpl implements IPrimaryResponse {
     }
 
     @Override
-    public ResponseEntity<?> deleted(Map<String, Object> deletePrimaryInEntities) {
+    public ResponseEntity<?> deleted(Map<String, Object> deletePrimaryInEntities,
+            Integer deletedElements) {
+
         response = new HashMap<>();
         data = new HashMap<>();
         data.put("updatedEntities", deletePrimaryInEntities);
+        data.put("deletedElements", deletedElements);
         response.put("data", data);
         response.put("message", "objeto eliminado");
 

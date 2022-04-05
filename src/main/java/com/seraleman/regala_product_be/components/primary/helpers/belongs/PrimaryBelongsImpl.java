@@ -5,11 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.seraleman.regala_product_be.components.category.Category;
-import com.seraleman.regala_product_be.components.collection.Collection;
-import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
 import com.seraleman.regala_product_be.components.element.Element;
-import com.seraleman.regala_product_be.components.element.ElementComposition;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.gift.Gift;
 import com.seraleman.regala_product_be.components.primary.Primary;
@@ -34,9 +30,6 @@ public class PrimaryBelongsImpl implements IPrimaryBelongs, IPrimaryRefreshInEnt
 
     @Autowired
     private ILocalDateTime localDateTime;
-
-    @Autowired
-    private ICollectionService collectionService;
 
     @Autowired
     private IElementService elementService;
@@ -131,41 +124,23 @@ public class PrimaryBelongsImpl implements IPrimaryBelongs, IPrimaryRefreshInEnt
                 .execute()
                 .getModifiedCount();
 
-        List<Element> updatedElement = elementService.clearPrimariesNull();
+        List<Element> updatedElementWithoutNull = elementService.cleanElementsFromNullPrimaries();
 
-        if (updatedElementsQuantity == updatedElement.size()) {
+        List<Element> updatedElement = new ArrayList<>();
+
+        for (Element element : updatedElementWithoutNull) {
+            if (!element.getPrimaries().isEmpty()) {
+                updatedElement.add(element);
+            }
+        }
+
+        if (updatedElementsQuantity == updatedElementWithoutNull.size()) {
             return updatedElement;
         } else {
             throw new updatedQuantityDoesNotMatchQuery("La cantidad de objetos actualizados no coincide con "
                     .concat("la cantidad de objetos contenedores actualizados ")
                     .concat("- revisar integridad de base de datos -"));
         }
-    }
-
-    @Override
-    public Collection getCollectionById(String id) {
-        return collectionService.getCollectionById(id);
-    }
-
-    @Override
-    public Element createElementFromPrimary(Primary primary) {
-
-        ElementComposition component = new ElementComposition(primary, 1f);
-        List<ElementComposition> primaries = new ArrayList<>();
-        primaries.add(component);
-
-        List<Category> categories = new ArrayList<>();
-
-        Element newElement = new Element(
-                primary.getCollection(),
-                primary.getName(),
-                primary.getName(),
-                primaries,
-                categories,
-                primary.getCreated(),
-                primary.getUpdated());
-
-        return elementService.saveElement(newElement);
     }
 
     @Override

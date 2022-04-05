@@ -142,4 +142,12 @@ public class Element {
         }
         return cost;
     }
+
+    @Override
+    public String toString() {
+        return "Element [categories=" + categories + ", collection=" + collection + ", created=" + created
+                + ", description=" + description + ", id=" + id + ", name=" + name + ", primaries=" + primaries
+                + ", updated=" + updated + "]";
+    }
+
 }
