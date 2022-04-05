@@ -1,12 +1,16 @@
 package com.seraleman.regala_product_be.components.collection.helpers.belongs;
 
+import java.util.List;
+
 import com.seraleman.regala_product_be.components.collection.Collection;
+import com.seraleman.regala_product_be.components.element.Element;
+import com.seraleman.regala_product_be.components.primary.Primary;
 
 public interface ICollectionRefreshInEntities {
 
-    public Integer updateCollectionInPrimaries(Collection collection);
+    List<Primary> updateCollectionInPrimaries(Collection collection);
 
-    public Integer updateCollectionInElements(Collection collection);
+    List<Element> updateCollectionInElements(Collection collection);
 
-    public Integer updateCollectionOfPrimaryInElements(Collection collection);
+    List<Element> updateCollectionOfPrimaryInElements(Collection collection);
 }

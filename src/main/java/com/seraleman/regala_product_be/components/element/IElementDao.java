@@ -10,6 +10,8 @@ public interface IElementDao extends MongoRepository<Element, String> {
 
     List<Element> findAllByPrimariesPrimaryId(String primaryId);
 
+    List<Element> findAllElementsByPrimariesPrimaryCollectionId(String CollectionId);
+
     List<Element> findAllByCategoriesId(String categoryId);
 
     List<Element> findAllByCategoriesIsNull();

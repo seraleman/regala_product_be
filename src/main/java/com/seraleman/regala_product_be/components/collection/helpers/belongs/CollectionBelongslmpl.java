@@ -9,6 +9,7 @@ import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.Primary;
 import com.seraleman.regala_product_be.components.primary.helpers.service.IPrimaryService;
+import com.seraleman.regala_product_be.helpers.Exceptions.updatedQuantityDoesNotMatchQuery;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +34,23 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
         private IPrimaryService primaryService;
 
         @Autowired
-        IElementService elementService;
+        private IElementService elementService;
 
         @Override
         public Map<String, Object> updateCollectionInEntities(Collection collection) {
 
                 Map<String, Object> response = new HashMap<>();
                 try {
-                        response.put("primaries:", updateCollectionInPrimaries(collection));
-                        response.put("elements:", updateCollectionInElements(collection));
-                        response.put("compositionElements:", updateCollectionOfPrimaryInElements(collection));
+
+                        List<Primary> primaries = updateCollectionInPrimaries(collection);
+                        List<Element> elements = updateCollectionInElements(collection);
+                        List<Element> compositionElements = updateCollectionOfPrimaryInElements(collection);
+                        response.put("primaries:", primaries);
+                        response.put("quantityPrimaries:", primaries.size());
+                        response.put("elements:", elements);
+                        response.put("quantityElements:", elements.size());
+                        response.put("compositionElements:", compositionElements);
+                        response.put("quantityCompositionElements:", compositionElements.size());
                         return response;
                 } catch (DataAccessException e) {
                         response.put("message", "Error en la base de datos");
@@ -53,7 +61,7 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
         }
 
         @Override
-        public Integer updateCollectionInPrimaries(Collection collection) {
+        public List<Primary> updateCollectionInPrimaries(Collection collection) {
 
                 Query query = new Query()
                                 .addCriteria(Criteria
@@ -63,15 +71,27 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
                                 .set("collection", collection)
                                 .set("updated", localDateTime.getLocalDateTime());
 
-                return mongoTemplate
+                Integer updatedPrimariesQuantity = mongoTemplate
                                 .bulkOps(BulkMode.ORDERED, Primary.class)
                                 .updateMulti(query, update)
                                 .execute()
                                 .getModifiedCount();
+
+                List<Primary> updatedPrimaries = primaryService
+                                .getAllPrimariesByCollectionId(collection.getId());
+
+                if (updatedPrimariesQuantity == updatedPrimaries.size()) {
+                        return updatedPrimaries;
+                } else {
+                        throw new updatedQuantityDoesNotMatchQuery(
+                                        "La cantidad de objetos actualizados no coincide con "
+                                                        .concat("la cantidad de objetos contenedores actualizados ")
+                                                        .concat("- revisar integridad de base de datos -"));
+                }
         }
 
         @Override
-        public Integer updateCollectionInElements(Collection collection) {
+        public List<Element> updateCollectionInElements(Collection collection) {
 
                 Query query = new Query()
                                 .addCriteria(Criteria
@@ -80,15 +100,28 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
                 Update update = new Update()
                                 .set("collection", collection)
                                 .set("updated", localDateTime.getLocalDateTime());
-                return mongoTemplate
+
+                Integer updatedPrimariesQuantity = mongoTemplate
                                 .bulkOps(BulkMode.ORDERED, Element.class)
                                 .updateMulti(query, update)
                                 .execute()
                                 .getModifiedCount();
+
+                List<Element> updatedElements = elementService
+                                .getAllElementsByCollectionId(collection.getId());
+
+                if (updatedPrimariesQuantity == updatedElements.size()) {
+                        return updatedElements;
+                } else {
+                        throw new updatedQuantityDoesNotMatchQuery(
+                                        "La cantidad de objetos actualizados no coincide con "
+                                                        .concat("la cantidad de objetos contenedores actualizados ")
+                                                        .concat("- revisar integridad de base de datos -"));
+                }
         }
 
         @Override
-        public Integer updateCollectionOfPrimaryInElements(Collection collection) {
+        public List<Element> updateCollectionOfPrimaryInElements(Collection collection) {
 
                 Query query = new Query()
                                 .addCriteria(Criteria
@@ -99,21 +132,23 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
                 Update update = new Update()
                                 .set("primaries.$.primary.collection", collection)
                                 .set("updated", localDateTime.getLocalDateTime());
-                return mongoTemplate
+                Integer UpdatedPrimariesInElements = mongoTemplate
                                 .bulkOps(BulkMode.ORDERED, Element.class)
                                 .updateMulti(query, update)
                                 .execute()
                                 .getModifiedCount();
-        }
 
-        @Override
-        public List<Primary> getPrimariesThatBelongsCollectionById(String id) {
-                return primaryService.getAllPrimariesByCollectionId(id);
-        }
+                List<Element> updatedElements = elementService
+                                .getAllElementsByPrimariesPrimaryCollectionId(collection.getId());
 
-        @Override
-        public List<Element> getElementsThatBelongsCollectionById(String id) {
-                return elementService.getAllElementsByCollectionId(id);
+                if (UpdatedPrimariesInElements == updatedElements.size()) {
+                        return updatedElements;
+                } else {
+                        throw new updatedQuantityDoesNotMatchQuery(
+                                        "La cantidad de objetos actualizados no coincide con "
+                                                        .concat("la cantidad de objetos contenedores actualizados ")
+                                                        .concat("- revisar integridad de base de datos -"));
+                }
         }
 
 }

@@ -74,17 +74,20 @@ public class CollectionResponseImpl implements ICollectionResponse {
 
         if (deletedCollections == 0) {
             response.put("message",
-                    "no se eliminaron objetos 'Collection' porque todos están presentes en otras entidades");
+                    "no se eliminaron objetos 'Collection' porque todos están presentes"
+                            .concat(" en otras entidades ('Primary' o 'Element')"));
         } else if (deletedCollections == 1) {
             if (undeletedCollections == 0) {
                 response.put("message", "se eliminó un objeto 'Collection'");
             } else if (undeletedCollections == 1) {
                 response.put("message",
-                        "se eliminó un objeto 'Collection', el objeto 'Collection' no eliminado pertenece a otras entidades ('Primary' o 'Element')");
+                        "se eliminó un objeto 'Collection', el objeto 'Collection' no eliminado"
+                                .concat(" pertenece a otras entidades ('Primary' o 'Element')"));
             } else {
                 response.put("message", "se eliminó un objeto 'Collection', los "
                         .concat(String.valueOf(undeletedCollections))
-                        .concat(" objetos 'Collection' no eliminados pertenecen a otras entidades ('Primary' o 'Element')"));
+                        .concat(" objetos 'Collection' no eliminados pertenecen a otras entidades")
+                        .concat(" 'Primary' o 'Element')"));
             }
         } else {
             if (undeletedCollections == 0) {
@@ -92,13 +95,15 @@ public class CollectionResponseImpl implements ICollectionResponse {
             } else if (undeletedCollections == 1) {
                 response.put("message", "se eliminaron "
                         .concat(String.valueOf(deletedCollections))
-                        .concat(" objetos 'Collection', el objeto 'Collection' no eliminado pertenece a otras entidades ('Primary' o 'Element')"));
+                        .concat(" objetos 'Collection', el objeto 'Collection' no eliminado")
+                        .concat(" pertenece a otras entidades ('Primary' o 'Element')"));
             } else {
                 response.put("message", "se eliminaron "
                         .concat(String.valueOf(deletedCollections))
                         .concat(" objetos 'Collection'. Los ")
                         .concat(String.valueOf(undeletedCollections))
-                        .concat(" objetos 'Collection' no eliminados pertenecen a otros objetos ('Primary' o 'Element')"));
+                        .concat(" objetos 'Collection' no eliminados pertenecen a otros objetos")
+                        .concat(" ('Primary' o 'Element')"));
             }
         }
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);

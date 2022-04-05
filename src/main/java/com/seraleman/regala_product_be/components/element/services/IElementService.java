@@ -13,6 +13,8 @@ public interface IElementService {
 
     List<Element> getAllElementsByPrimariesPrimaryId(String primaryId);
 
+    List<Element> getAllElementsByPrimariesPrimaryCollectionId(String CollectionId);
+
     List<Element> getAllElementsByCategoryIsNull();
 
     List<Element> getAllElementsByCategoryId(String categoryId);

@@ -10,7 +10,9 @@ import com.seraleman.regala_product_be.components.collection.helpers.belongs.ICo
 import com.seraleman.regala_product_be.components.collection.helpers.response.ICollectionResponse;
 import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
 import com.seraleman.regala_product_be.components.element.Element;
+import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.Primary;
+import com.seraleman.regala_product_be.components.primary.helpers.service.IPrimaryService;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 import com.seraleman.regala_product_be.helpers.response.IResponse;
 
@@ -45,6 +47,12 @@ public class CollectionRestController {
 
     @Autowired
     private IResponse response;
+
+    @Autowired
+    private IPrimaryService primaryService;
+
+    @Autowired
+    private IElementService elementService;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllCollections() {
@@ -124,8 +132,8 @@ public class CollectionRestController {
                 return response.notFound(id, "Collection");
             }
 
-            List<Primary> primaries = collectionBelongs.getPrimariesThatBelongsCollectionById(id);
-            List<Element> elements = collectionBelongs.getElementsThatBelongsCollectionById(id);
+            List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(id);
+            List<Element> elements = elementService.getAllElementsByCollectionId(id);
             if (!primaries.isEmpty() || !elements.isEmpty()) {
                 return collectionResponse.notDeleted(primaries, elements);
             }
@@ -145,10 +153,8 @@ public class CollectionRestController {
             List<Primary> primaries = new ArrayList<>();
             List<Element> elements = new ArrayList<>();
             for (Collection collection : collections) {
-                primaries = collectionBelongs
-                        .getPrimariesThatBelongsCollectionById(collection.getId());
-                elements = collectionBelongs
-                        .getElementsThatBelongsCollectionById(collection.getId());
+                primaries = primaryService.getAllPrimariesByCollectionId(collection.getId());
+                elements = elementService.getAllElementsByCollectionId(collection.getId());
 
                 if (elements.isEmpty() && primaries.isEmpty()) {
                     collectionService.deleteCollectionById(collection.getId());

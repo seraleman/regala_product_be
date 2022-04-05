@@ -41,6 +41,11 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
+    public List<Element> getAllElementsByPrimariesPrimaryCollectionId(String CollectionId) {
+        return elementDao.findAllElementsByPrimariesPrimaryCollectionId(CollectionId);
+    }
+
+    @Override
     public List<Element> getAllElementsByCategoryIsNull() {
         return elementDao.findAllByCategoriesIsNull();
     }
