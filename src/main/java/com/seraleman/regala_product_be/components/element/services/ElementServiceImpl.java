@@ -87,7 +87,7 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
-    public List<Element> cleanElementsFromNullPrimaries() {
+    public List<Element> cleanElementsOfNullPrimaries() {
 
         List<Element> elements = elementDao.findAllByPrimariesIsNull();
         List<Element> updatedElements = new ArrayList<>();
@@ -100,6 +100,25 @@ public class ElementServiceImpl implements IElementService {
                 }
             }
             element.setPrimaries(newPrimaries);
+            updatedElements.add(elementDao.save(element));
+        }
+        return updatedElements;
+    }
+
+    @Override
+    public List<Element> cleanElementsOfNullCategories() {
+
+        List<Element> elements = elementDao.findAllByCategoriesIsNull();
+        List<Element> updatedElements = new ArrayList<>();
+
+        for (Element element : elements) {
+            List<Category> newCategories = new ArrayList<>();
+            for (Category category : element.getCategories()) {
+                if (category != null) {
+                    newCategories.add(category);
+                }
+            }
+            element.setCategories(newCategories);
             updatedElements.add(elementDao.save(element));
         }
         return updatedElements;

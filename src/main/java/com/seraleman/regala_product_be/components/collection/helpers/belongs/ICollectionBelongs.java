@@ -6,6 +6,8 @@ import com.seraleman.regala_product_be.components.collection.Collection;
 
 public interface ICollectionBelongs {
 
-    public Map<String, Object> updateCollectionInEntities(Collection collection);
+    Map<String, Object> updateCollectionInEntities(Collection collection);
+
+    Integer deleteUnusedCollections();
 
 }

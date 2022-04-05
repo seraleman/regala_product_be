@@ -8,10 +8,10 @@ import com.seraleman.regala_product_be.components.primary.Primary;
 
 public interface IPrimaryRefreshInEntities {
 
-    public List<Element> updatePrimaryInElements(Primary primary);
+    List<Element> updatePrimaryInElements(Primary primary);
 
-    public List<Gift> updatePrimaryInGifts(Primary primary);
+    List<Gift> updatePrimaryInGifts(Primary primary);
 
-    public List<Element> deletePrimaryInElements(Primary primary);
+    List<Element> deletePrimaryInElements(Primary primary);
 
 }

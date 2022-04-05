@@ -1,10 +1,11 @@
 package com.seraleman.regala_product_be.components.collection.helpers.belongs;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.seraleman.regala_product_be.components.collection.Collection;
+import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
 import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.Primary;
@@ -13,7 +14,6 @@ import com.seraleman.regala_product_be.helpers.Exceptions.updatedQuantityDoesNot
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -36,28 +36,25 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
         @Autowired
         private IElementService elementService;
 
+        @Autowired
+        private ICollectionService collectionService;
+
         @Override
         public Map<String, Object> updateCollectionInEntities(Collection collection) {
 
-                Map<String, Object> response = new HashMap<>();
-                try {
+                Map<String, Object> response = new LinkedHashMap<>();
 
-                        List<Primary> primaries = updateCollectionInPrimaries(collection);
-                        List<Element> elements = updateCollectionInElements(collection);
-                        List<Element> compositionElements = updateCollectionOfPrimaryInElements(collection);
-                        response.put("primaries:", primaries);
-                        response.put("quantityPrimaries:", primaries.size());
-                        response.put("elements:", elements);
-                        response.put("quantityElements:", elements.size());
-                        response.put("compositionElements:", compositionElements);
-                        response.put("quantityCompositionElements:", compositionElements.size());
-                        return response;
-                } catch (DataAccessException e) {
-                        response.put("message", "Error en la base de datos");
-                        response.put("error", e.getMessage().concat(": "
-                                        .concat(e.getMostSpecificCause().getMessage())));
-                        return response;
-                }
+                List<Primary> primaries = updateCollectionInPrimaries(collection);
+                List<Element> elements = updateCollectionInElements(collection);
+                List<Element> compositionElements = updateCollectionOfPrimaryInElements(collection);
+                response.put("quantityPrimaries:", primaries.size());
+                response.put("quantityElements:", elements.size());
+                response.put("quantityCompositionElements:", compositionElements.size());
+                response.put("primaries:", primaries);
+                response.put("elements:", elements);
+                response.put("compositionElements:", compositionElements);
+
+                return response;
         }
 
         @Override
@@ -149,6 +146,23 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
                                                         .concat("la cantidad de objetos contenedores actualizados ")
                                                         .concat("- revisar integridad de base de datos -"));
                 }
+        }
+
+        @Override
+        public Integer deleteUnusedCollections() {
+
+                List<Collection> collections = collectionService.getAllCollections();
+
+                Integer deletedCollections = 0;
+                for (Collection collection : collections) {
+                        List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(collection.getId());
+                        List<Element> elements = elementService.getAllElementsByCollectionId(collection.getId());
+                        if (elements.isEmpty() && primaries.isEmpty()) {
+                                collectionService.deleteCollectionById(collection.getId());
+                                deletedCollections++;
+                        }
+                }
+                return deletedCollections;
         }
 
 }

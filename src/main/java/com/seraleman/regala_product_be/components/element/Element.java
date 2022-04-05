@@ -127,6 +127,13 @@ public class Element {
         this.updated = updated;
     }
 
+    @Override
+    public String toString() {
+        return "Element [categories=" + categories + ", collection=" + collection + ", created=" + created
+                + ", description=" + description + ", id=" + id + ", name=" + name + ", primaries=" + primaries
+                + ", updated=" + updated + "]";
+    }
+
     public Integer getCategoriesQuantity() {
         return categories.size();
     }
@@ -141,13 +148,6 @@ public class Element {
             cost += primary.getCost();
         }
         return cost;
-    }
-
-    @Override
-    public String toString() {
-        return "Element [categories=" + categories + ", collection=" + collection + ", created=" + created
-                + ", description=" + description + ", id=" + id + ", name=" + name + ", primaries=" + primaries
-                + ", updated=" + updated + "]";
     }
 
 }

@@ -10,6 +10,6 @@ public interface IPrimaryBelongs {
 
     Map<String, Object> deletePrimaryInEntities(Primary primary);
 
-    Map<String, Object> deleteUnusedPrimaries();
+    Integer deleteUnusedPrimaries();
 
 }

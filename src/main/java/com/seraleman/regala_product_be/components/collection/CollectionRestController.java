@@ -1,7 +1,6 @@
 package com.seraleman.regala_product_be.components.collection;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -33,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/collection")
 public class CollectionRestController {
 
+    private static final String ENTITY = "Collection";
+
     @Autowired
     private ICollectionService collectionService;
 
@@ -59,9 +60,9 @@ public class CollectionRestController {
         try {
             List<Collection> collections = collectionService.getAllCollections();
             if (collections.isEmpty()) {
-                return response.empty("Collection");
+                return response.empty(ENTITY);
             }
-            return response.list(collections, "Collection");
+            return response.list(collections, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -72,7 +73,7 @@ public class CollectionRestController {
         try {
             Collection collection = collectionService.getCollectionById(id);
             if (collection == null) {
-                return response.notFound(id, "Collection");
+                return response.notFound(id, ENTITY);
             }
             return response.found(collection);
         } catch (DataAccessException e) {
@@ -109,7 +110,7 @@ public class CollectionRestController {
         try {
             Collection currentCollection = collectionService.getCollectionById(id);
             if (currentCollection == null) {
-                return response.notFound(id, "Collection");
+                return response.notFound(id, ENTITY);
             }
             currentCollection.setDescription(collection.getDescription());
             currentCollection.setName(collection.getName());
@@ -129,16 +130,15 @@ public class CollectionRestController {
 
         try {
             if (collectionService.getCollectionById(id) == null) {
-                return response.notFound(id, "Collection");
+                return response.notFound(id, ENTITY);
             }
-
             List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(id);
             List<Element> elements = elementService.getAllElementsByCollectionId(id);
             if (!primaries.isEmpty() || !elements.isEmpty()) {
                 return collectionResponse.notDeleted(primaries, elements);
             }
             collectionService.deleteCollectionById(id);
-            return response.deleted("Collection");
+            return response.deleted(ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -147,23 +147,10 @@ public class CollectionRestController {
     @DeleteMapping("/deleteUnusedCollections")
     public ResponseEntity<?> deleteUnusedCollections() {
         try {
-            List<Collection> collections = collectionService.getAllCollections();
-            List<Collection> undeletedCollectionsList = new ArrayList<>();
-
-            List<Primary> primaries = new ArrayList<>();
-            List<Element> elements = new ArrayList<>();
-            for (Collection collection : collections) {
-                primaries = primaryService.getAllPrimariesByCollectionId(collection.getId());
-                elements = elementService.getAllElementsByCollectionId(collection.getId());
-
-                if (elements.isEmpty() && primaries.isEmpty()) {
-                    collectionService.deleteCollectionById(collection.getId());
-
-                } else {
-                    undeletedCollectionsList.add(collection);
-                }
-            }
-            return collectionResponse.deleted(collections, undeletedCollectionsList);
+            return response.deletedUnused(
+                    collectionBelongs.deleteUnusedCollections(),
+                    collectionService.getAllCollections(),
+                    ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

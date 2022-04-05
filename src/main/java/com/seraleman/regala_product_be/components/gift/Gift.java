@@ -78,6 +78,12 @@ public class Gift {
         this.updated = updated;
     }
 
+    @Override
+    public String toString() {
+        return "Gift [created=" + created + ", elements=" + elements + ", id=" + id + ", name=" + name + ", ocassions="
+                + ocassions + ", updated=" + updated + "]";
+    }
+
     public Float getCost() {
         Float cost = 0f;
         for (GitfComposition element : elements) {

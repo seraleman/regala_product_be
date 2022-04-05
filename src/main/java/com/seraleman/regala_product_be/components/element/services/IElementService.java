@@ -25,7 +25,9 @@ public interface IElementService {
 
     Element createElementFromPrimary(Primary primary);
 
-    List<Element> cleanElementsFromNullPrimaries();
+    List<Element> cleanElementsOfNullPrimaries();
+
+    List<Element> cleanElementsOfNullCategories();
 
     void deleteElementById(String id);
 

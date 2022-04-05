@@ -194,13 +194,14 @@ public class ElementRestController {
             @PathVariable String id,
             @Valid @RequestBody Element element,
             BindingResult result) {
-        if (result.hasErrors()) {
-            return response.invalidObject(result);
-        }
+
         try {
             Element currentElement = elementService.getElementById(id);
             if (currentElement == null) {
                 return response.notFound(id, ENTITY);
+            }
+            if (result.hasErrors()) {
+                return response.invalidObject(result);
             }
             currentElement.setCategories(element.getCategories());
             currentElement.setCollection(element.getCollection());

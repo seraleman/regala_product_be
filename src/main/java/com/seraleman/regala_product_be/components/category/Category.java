@@ -67,4 +67,10 @@ public class Category {
         this.updated = updated;
     }
 
+    @Override
+    public String toString() {
+        return "Category [created=" + created + ", description=" + description + ", id=" + id + ", name=" + name
+                + ", updated=" + updated + "]";
+    }
+
 }

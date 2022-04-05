@@ -10,8 +10,10 @@ import com.seraleman.regala_product_be.components.category.Category;
 
 public interface ICategoryBelongs {
 
-    public Map<String, Object> updateCategoryInEntities(Category category);
+    Map<String, Object> updateCategoryInEntities(Category category);
 
-    public Map<String, Object> deleteCategoryInEntities(Category category);
+    Map<String, Object> deleteCategoryInEntities(Category category);
+
+    Integer deletedUnusedCategories();
 
 }

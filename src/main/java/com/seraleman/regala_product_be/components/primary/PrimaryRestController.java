@@ -75,11 +75,16 @@ public class PrimaryRestController {
     @GetMapping("/byCollection/{collectionId}")
     public ResponseEntity<?> getAllPrimariesByCollectionId(@PathVariable String collectionId) {
         try {
+            String searchByEntity = "Collection";
+            Collection collection = collectionService.getCollectionById(collectionId);
+            if (collection == null) {
+                return response.cannotBeSearched(searchByEntity, collectionId);
+            }
             List<Primary> primaries = (List<Primary>) primaryService.getAllPrimariesByCollectionId(collectionId);
             if (primaries.isEmpty()) {
-                return response.empty(ENTITY);
+                return response.isNotPartOf(ENTITY, searchByEntity, collectionId);
             }
-            return response.list(primaries, ENTITY);
+            return response.parameterizedList(primaries, ENTITY, searchByEntity, collectionId);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -202,7 +207,11 @@ public class PrimaryRestController {
     @DeleteMapping("/deleteUnusedPrimaries")
     public ResponseEntity<?> deleteUnusedPrimaries() {
         try {
-            return primaryResponse.deletedUnused(primaryBelongs.deleteUnusedPrimaries());
+            return response.deletedUnused(
+                    primaryBelongs.deleteUnusedPrimaries(),
+                    primaryService.getAllPrimaries(),
+                    ENTITY);
+
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface ICategoryResponse {
 
-    public ResponseEntity<?> updated(Category category, Map<String, Object> updatedCategoryInEntities);
+    ResponseEntity<?> updated(Category category, Map<String, Object> updatedCategoryInEntities);
 
-    public ResponseEntity<?> deleted(Map<String, Object> deleteCategoryInEntities);
+    ResponseEntity<?> deleted(Map<String, Object> deleteCategoryInEntities);
 }

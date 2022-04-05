@@ -11,14 +11,9 @@ import org.springframework.http.ResponseEntity;
 
 public interface ICollectionResponse {
 
-    public ResponseEntity<?> updated(
-            Collection collection,
-            Map<String, Object> updateCollectionInEntities);
+        ResponseEntity<?> updated(Collection collection,
+                        Map<String, Object> updateCollectionInEntities);
 
-    public ResponseEntity<?> notDeleted(List<Primary> primaries, List<Element> elements);
-
-    public ResponseEntity<?> deleted(
-            List<Collection> collections,
-            List<Collection> undeletedCollectionsList);
+        ResponseEntity<?> notDeleted(List<Primary> primaries, List<Element> elements);
 
 }

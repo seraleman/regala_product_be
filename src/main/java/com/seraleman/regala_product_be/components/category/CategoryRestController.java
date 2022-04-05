@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/category")
 public class CategoryRestController {
 
+    private static final String ENTITY = "Category";
+
     @Autowired
     private ICategoryService categoryService;
 
@@ -49,9 +51,9 @@ public class CategoryRestController {
         try {
             List<Category> categories = categoryService.getAllCategories();
             if (categories.isEmpty()) {
-                return response.empty("Category");
+                return response.empty(ENTITY);
             }
-            return response.list(categories, "Category");
+            return response.list(categories, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -62,7 +64,7 @@ public class CategoryRestController {
         try {
             Category category = categoryService.getCategoryById(id);
             if (category == null) {
-                return response.notFound(id, "Category");
+                return response.notFound(id, ENTITY);
             }
             return response.found(category);
         } catch (DataAccessException e) {
@@ -92,13 +94,13 @@ public class CategoryRestController {
             @Valid @RequestBody Category category,
             BindingResult result) {
 
-        if (result.hasErrors()) {
-            return response.invalidObject(result);
-        }
         try {
             Category currentCategory = categoryService.getCategoryById(id);
             if (currentCategory == null) {
-                return response.notFound(id, "Category");
+                return response.notFound(id, ENTITY);
+            }
+            if (result.hasErrors()) {
+                return response.invalidObject(result);
             }
             currentCategory.setDescription(category.getDescription());
             currentCategory.setName(category.getName());
@@ -115,15 +117,28 @@ public class CategoryRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCategoryById(@PathVariable String id) {
         try {
-            Category categoryCurrent = categoryService.getCategoryById(id);
-            if (categoryCurrent == null) {
-                return response.notFound(id, "Category");
+            Category category = categoryService.getCategoryById(id);
+            if (category == null) {
+                return response.notFound(id, ENTITY);
             }
+            Map<String, Object> deletedCategoriesInEntities = categoryBelongs
+                    .deleteCategoryInEntities(category);
 
-            Map<String, Object> deletedCategoriesBelongs = categoryBelongs
-                    .deleteCategoryInEntities(categoryCurrent);
             categoryService.deleteCategoryById(id);
-            return categoryResponse.deleted(deletedCategoriesBelongs);
+
+            return categoryResponse.deleted(deletedCategoriesInEntities);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @DeleteMapping("/deleteUnusedCategories")
+    public ResponseEntity<?> deleteUnusedCategories() {
+        try {
+            return response.deletedUnused(
+                    categoryBelongs.deletedUnusedCategories(),
+                    categoryService.getAllCategories(),
+                    ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -133,7 +148,7 @@ public class CategoryRestController {
     public ResponseEntity<?> deleteAllCategories() {
         try {
             categoryService.deleteAllCategories();
-            return response.deletedAll("Category");
+            return response.deletedAll(ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

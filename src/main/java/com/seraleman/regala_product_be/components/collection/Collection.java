@@ -67,4 +67,10 @@ public class Collection {
         this.updated = updated;
     }
 
+    @Override
+    public String toString() {
+        return "Collection [created=" + created + ", description=" + description + ", id=" + id + ", name=" + name
+                + ", updated=" + updated + "]";
+    }
+
 }

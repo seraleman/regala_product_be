@@ -16,5 +16,4 @@ public interface IPrimaryResponse {
     public ResponseEntity<?> deleted(Map<String, Object> deletePrimaryInEntities,
             Integer deletedElements);
 
-    public ResponseEntity<?> deletedUnused(Map<String, Object> deletedPrimariesUnusedResponse);
 }

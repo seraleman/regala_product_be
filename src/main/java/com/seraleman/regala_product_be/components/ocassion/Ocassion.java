@@ -66,4 +66,10 @@ public class Ocassion {
         this.updated = updated;
     }
 
+    @Override
+    public String toString() {
+        return "Ocassion [created=" + created + ", description=" + description + ", id=" + id + ", name=" + name
+                + ", updated=" + updated + "]";
+    }
+
 }
