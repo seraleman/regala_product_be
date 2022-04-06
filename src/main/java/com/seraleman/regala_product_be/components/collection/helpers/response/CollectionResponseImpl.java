@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.seraleman.regala_product_be.components.collection.Collection;
 import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.primary.Primary;
 
@@ -14,21 +13,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CollectionResponseImpl implements ICollectionResponse {
-
-    @Override
-    public ResponseEntity<?> updated(Collection collection,
-            Map<String, Object> updateCollectionInEntities) {
-
-        Map<String, Object> response = new LinkedHashMap<>();
-        Map<String, Object> data = new LinkedHashMap<>();
-
-        response.put("message", "objeto actualizado");
-        data.put("updatedCollection", collection);
-        data.put("updatedEntities", updateCollectionInEntities);
-        response.put("data", data);
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-    }
 
     @Override
     public ResponseEntity<?> notDeleted(List<Primary> primaries, List<Element> elements) {

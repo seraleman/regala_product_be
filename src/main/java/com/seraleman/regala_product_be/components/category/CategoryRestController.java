@@ -1,14 +1,17 @@
 package com.seraleman.regala_product_be.components.category;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
-import com.seraleman.regala_product_be.components.category.helpers.belongs.ICategoryBelongs;
+import com.seraleman.regala_product_be.components.category.helpers.compromise.ICategoryCompromise;
 import com.seraleman.regala_product_be.components.category.helpers.response.ICategoryResponse;
 import com.seraleman.regala_product_be.components.category.helpers.service.ICategoryService;
+import com.seraleman.regala_product_be.components.element.Element;
+import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 import com.seraleman.regala_product_be.helpers.response.IResponse;
 
@@ -35,7 +38,7 @@ public class CategoryRestController {
     private ICategoryService categoryService;
 
     @Autowired
-    private ICategoryBelongs categoryBelongs;
+    private ICategoryCompromise categoryCompromise;
 
     @Autowired
     private ICategoryResponse categoryResponse;
@@ -45,6 +48,9 @@ public class CategoryRestController {
 
     @Autowired
     private IResponse response;
+
+    @Autowired
+    private IElementService elementService;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllCategories() {
@@ -106,9 +112,10 @@ public class CategoryRestController {
             currentCategory.setName(category.getName());
             currentCategory.setUpdated(localDateTime.getLocalDateTime());
 
-            return categoryResponse.updated(
+            return response.updatedWithCompromisedEntities(
                     categoryService.saveCategory(currentCategory),
-                    categoryBelongs.updateCategoryInEntities(currentCategory));
+                    categoryCompromise.updateCategoryInCompromisedEntities(currentCategory),
+                    ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -121,8 +128,8 @@ public class CategoryRestController {
             if (category == null) {
                 return response.notFound(id, ENTITY);
             }
-            Map<String, Object> deletedCategoriesInEntities = categoryBelongs
-                    .deleteCategoryInEntities(category);
+            Map<String, Object> deletedCategoriesInEntities = categoryCompromise
+                    .deleteCategoryInCompromisedEntities(category);
 
             categoryService.deleteCategoryById(id);
 
@@ -135,9 +142,24 @@ public class CategoryRestController {
     @DeleteMapping("/deleteUnusedCategories")
     public ResponseEntity<?> deleteUnusedCategories() {
         try {
+            List<Category> categories = categoryService.getAllCategories();
+            if (categories.isEmpty()) {
+                return response.empty(ENTITY);
+            }
+
+            List<Category> undeletedCategories = new ArrayList<>();
+            for (Category category : categories) {
+                List<Element> elements = elementService
+                        .getAllElementsByCategoryId(category.getId());
+                if (elements.isEmpty()) {
+                    categoryService.deleteCategoryById(category.getId());
+                } else {
+                    undeletedCategories.add(category);
+                }
+            }
             return response.deletedUnused(
-                    categoryBelongs.deletedUnusedCategories(),
-                    categoryService.getAllCategories(),
+                    categories.size() - undeletedCategories.size(),
+                    undeletedCategories,
                     ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);

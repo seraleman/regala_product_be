@@ -1,11 +1,12 @@
 package com.seraleman.regala_product_be.components.collection;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
 
-import com.seraleman.regala_product_be.components.collection.helpers.belongs.ICollectionBelongs;
+import com.seraleman.regala_product_be.components.collection.helpers.compromise.ICollectionCompromise;
 import com.seraleman.regala_product_be.components.collection.helpers.response.ICollectionResponse;
 import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
 import com.seraleman.regala_product_be.components.element.Element;
@@ -38,7 +39,7 @@ public class CollectionRestController {
     private ICollectionService collectionService;
 
     @Autowired
-    private ICollectionBelongs collectionBelongs;
+    private ICollectionCompromise collectionCompromise;
 
     @Autowired
     private ICollectionResponse collectionResponse;
@@ -116,10 +117,9 @@ public class CollectionRestController {
             currentCollection.setName(collection.getName());
             currentCollection.setUpdated(localDateTime.getLocalDateTime());
 
-            return collectionResponse.updated(
+            return response.updatedWithCompromisedEntities(
                     collectionService.saveCollection(currentCollection),
-                    collectionBelongs.updateCollectionInEntities(currentCollection));
-
+                    collectionCompromise.updateCollectionInCompromisedEntities(currentCollection), ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -147,9 +147,28 @@ public class CollectionRestController {
     @DeleteMapping("/deleteUnusedCollections")
     public ResponseEntity<?> deleteUnusedCollections() {
         try {
+
+            List<Collection> collections = collectionService.getAllCollections();
+            if (collections.isEmpty()) {
+                return response.empty(ENTITY);
+            }
+
+            List<Collection> undeletedCollections = new ArrayList<>();
+            for (Collection collection : collections) {
+                List<Primary> primaries = primaryService
+                        .getAllPrimariesByCollectionId(collection.getId());
+                List<Element> elements = elementService
+                        .getAllElementsByCollectionId(collection.getId());
+                if (elements.isEmpty() && primaries.isEmpty()) {
+                    collectionService.deleteCollectionById(collection.getId());
+                } else {
+                    undeletedCollections.add(collection);
+                }
+            }
+
             return response.deletedUnused(
-                    collectionBelongs.deleteUnusedCollections(),
-                    collectionService.getAllCollections(),
+                    collections.size() - undeletedCollections.size(),
+                    undeletedCollections,
                     ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);

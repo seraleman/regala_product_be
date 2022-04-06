@@ -30,31 +30,4 @@ public class PrimaryResponseImpl implements IPrimaryResponse {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @Override
-    public ResponseEntity<?> updated(Primary primary, Map<String, Object> updatedPrimaryInEntities) {
-        response = new LinkedHashMap<>();
-        data = new LinkedHashMap<>();
-
-        response.put("message", "objeto 'Primary' actualizado");
-        data.put("updatedPrimary", primary);
-        data.put("updatedEntities", updatedPrimaryInEntities);
-        response.put("data", data);
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<?> deleted(Map<String, Object> deletePrimaryInEntities,
-            Integer deletedElements) {
-
-        response = new LinkedHashMap<>();
-        data = new LinkedHashMap<>();
-        data.put("updatedEntities", deletePrimaryInEntities);
-        data.put("deletedElements", deletedElements);
-        response.put("data", data);
-        response.put("message", "objeto eliminado");
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-    }
-
 }

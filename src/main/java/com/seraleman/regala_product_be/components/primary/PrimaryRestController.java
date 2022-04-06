@@ -1,6 +1,7 @@
 package com.seraleman.regala_product_be.components.primary;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,8 +9,9 @@ import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.collection.Collection;
 import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
+import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
-import com.seraleman.regala_product_be.components.primary.helpers.belongs.IPrimaryBelongs;
+import com.seraleman.regala_product_be.components.primary.helpers.compromise.IPrimaryCompromise;
 import com.seraleman.regala_product_be.components.primary.helpers.response.IPrimaryResponse;
 import com.seraleman.regala_product_be.components.primary.helpers.service.IPrimaryService;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
@@ -39,7 +41,7 @@ public class PrimaryRestController {
     private IPrimaryService primaryService;
 
     @Autowired
-    private IPrimaryBelongs primaryBelongs;
+    private IPrimaryCompromise primaryCompromise;
 
     @Autowired
     private IPrimaryResponse primaryResponse;
@@ -175,10 +177,10 @@ public class PrimaryRestController {
             currentPrimary.setName(primary.getName());
             currentPrimary.setUpdated(localDateTime.getLocalDateTime());
 
-            return primaryResponse.updated(
+            return response.updatedWithCompromisedEntities(
                     primaryService.savePrimary(currentPrimary),
-                    primaryBelongs.updatePrimaryInEntities(currentPrimary));
-
+                    primaryCompromise.updatePrimaryInCompromisedEntities(currentPrimary),
+                    ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -191,14 +193,13 @@ public class PrimaryRestController {
             if (primary == null) {
                 return response.notFound(id, ENTITY);
             }
-            Map<String, Object> deletePrimaryInEntities = primaryBelongs
-                    .deletePrimaryInEntities(primary);
-
-            Integer deletedElements = elementService.deleteElementsWithoutPrimaries();
+            Map<String, Object> responseCompromisedEntities = primaryCompromise
+                    .deletePrimaryInCompromisedEntities(primary);
 
             primaryService.deletePrimaryById(id);
 
-            return primaryResponse.deleted(deletePrimaryInEntities, deletedElements);
+            return response.deletedWithCompromisedEntities(
+                    responseCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -207,11 +208,25 @@ public class PrimaryRestController {
     @DeleteMapping("/deleteUnusedPrimaries")
     public ResponseEntity<?> deleteUnusedPrimaries() {
         try {
-            return response.deletedUnused(
-                    primaryBelongs.deleteUnusedPrimaries(),
-                    primaryService.getAllPrimaries(),
-                    ENTITY);
+            List<Primary> primaries = primaryService.getAllPrimaries();
+            if (primaries.isEmpty()) {
+                return response.empty(ENTITY);
+            }
 
+            List<Primary> undeletedPrimaries = new ArrayList<>();
+            for (Primary primary : primaries) {
+                List<Element> elements = elementService
+                        .getAllElementsByPrimariesPrimaryId(primary.getId());
+                if (elements.isEmpty()) {
+                    primaryService.deletePrimaryById(primary.getId());
+                } else {
+                    undeletedPrimaries.add(primary);
+                }
+            }
+            return response.deletedUnused(
+                    primaries.size() - undeletedPrimaries.size(),
+                    undeletedPrimaries,
+                    ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

@@ -1,17 +1,17 @@
-package com.seraleman.regala_product_be.components.collection.helpers.belongs;
+package com.seraleman.regala_product_be.components.collection.helpers.compromise;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.seraleman.regala_product_be.components.collection.Collection;
-import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
 import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.Primary;
 import com.seraleman.regala_product_be.components.primary.helpers.service.IPrimaryService;
 import com.seraleman.regala_product_be.helpers.Exceptions.updatedQuantityDoesNotMatchQuery;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
+import com.seraleman.regala_product_be.helpers.structure.IStructure;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
@@ -22,7 +22,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRefreshInEntities {
+public class CollectionCompromiselmpl implements ICollectionCompromise, ICollectionRefreshInEntities {
 
         @Autowired
         private MongoTemplate mongoTemplate;
@@ -37,28 +37,27 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
         private IElementService elementService;
 
         @Autowired
-        private ICollectionService collectionService;
+        private IStructure structure;
 
         @Override
-        public Map<String, Object> updateCollectionInEntities(Collection collection) {
+        public Map<String, Object> updateCollectionInCompromisedEntities(Collection collection) {
 
                 Map<String, Object> response = new LinkedHashMap<>();
 
-                List<Primary> primaries = updateCollectionInPrimaries(collection);
-                List<Element> elements = updateCollectionInElements(collection);
-                List<Element> compositionElements = updateCollectionOfPrimaryInElements(collection);
-                response.put("quantityPrimaries:", primaries.size());
-                response.put("quantityElements:", elements.size());
-                response.put("quantityCompositionElements:", compositionElements.size());
-                response.put("primaries:", primaries);
-                response.put("elements:", elements);
-                response.put("compositionElements:", compositionElements);
-
+                response.put("primaries", structure
+                                .responseUpdatedCompromisedEntities(
+                                                updateCollectionInCompromisedPrimaries(collection)));
+                response.put("elements", structure
+                                .responseUpdatedCompromisedEntities(
+                                                updateCollectionInCompromisedElements(collection)));
+                response.put("primariesIntoElements", structure
+                                .responseUpdatedCompromisedEntities(
+                                                updateCollectionOfPrimaryInCompromisedElements(collection)));
                 return response;
         }
 
         @Override
-        public List<Primary> updateCollectionInPrimaries(Collection collection) {
+        public List<Primary> updateCollectionInCompromisedPrimaries(Collection collection) {
 
                 Query query = new Query()
                                 .addCriteria(Criteria
@@ -88,7 +87,7 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
         }
 
         @Override
-        public List<Element> updateCollectionInElements(Collection collection) {
+        public List<Element> updateCollectionInCompromisedElements(Collection collection) {
 
                 Query query = new Query()
                                 .addCriteria(Criteria
@@ -118,7 +117,7 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
         }
 
         @Override
-        public List<Element> updateCollectionOfPrimaryInElements(Collection collection) {
+        public List<Element> updateCollectionOfPrimaryInCompromisedElements(Collection collection) {
 
                 Query query = new Query()
                                 .addCriteria(Criteria
@@ -146,23 +145,6 @@ public class CollectionBelongslmpl implements ICollectionBelongs, ICollectionRef
                                                         .concat("la cantidad de objetos contenedores actualizados ")
                                                         .concat("- revisar integridad de base de datos -"));
                 }
-        }
-
-        @Override
-        public Integer deleteUnusedCollections() {
-
-                List<Collection> collections = collectionService.getAllCollections();
-
-                Integer deletedCollections = 0;
-                for (Collection collection : collections) {
-                        List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(collection.getId());
-                        List<Element> elements = elementService.getAllElementsByCollectionId(collection.getId());
-                        if (elements.isEmpty() && primaries.isEmpty()) {
-                                collectionService.deleteCollectionById(collection.getId());
-                                deletedCollections++;
-                        }
-                }
-                return deletedCollections;
         }
 
 }
