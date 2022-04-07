@@ -145,9 +145,9 @@ public class ElementRestController {
             @Valid @RequestBody Element element, BindingResult result) {
 
         try {
-            Collection collection = collectionService.getCollectionById(
-                    element.getCollection().getId());
-            if (validate.entityNotNull(result, collection, "element",
+            Collection collection = collectionService
+                    .getCollectionById(element.getCollection().getId());
+            if (validate.entityIsNotNull(result, collection, "collection",
                     element.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
@@ -155,7 +155,7 @@ public class ElementRestController {
             List<Category> categories = new ArrayList<>();
             for (Category ctgry : element.getCategories()) {
                 Category category = categoryService.getCategoryById(ctgry.getId());
-                if (validate.entityNotNull(result, category, "category",
+                if (validate.entityIsNotNull(result, category, "category",
                         ctgry.getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
@@ -163,12 +163,14 @@ public class ElementRestController {
             }
 
             List<ElementComposition> primaries = new ArrayList<>();
-            if (validate.primariesIsNotEmpty(result, element.getPrimaries()).hasErrors()) {
+            if (validate.arrayIsNotEmpty(result, element.getPrimaries(), "primaries",
+                    "Primary").hasErrors()) {
                 return response.invalidObject(result);
             }
+
             for (ElementComposition component : element.getPrimaries()) {
                 Primary primary = primaryService.getPrimaryById(component.getPrimary().getId());
-                if (validate.entityNotNull(result, primary, "primary",
+                if (validate.entityIsNotNull(result, primary, "primary",
                         component.getPrimary().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }

@@ -97,6 +97,22 @@ public class Gift {
                 + ocassions + ", updated=" + updated + "]";
     }
 
+    public Integer getOcassionsQuantity() {
+        return ocassions.size();
+    }
+
+    public Integer getCompositionQuantity() {
+        return elements.size();
+    }
+
+    public Integer getElementsQuantity() {
+        Integer quantity = 0;
+        for (GitfComposition composition : elements) {
+            quantity += composition.getQuantity();
+        }
+        return quantity;
+    }
+
     public Float getCost() {
         Float cost = 0f;
         for (GitfComposition element : elements) {

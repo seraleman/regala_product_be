@@ -12,12 +12,12 @@ public class ElementComposition {
 
     @NotNull
     @Min(1)
-    private Float quantity;
+    private Integer quantity;
 
     public ElementComposition() {
     }
 
-    public ElementComposition(@NotNull Primary primary, @NotNull Float quantity) {
+    public ElementComposition(@NotNull Primary primary, @NotNull Integer quantity) {
         this.primary = primary;
         this.quantity = quantity;
     }
@@ -30,11 +30,11 @@ public class ElementComposition {
         this.primary = primary;
     }
 
-    public Float getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Float quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 

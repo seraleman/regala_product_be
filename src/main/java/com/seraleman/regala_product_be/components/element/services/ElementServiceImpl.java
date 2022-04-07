@@ -68,7 +68,7 @@ public class ElementServiceImpl implements IElementService {
     @Override
     public Element createElementFromPrimary(Primary primary) {
 
-        ElementComposition component = new ElementComposition(primary, 1f);
+        ElementComposition component = new ElementComposition(primary, 1);
         List<ElementComposition> primaries = new ArrayList<>();
         primaries.add(component);
 

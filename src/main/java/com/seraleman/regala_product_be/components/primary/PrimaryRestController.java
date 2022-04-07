@@ -113,7 +113,7 @@ public class PrimaryRestController {
         try {
             Collection collection = collectionService
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.entityNotNull(result, collection, "collection",
+            if (validate.entityIsNotNull(result, collection, "collection",
                     primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
@@ -135,7 +135,7 @@ public class PrimaryRestController {
         try {
             Collection collection = collectionService
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.entityNotNull(result, collection, "collection",
+            if (validate.entityIsNotNull(result, collection, "collection",
                     primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
@@ -165,9 +165,13 @@ public class PrimaryRestController {
                 return response.notFound(id, ENTITY);
             }
 
+            if (result.hasErrors()) {
+                return response.invalidObject(result);
+            }
+
             Collection collection = collectionService
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.entityNotNull(result, collection, "collection",
+            if (validate.entityIsNotNull(result, collection, "collection",
                     primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }

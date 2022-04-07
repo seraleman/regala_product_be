@@ -12,7 +12,7 @@ public class GitfComposition {
 
     @Min(1)
     @NotNull
-    private Float quantity;
+    private Integer quantity;
 
     public Element getElement() {
         return element;
@@ -22,16 +22,21 @@ public class GitfComposition {
         this.element = element;
     }
 
-    public Float getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Float quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
     public Float getCost() {
         return quantity * element.getCost();
+    }
+
+    @Override
+    public String toString() {
+        return "GitfComposition [element=" + element + ", quantity=" + quantity + "]";
     }
 
 }

@@ -2,16 +2,25 @@ package com.seraleman.regala_product_be.helpers.validate;
 
 import java.util.List;
 
-import com.seraleman.regala_product_be.components.element.ElementComposition;
-
 import org.springframework.validation.BindingResult;
 
 public interface IValidate {
 
-    BindingResult entityNotNull(BindingResult result, Object obj, String entity, String id);
+        BindingResult arrayIsNotEmpty(
+                        BindingResult result, List<?> arrayToValidate,
+                        String affectedField, String entityInArray);
 
-    BindingResult primariesIsNotEmpty(BindingResult result, List<ElementComposition> primaries);
+        BindingResult entityIsNotNull(
+                        BindingResult result, Object objToValidate,
+                        String affectedField, String objToValidateId);
 
-    BindingResult quantityInComposition(BindingResult result, String entity, Float quantity, String id);
+        BindingResult entityInArrayIsNotNull(
+                        BindingResult result, Object objToValidate,
+                        String affectedField, String entity,
+                        String objToValidateId);
+
+        BindingResult quantityInComposition(
+                        BindingResult result, String entity,
+                        Integer quantity, String id);
 
 }

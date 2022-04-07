@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.seraleman.regala_product_be.components.element.Element;
+import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.gift.services.IGiftService;
 import com.seraleman.regala_product_be.components.ocassion.Ocassion;
 import com.seraleman.regala_product_be.components.ocassion.services.IOcassionService;
@@ -28,7 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/gift")
-public class GiftRestControll {
+public class GiftRestController {
+
+    private static final String ENTITY = "Gift";
 
     @Autowired
     private IGiftService giftService;
@@ -45,14 +49,17 @@ public class GiftRestControll {
     @Autowired
     private IValidate validate;
 
+    @Autowired
+    private IElementService elementService;
+
     @GetMapping("/")
     public ResponseEntity<?> getAllGifts() {
         try {
             List<Gift> gifts = giftService.getAllGifts();
             if (gifts.isEmpty()) {
-                return response.empty("Gift");
+                return response.empty(ENTITY);
             }
-            return response.list(gifts, "Gift");
+            return response.list(gifts, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -63,7 +70,7 @@ public class GiftRestControll {
         try {
             Gift gift = giftService.getGiftById(id);
             if (gift == null) {
-                return response.notFound(id, "Gift");
+                return response.notFound(id, ENTITY);
             }
             return response.found(gift);
         } catch (DataAccessException e) {
@@ -80,15 +87,36 @@ public class GiftRestControll {
             List<Ocassion> ocassions = new ArrayList<>();
             for (Ocassion ocssn : gift.getOcassions()) {
                 Ocassion ocassion = ocassionService.getOcassionById(ocssn.getId());
-                if (validate.entityNotNull(result, ocassion, "ocassion",
+                if (validate.entityInArrayIsNotNull(result, ocassion, "ocassion", "Ocassion",
                         ocssn.getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
                 ocassions.add(ocassion);
             }
 
+            List<GitfComposition> elements = new ArrayList<>();
+            if (validate.arrayIsNotEmpty(result, gift.getElements(), "elements",
+                    "Element").hasErrors()) {
+                return response.invalidObject(result);
+            }
+            for (GitfComposition component : gift.getElements()) {
+                Element element = elementService
+                        .getElementById(component.getElement().getId());
+                if (validate.entityInArrayIsNotNull(result, element, "elements",
+                        "Element", component.getElement().getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                if (validate.quantityInComposition(result, "Element", component.getQuantity(),
+                        component.getElement().getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                component.setElement(element);
+                elements.add(component);
+            }
+
             LocalDateTime ldt = localDateTime.getLocalDateTime();
             gift.setOcassions(ocassions);
+            gift.setElements(elements);
             gift.setCreated(ldt);
             gift.setUpdated(ldt);
             return response.created(giftService.saveGift(gift));
@@ -98,22 +126,62 @@ public class GiftRestControll {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateGiftById(@PathVariable String id, @Valid @RequestBody Gift gift,
+    public ResponseEntity<?> updateGiftById(
+            @PathVariable String id,
+            @Valid @RequestBody Gift gift,
             BindingResult result) {
-        if (result.hasErrors()) {
-            return response.invalidObject(result);
-        }
+
         try {
             Gift currentGift = giftService.getGiftById(id);
             if (currentGift == null) {
-                return response.notFound(id, "Gift");
+                return response.notFound(id, ENTITY);
             }
-            currentGift.setOcassions(gift.getOcassions());
-            currentGift.setElements(gift.getElements());
+
+            if (result.hasErrors()) {
+                return response.invalidObject(result);
+            }
+
+            List<Ocassion> ocassions = new ArrayList<>();
+            for (Ocassion ocssn : gift.getOcassions()) {
+                Ocassion ocassion = ocassionService.getOcassionById(ocssn.getId());
+                if (validate.entityInArrayIsNotNull(result, ocassion, "ocassions",
+                        "Ocassion", ocassion.getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                ocassions.add(ocassion);
+            }
+
+            if (validate.arrayIsNotEmpty(result, gift.getElements(), "elements",
+                    "Element").hasErrors()) {
+                return response.invalidObject(result);
+            }
+
+            List<GitfComposition> elements = new ArrayList<>();
+            for (GitfComposition component : gift.getElements()) {
+                Element element = elementService.getElementById(
+                        component.getElement().getId());
+
+                if (validate.entityInArrayIsNotNull(result, element, "elements",
+                        "Element", component.getElement().getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+
+                if (validate.quantityInComposition(result, "Element",
+                        component.getQuantity(),
+                        component.getElement().getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                component.setElement(element);
+                elements.add(component);
+            }
+
+            currentGift.setOcassions(ocassions);
+            currentGift.setElements(elements);
             currentGift.setName(gift.getName());
+            currentGift.setDescription(gift.getDescription());
             currentGift.setUpdated(localDateTime.getLocalDateTime());
 
-            return response.updated(giftService.saveGift(gift));
+            return response.updated(giftService.saveGift(currentGift));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -124,10 +192,10 @@ public class GiftRestControll {
         try {
             Gift gift = giftService.getGiftById(id);
             if (gift == null) {
-                return response.notFound(id, "Gift");
+                return response.notFound(id, ENTITY);
             }
             giftService.deleteGiftById(id);
-            return response.deleted("Gift");
+            return response.deleted(ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -136,6 +204,6 @@ public class GiftRestControll {
     @DeleteMapping("/deleteGifts")
     public ResponseEntity<?> deleteAllGifts() {
         giftService.deleteAllGifts();
-        return response.deletedAll("Gift");
+        return response.deletedAll(ENTITY);
     }
 }
