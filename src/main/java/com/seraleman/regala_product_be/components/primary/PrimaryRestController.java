@@ -113,7 +113,7 @@ public class PrimaryRestController {
         try {
             Collection collection = collectionService
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.validateCollection(result, collection,
+            if (validate.collection(result, collection,
                     primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
@@ -135,7 +135,7 @@ public class PrimaryRestController {
         try {
             Collection collection = collectionService
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.validateCollection(result, collection,
+            if (validate.collection(result, collection,
                     primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
@@ -167,7 +167,7 @@ public class PrimaryRestController {
 
             Collection collection = collectionService
                     .getCollectionById(primary.getCollection().getId());
-            if (validate.validateCollection(result, collection,
+            if (validate.collection(result, collection,
                     primary.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }

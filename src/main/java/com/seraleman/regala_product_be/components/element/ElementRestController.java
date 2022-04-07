@@ -144,7 +144,7 @@ public class ElementRestController {
         try {
             Collection collection = collectionService.getCollectionById(
                     element.getCollection().getId());
-            if (validate.validateCollection(result, collection,
+            if (validate.collection(result, collection,
                     element.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
@@ -152,23 +152,23 @@ public class ElementRestController {
             List<Category> categories = new ArrayList<>();
             for (Category ctgry : element.getCategories()) {
                 Category category = categoryService.getCategoryById(ctgry.getId());
-                if (validate.validateCategory(result, category, ctgry.getId()).hasErrors()) {
+                if (validate.category(result, category, ctgry.getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
                 categories.add(category);
             }
 
             List<ElementComposition> primaries = new ArrayList<>();
-            if (validate.validatePrimariesInNotEmpty(result, element.getPrimaries()).hasErrors()) {
+            if (validate.primariesIsNotEmpty(result, element.getPrimaries()).hasErrors()) {
                 return response.invalidObject(result);
             }
             for (ElementComposition component : element.getPrimaries()) {
                 Primary primary = primaryService.getPrimaryById(component.getPrimary().getId());
-                if (validate.validatePrimary(result, primary,
+                if (validate.primary(result, primary,
                         component.getPrimary().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
-                if (validate.validateQuantityComposition(result, "Primary", component.getQuantity(),
+                if (validate.quantityInComposition(result, "Primary", component.getQuantity(),
                         component.getPrimary().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }

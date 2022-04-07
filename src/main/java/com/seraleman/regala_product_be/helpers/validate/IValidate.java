@@ -11,14 +11,14 @@ import org.springframework.validation.BindingResult;
 
 public interface IValidate {
 
-    BindingResult validateCategory(BindingResult result, Category category, String id);
+    BindingResult category(BindingResult result, Category category, String id);
 
-    BindingResult validateCollection(BindingResult result, Collection collection, String id);
+    BindingResult collection(BindingResult result, Collection collection, String id);
 
-    BindingResult validatePrimary(BindingResult result, Primary primary, String id);
+    BindingResult primariesIsNotEmpty(BindingResult result, List<ElementComposition> primaries);
 
-    BindingResult validateQuantityComposition(BindingResult result, String entity, Float quantity, String id);
+    BindingResult primary(BindingResult result, Primary primary, String id);
 
-    BindingResult validatePrimariesInNotEmpty(BindingResult result, List<ElementComposition> primaries);
+    BindingResult quantityInComposition(BindingResult result, String entity, Float quantity, String id);
 
 }

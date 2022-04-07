@@ -14,7 +14,7 @@ import org.springframework.validation.FieldError;
 @Service
 public class ValidateImpl implements IValidate {
 
-    public BindingResult addErrorEntityNull(BindingResult result, String entity, String id) {
+    private BindingResult addErrorEntityNull(BindingResult result, String entity, String id) {
 
         String message = "no debe ser nulo, asegúrese de que el objeto '"
                 .concat(entity.substring(0, 1).toUpperCase()).concat(entity.substring(1))
@@ -27,7 +27,7 @@ public class ValidateImpl implements IValidate {
     }
 
     @Override
-    public BindingResult validateCollection(BindingResult result, Collection collection, String id) {
+    public BindingResult collection(BindingResult result, Collection collection, String id) {
 
         if (collection == null) {
             return addErrorEntityNull(result, "Collection", id);
@@ -36,7 +36,7 @@ public class ValidateImpl implements IValidate {
     }
 
     @Override
-    public BindingResult validateCategory(BindingResult result, Category category, String id) {
+    public BindingResult category(BindingResult result, Category category, String id) {
 
         if (category == null) {
             return addErrorEntityNull(result, "category", id);
@@ -45,7 +45,7 @@ public class ValidateImpl implements IValidate {
     }
 
     @Override
-    public BindingResult validatePrimary(BindingResult result, Primary primary, String id) {
+    public BindingResult primary(BindingResult result, Primary primary, String id) {
 
         if (primary == null) {
             return addErrorEntityNull(result, "primary", id);
@@ -54,7 +54,7 @@ public class ValidateImpl implements IValidate {
     }
 
     @Override
-    public BindingResult validateQuantityComposition(BindingResult result, String entity, Float quantity, String id) {
+    public BindingResult quantityInComposition(BindingResult result, String entity, Float quantity, String id) {
         if (quantity == null) {
             FieldError error = new FieldError("quantity", "quantity", "que acompaña el objeto '"
                     .concat(entity)
@@ -76,7 +76,7 @@ public class ValidateImpl implements IValidate {
     }
 
     @Override
-    public BindingResult validatePrimariesInNotEmpty(BindingResult result, List<ElementComposition> primaries) {
+    public BindingResult primariesIsNotEmpty(BindingResult result, List<ElementComposition> primaries) {
 
         if (primaries.isEmpty()) {
             FieldError error = new FieldError("primaries", "primaries",
