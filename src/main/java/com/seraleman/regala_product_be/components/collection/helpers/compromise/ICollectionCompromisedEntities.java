@@ -6,7 +6,7 @@ import com.seraleman.regala_product_be.components.collection.Collection;
 import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.primary.Primary;
 
-public interface ICollectionRefreshInEntities {
+public interface ICollectionCompromisedEntities {
 
     List<Primary> updateCollectionInCompromisedPrimaries(Collection collection);
 

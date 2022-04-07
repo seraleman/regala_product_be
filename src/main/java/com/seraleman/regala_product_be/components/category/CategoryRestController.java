@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.category.helpers.compromise.ICategoryCompromise;
-import com.seraleman.regala_product_be.components.category.helpers.response.ICategoryResponse;
 import com.seraleman.regala_product_be.components.category.helpers.service.ICategoryService;
 import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
@@ -39,9 +38,6 @@ public class CategoryRestController {
 
     @Autowired
     private ICategoryCompromise categoryCompromise;
-
-    @Autowired
-    private ICategoryResponse categoryResponse;
 
     @Autowired
     private ILocalDateTime localDateTime;
@@ -128,12 +124,12 @@ public class CategoryRestController {
             if (category == null) {
                 return response.notFound(id, ENTITY);
             }
-            Map<String, Object> deletedCategoriesInEntities = categoryCompromise
+            Map<String, Object> responseCompromisedEntities = categoryCompromise
                     .deleteCategoryInCompromisedEntities(category);
 
             categoryService.deleteCategoryById(id);
 
-            return categoryResponse.deleted(deletedCategoriesInEntities);
+            return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

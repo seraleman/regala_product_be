@@ -20,7 +20,8 @@ public class Structure implements IStructure {
     }
 
     @Override
-    public Map<String, Object> responseUpdatedCompromisedEntities(List<?> objcs, Integer deletedObjcsQuantity) {
+    public Map<String, Object> responseDeletedCompromisedEntities(
+            List<?> objcs, Integer deletedObjcsQuantity) {
         Map<String, Object> response = new LinkedHashMap<>();
 
         response.put("deletedQuantity", deletedObjcsQuantity);

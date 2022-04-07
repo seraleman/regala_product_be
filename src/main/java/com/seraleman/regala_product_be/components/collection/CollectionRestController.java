@@ -7,7 +7,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.collection.helpers.compromise.ICollectionCompromise;
-import com.seraleman.regala_product_be.components.collection.helpers.response.ICollectionResponse;
 import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
 import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
@@ -40,9 +39,6 @@ public class CollectionRestController {
 
     @Autowired
     private ICollectionCompromise collectionCompromise;
-
-    @Autowired
-    private ICollectionResponse collectionResponse;
 
     @Autowired
     private ILocalDateTime localDateTime;
@@ -135,7 +131,9 @@ public class CollectionRestController {
             List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(id);
             List<Element> elements = elementService.getAllElementsByCollectionId(id);
             if (!primaries.isEmpty() || !elements.isEmpty()) {
-                return collectionResponse.notDeleted(primaries, elements);
+                return response.notDeleted(primaries, "primaries",
+                        elements, "elements",
+                        ENTITY);
             }
             collectionService.deleteCollectionById(id);
             return response.deleted(ENTITY);

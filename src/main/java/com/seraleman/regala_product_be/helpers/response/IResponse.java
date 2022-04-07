@@ -35,6 +35,11 @@ public interface IResponse {
 
         ResponseEntity<Map<String, Object>> notFound(Object id, String entity);
 
+        ResponseEntity<Map<String, Object>> notDeleted(
+                        List<?> objs, String entityObjs,
+                        List<?> secObjs, String entitySecObjs,
+                        String entity);
+
         ResponseEntity<Map<String, Object>> parameterizedList(
                         List<?> objs, String searchedEntity, String searchByEntity, String id);
 

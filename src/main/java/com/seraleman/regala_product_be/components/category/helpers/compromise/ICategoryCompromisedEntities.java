@@ -5,7 +5,7 @@ import java.util.List;
 import com.seraleman.regala_product_be.components.category.Category;
 import com.seraleman.regala_product_be.components.element.Element;
 
-public interface ICategoryRefreshInEntities {
+public interface ICategoryCompromisedEntities {
 
     List<Element> updateCategoryInCompromisedElements(Category category);
 

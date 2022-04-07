@@ -198,8 +198,7 @@ public class PrimaryRestController {
 
             primaryService.deletePrimaryById(id);
 
-            return response.deletedWithCompromisedEntities(
-                    responseCompromisedEntities, ENTITY);
+            return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

@@ -201,13 +201,29 @@ public class ResponseImpl implements IResponse {
     }
 
     @Override
-    public ResponseEntity<Map<String, Object>> updated(Object obj) {
+    public ResponseEntity<Map<String, Object>> notDeleted(
+            List<?> objs, String pluralEntityObjs,
+            List<?> secObjs, String pluralEntitySecObjs,
+            String entity) {
+
         response = new LinkedHashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
+        Map<String, Object> inObjs = new LinkedHashMap<>();
+        Map<String, Object> inSecObjects = new LinkedHashMap<>();
+
         response.put("message", "objeto '"
-                .concat(obj.getClass().getSimpleName())
-                .concat("' actualizado y disponible"));
-        response.put("data", obj);
-        return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.CREATED);
+                .concat(entity)
+                .concat("' no eliminado porque pertenece a otras entidades, ")
+                .concat("las cuales están disponibles"));
+        inObjs.put("quantity", objs.size());
+        inObjs.put("list", objs);
+        data.put(pluralEntityObjs, inObjs);
+        inSecObjects.put("quantity", secObjs.size());
+        inSecObjects.put("list", secObjs);
+        data.put(pluralEntitySecObjs, inSecObjects);
+        response.put("data", data);
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.PRECONDITION_REQUIRED);
     }
 
     @Override
@@ -229,6 +245,16 @@ public class ResponseImpl implements IResponse {
         response.put("data", objs);
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Map<String, Object>> updated(Object obj) {
+        response = new LinkedHashMap<>();
+        response.put("message", "objeto '"
+                .concat(obj.getClass().getSimpleName())
+                .concat("' actualizado y disponible"));
+        response.put("data", obj);
+        return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.CREATED);
     }
 
     @Override
