@@ -76,11 +76,16 @@ public class ElementRestController {
     @GetMapping("/byCollection/{collectionId}")
     public ResponseEntity<?> getAllElementsByCollectionId(@PathVariable String collectionId) {
         try {
+            String searchByEntity = "Collection";
+            Collection collection = collectionService.getCollectionById(collectionId);
+            if (collection == null) {
+                return response.cannotBeSearched(searchByEntity, collectionId);
+            }
             List<Element> elements = elementService.getAllElementsByCollectionId(collectionId);
             if (elements.isEmpty()) {
-                return response.empty(ENTITY);
+                return response.isNotPartOf(ENTITY, searchByEntity, collectionId);
             }
-            return response.list(elements, ENTITY);
+            return response.parameterizedList(elements, ENTITY, searchByEntity, collectionId);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -89,24 +94,16 @@ public class ElementRestController {
     @GetMapping("/byPrimariesPrimary/{primaryId}")
     public ResponseEntity<?> getAllElementsByPrimariesPrimaryId(@PathVariable String primaryId) {
         try {
+            String searchByEntity = "Primary";
+            Primary primary = primaryService.getPrimaryById(primaryId);
+            if (primary == null) {
+                return response.cannotBeSearched(searchByEntity, primaryId);
+            }
             List<Element> elements = elementService.getAllElementsByPrimariesPrimaryId(primaryId);
             if (elements.isEmpty()) {
-                return response.empty(ENTITY);
+                return response.isNotPartOf(ENTITY, searchByEntity, primaryId);
             }
-            return response.list(elements, ENTITY);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @GetMapping("/null")
-    public ResponseEntity<?> getAlleElemntsByCategoryNull() {
-        try {
-            List<Element> elements = elementService.getAllElementsByCategoryIsNull();
-            if (elements.isEmpty()) {
-                return response.empty(ENTITY);
-            }
-            return response.list(elements, ENTITY);
+            return response.parameterizedList(elements, ENTITY, searchByEntity, primaryId);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -115,11 +112,16 @@ public class ElementRestController {
     @GetMapping("/byCategory/{categoryId}")
     public ResponseEntity<?> getAllElementsByCategoryId(@PathVariable String categoryId) {
         try {
+            String searchByEntity = "Category";
+            Category category = categoryService.getCategoryById(categoryId);
+            if (category == null) {
+                return response.cannotBeSearched(searchByEntity, categoryId);
+            }
             List<Element> elements = elementService.getAllElementsByCategoryId(categoryId);
             if (elements.isEmpty()) {
-                return response.empty(ENTITY);
+                return response.isNotPartOf(ENTITY, searchByEntity, categoryId);
             }
-            return response.list(elements, ENTITY);
+            return response.parameterizedList(elements, ENTITY, searchByEntity, categoryId);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -139,12 +141,13 @@ public class ElementRestController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> createElement(@Valid @RequestBody Element element, BindingResult result) {
+    public ResponseEntity<?> createElement(
+            @Valid @RequestBody Element element, BindingResult result) {
 
         try {
             Collection collection = collectionService.getCollectionById(
                     element.getCollection().getId());
-            if (validate.collection(result, collection,
+            if (validate.entityNotNull(result, collection, "element",
                     element.getCollection().getId()).hasErrors()) {
                 return response.invalidObject(result);
             }
@@ -152,7 +155,8 @@ public class ElementRestController {
             List<Category> categories = new ArrayList<>();
             for (Category ctgry : element.getCategories()) {
                 Category category = categoryService.getCategoryById(ctgry.getId());
-                if (validate.category(result, category, ctgry.getId()).hasErrors()) {
+                if (validate.entityNotNull(result, category, "category",
+                        ctgry.getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
                 categories.add(category);
@@ -164,7 +168,7 @@ public class ElementRestController {
             }
             for (ElementComposition component : element.getPrimaries()) {
                 Primary primary = primaryService.getPrimaryById(component.getPrimary().getId());
-                if (validate.primary(result, primary,
+                if (validate.entityNotNull(result, primary, "primary",
                         component.getPrimary().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
@@ -236,7 +240,8 @@ public class ElementRestController {
             }
 
             data.put("updatedElements", elements.size());
-            responseDeleted.put("message", "Se han eliminado las categorias null de todos los elementos");
+            responseDeleted.put("message",
+                    "Se han eliminado las categorias null de todos los elementos");
 
             return new ResponseEntity<Map<String, Object>>(responseDeleted, HttpStatus.OK);
         } catch (DataAccessException e) {

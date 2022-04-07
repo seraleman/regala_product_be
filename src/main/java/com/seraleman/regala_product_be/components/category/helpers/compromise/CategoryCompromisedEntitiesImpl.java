@@ -19,69 +19,71 @@ import org.springframework.stereotype.Service;
 @Service
 public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEntities {
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+        @Autowired
+        private MongoTemplate mongoTemplate;
 
-    @Autowired
-    private ILocalDateTime localDateTime;
+        @Autowired
+        private ILocalDateTime localDateTime;
 
-    @Autowired
-    private IElementService elementService;
+        @Autowired
+        private IElementService elementService;
 
-    @Override
-    public List<Element> updateCategoryInCompromisedElements(Category category) {
+        @Override
+        public List<Element> updateCategoryInCompromisedElements(Category category) {
 
-        Query query = new Query()
-                .addCriteria(Criteria
-                        .where("categories.id")
-                        .is(category.getId()));
-        Update update = new Update()
-                .set("categories.$", category)
-                .set("updated", localDateTime.getLocalDateTime());
+                Query query = new Query()
+                                .addCriteria(Criteria
+                                                .where("categories.id")
+                                                .is(category.getId()));
+                Update update = new Update()
+                                .set("categories.$", category)
+                                .set("updated", localDateTime.getLocalDateTime());
 
-        Integer UpdatedElementsQuantity = mongoTemplate
-                .bulkOps(BulkMode.ORDERED, Element.class)
-                .updateMulti(query, update)
-                .execute()
-                .getModifiedCount();
+                Integer UpdatedElementsQuantity = mongoTemplate
+                                .bulkOps(BulkMode.ORDERED, Element.class)
+                                .updateMulti(query, update)
+                                .execute()
+                                .getModifiedCount();
 
-        List<Element> updatedElements = elementService.getAllElementsByCategoryId(category.getId());
+                List<Element> updatedElements = elementService.getAllElementsByCategoryId(category.getId());
 
-        if (UpdatedElementsQuantity == updatedElements.size()) {
-            return updatedElements;
-        } else {
-            throw new updatedQuantityDoesNotMatchQuery(
-                    "La cantidad de objetos actualizados no coincide con "
-                            .concat("la cantidad de objetos comprometidos actualizados ")
-                            .concat("- revisar integridad de base de datos -"));
-        }
-    }
-
-    @Override
-    public List<Element> deleteCategoryInCompromisedElements(Category category) {
-        Query query = new Query()
-                .addCriteria(Criteria
-                        .where("categories.id")
-                        .is(category.getId()));
-        Update update = new Update().set("categories.$", null);
-        Integer updatedElementsQuantity = mongoTemplate
-                .bulkOps(BulkMode.ORDERED, Element.class)
-                .updateMulti(query, update)
-                .execute()
-                .getModifiedCount();
-
-        List<Element> elementsWithoutNullCategories = elementService
-                .cleanElementsOfNullCategories();
-
-        if (updatedElementsQuantity == elementsWithoutNullCategories.size()) {
-            return elementsWithoutNullCategories;
-        } else {
-            throw new updatedQuantityDoesNotMatchQuery(
-                    "La cantidad de objetos actualizados no coincide con "
-                            .concat("la cantidad de objetos comprometidos actualizados ")
-                            .concat("- revisar integridad de base de datos -"));
+                if (UpdatedElementsQuantity == updatedElements.size()) {
+                        return updatedElements;
+                } else {
+                        throw new updatedQuantityDoesNotMatchQuery(
+                                        "La cantidad de objetos actualizados no coincide con "
+                                                        .concat("la cantidad de objetos comprometidos actualizados ")
+                                                        .concat("- revisar integridad de base de datos -"));
+                }
         }
 
-    }
+        @Override
+        public List<Element> deleteCategoryInCompromisedElements(Category category) {
+                Query query = new Query()
+                                .addCriteria(Criteria
+                                                .where("categories.id")
+                                                .is(category.getId()));
+                Update update = new Update()
+                                .set("categories.$", null)
+                                .set("updated", localDateTime.getLocalDateTime());
+                Integer updatedElementsQuantity = mongoTemplate
+                                .bulkOps(BulkMode.ORDERED, Element.class)
+                                .updateMulti(query, update)
+                                .execute()
+                                .getModifiedCount();
+
+                List<Element> elementsWithoutNullCategories = elementService
+                                .cleanElementsOfNullCategories();
+
+                if (updatedElementsQuantity == elementsWithoutNullCategories.size()) {
+                        return elementsWithoutNullCategories;
+                } else {
+                        throw new updatedQuantityDoesNotMatchQuery(
+                                        "La cantidad de objetos actualizados no coincide con "
+                                                        .concat("la cantidad de objetos comprometidos actualizados ")
+                                                        .concat("- revisar integridad de base de datos -"));
+                }
+
+        }
 
 }

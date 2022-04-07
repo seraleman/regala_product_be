@@ -17,8 +17,16 @@ public class Gift {
     @Id
     private String id;
 
+    @NotNull
+    private String name;
+
+    @NotNull
+    private String description;
+
+    @NotNull
     private List<Ocassion> ocassions;
 
+    @NotNull
     private List<GitfComposition> elements;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -27,15 +35,28 @@ public class Gift {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updated;
 
-    @NotNull
-    private String name;
-
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<Ocassion> getOcassions() {
@@ -52,14 +73,6 @@ public class Gift {
 
     public void setElements(List<GitfComposition> elements) {
         this.elements = elements;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public LocalDateTime getCreated() {

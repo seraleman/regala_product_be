@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collation = "ocassions")
+@Document(collection = "ocassions")
 public class Ocassion {
 
     @Id
@@ -18,6 +18,7 @@ public class Ocassion {
     @NotNull
     private String name;
 
+    @NotNull
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

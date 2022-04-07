@@ -1,13 +1,17 @@
 package com.seraleman.regala_product_be.components.gift;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import com.seraleman.regala_product_be.components.gift.services.IGiftService;
+import com.seraleman.regala_product_be.components.ocassion.Ocassion;
+import com.seraleman.regala_product_be.components.ocassion.services.IOcassionService;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 import com.seraleman.regala_product_be.helpers.response.IResponse;
+import com.seraleman.regala_product_be.helpers.validate.IValidate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -34,6 +38,12 @@ public class GiftRestControll {
 
     @Autowired
     private ILocalDateTime localDateTime;
+
+    @Autowired
+    private IOcassionService ocassionService;
+
+    @Autowired
+    private IValidate validate;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllGifts() {
@@ -67,7 +77,18 @@ public class GiftRestControll {
             return response.invalidObject(result);
         }
         try {
+            List<Ocassion> ocassions = new ArrayList<>();
+            for (Ocassion ocssn : gift.getOcassions()) {
+                Ocassion ocassion = ocassionService.getOcassionById(ocssn.getId());
+                if (validate.entityNotNull(result, ocassion, "ocassion",
+                        ocssn.getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                ocassions.add(ocassion);
+            }
+
             LocalDateTime ldt = localDateTime.getLocalDateTime();
+            gift.setOcassions(ocassions);
             gift.setCreated(ldt);
             gift.setUpdated(ldt);
             return response.created(giftService.saveGift(gift));

@@ -2,10 +2,7 @@ package com.seraleman.regala_product_be.helpers.validate;
 
 import java.util.List;
 
-import com.seraleman.regala_product_be.components.category.Category;
-import com.seraleman.regala_product_be.components.collection.Collection;
 import com.seraleman.regala_product_be.components.element.ElementComposition;
-import com.seraleman.regala_product_be.components.primary.Primary;
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -27,28 +24,9 @@ public class ValidateImpl implements IValidate {
     }
 
     @Override
-    public BindingResult collection(BindingResult result, Collection collection, String id) {
-
-        if (collection == null) {
-            return addErrorEntityNull(result, "Collection", id);
-        }
-        return result;
-    }
-
-    @Override
-    public BindingResult category(BindingResult result, Category category, String id) {
-
-        if (category == null) {
-            return addErrorEntityNull(result, "category", id);
-        }
-        return result;
-    }
-
-    @Override
-    public BindingResult primary(BindingResult result, Primary primary, String id) {
-
-        if (primary == null) {
-            return addErrorEntityNull(result, "primary", id);
+    public BindingResult entityNotNull(BindingResult result, Object obj, String entity, String id) {
+        if (obj == null) {
+            return addErrorEntityNull(result, entity, id);
         }
         return result;
     }

@@ -15,7 +15,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PrimaryCompromisedEntitiesImpl implements IPrimaryCompromisedEntities {
 
     @Autowired
@@ -35,11 +37,9 @@ public class PrimaryCompromisedEntitiesImpl implements IPrimaryCompromisedEntiti
                 .elemMatch(Criteria
                         .where("primary.id")
                         .is(primary.getId())));
-
         Update update = new Update()
                 .set("primaries.$.primary", primary)
                 .set("updated", localDateTime.getLocalDateTime());
-
         Integer updatedELementQuantity = mongoTemplate
                 .bulkOps(BulkMode.ORDERED, Element.class)
                 .updateMulti(query, update)
@@ -63,7 +63,9 @@ public class PrimaryCompromisedEntitiesImpl implements IPrimaryCompromisedEntiti
                 .elemMatch(Criteria
                         .where("primary.id")
                         .is(primary.getId())));
-        Update update = new Update().set("primaries.$", null);
+        Update update = new Update()
+                .set("primaries.$", null)
+                .set("updated", localDateTime.getLocalDateTime());
         Integer updatedElementsQuantity = mongoTemplate
                 .bulkOps(BulkMode.ORDERED, Element.class)
                 .updateMulti(query, update)
