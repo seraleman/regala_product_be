@@ -20,6 +20,16 @@ public class GiftServiceImpl implements IGiftService {
     }
 
     @Override
+    public List<Gift> getAllGiftsByOcassionId(String OcassionId) {
+        return giftDao.findAllByOcassionsId(OcassionId);
+    }
+
+    @Override
+    public List<Gift> getAllGiftsByElementsElementId(String elementId) {
+        return giftDao.findAllByElementsElementId(elementId);
+    }
+
+    @Override
     public Gift getGiftById(String id) {
         return giftDao.findById(id).orElse(null);
     }

@@ -142,7 +142,7 @@ public class CollectionRestController {
         }
     }
 
-    @DeleteMapping("/deleteUnusedCollections")
+    @DeleteMapping("/delete/unusedCollections")
     public ResponseEntity<?> deleteUnusedCollections() {
         try {
 

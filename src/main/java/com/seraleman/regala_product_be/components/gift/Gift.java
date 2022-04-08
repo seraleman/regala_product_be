@@ -101,7 +101,7 @@ public class Gift {
         return ocassions.size();
     }
 
-    public Integer getCompositionQuantity() {
+    public Integer getDiferentsElementsQuantity() {
         return elements.size();
     }
 
@@ -119,6 +119,22 @@ public class Gift {
             cost += element.getCost();
         }
         return cost;
+    }
+
+    public Float getPrice() {
+        Float price = 0f;
+        for (GitfComposition composition : elements) {
+            price += composition.getPrice();
+        }
+        return price;
+    }
+
+    public Float getGain() {
+        Float price = 0f;
+        for (GitfComposition composition : elements) {
+            price += composition.getGain();
+        }
+        return price;
     }
 
 }

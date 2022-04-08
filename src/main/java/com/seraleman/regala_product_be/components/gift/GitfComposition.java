@@ -30,13 +30,20 @@ public class GitfComposition {
         this.quantity = quantity;
     }
 
-    public Float getCost() {
-        return quantity * element.getCost();
-    }
-
     @Override
     public String toString() {
         return "GitfComposition [element=" + element + ", quantity=" + quantity + "]";
     }
 
+    public Float getCost() {
+        return quantity * element.getCost();
+    }
+
+    public Float getPrice() {
+        return quantity * element.getPrice();
+    }
+
+    public Float getGain() {
+        return quantity * element.getGain();
+    }
 }

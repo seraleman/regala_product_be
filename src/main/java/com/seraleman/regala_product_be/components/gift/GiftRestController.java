@@ -65,6 +65,34 @@ public class GiftRestController {
         }
     }
 
+    @GetMapping("/byOcassion/{ocassionId}")
+    public ResponseEntity<?> getAllGiftsByOcassionId(@PathVariable String ocassionId) {
+        try {
+            String searchByEntity = "Ocassion";
+            List<Gift> gifts = giftService.getAllGiftsByOcassionId(ocassionId);
+            if (gifts.isEmpty()) {
+                return response.isNotPartOf(ENTITY, "Ocassion", ocassionId);
+            }
+            return response.parameterizedList(gifts, ENTITY, searchByEntity, ocassionId);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/byElement/{elementId}")
+    public ResponseEntity<?> getAllGiftsByElementId(@PathVariable String elementId) {
+        try {
+            String searchByEntity = "Element";
+            List<Gift> gifts = giftService.getAllGiftsByElementsElementId(elementId);
+            if (gifts.isEmpty()) {
+                return response.isNotPartOf(ENTITY, searchByEntity, elementId);
+            }
+            return response.parameterizedList(gifts, ENTITY, searchByEntity, elementId);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getGiftById(@PathVariable String id) {
         try {
@@ -87,8 +115,8 @@ public class GiftRestController {
             List<Ocassion> ocassions = new ArrayList<>();
             for (Ocassion ocssn : gift.getOcassions()) {
                 Ocassion ocassion = ocassionService.getOcassionById(ocssn.getId());
-                if (validate.entityInArrayIsNotNull(result, ocassion, "ocassion", "Ocassion",
-                        ocssn.getId()).hasErrors()) {
+                if (validate.entityInArrayIsNotNull(result, ocassion, "ocassions",
+                        "Ocassion", ocssn.getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
                 ocassions.add(ocassion);
@@ -201,7 +229,7 @@ public class GiftRestController {
         }
     }
 
-    @DeleteMapping("/deleteGifts")
+    @DeleteMapping("/delete/allGifts")
     public ResponseEntity<?> deleteAllGifts() {
         giftService.deleteAllGifts();
         return response.deletedAll(ENTITY);

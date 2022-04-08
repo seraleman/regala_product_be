@@ -206,14 +206,48 @@ public class ElementRestController {
             if (currentElement == null) {
                 return response.notFound(id, ENTITY);
             }
+
             if (result.hasErrors()) {
                 return response.invalidObject(result);
             }
-            currentElement.setCategories(element.getCategories());
-            currentElement.setCollection(element.getCollection());
+
+            Collection collection = collectionService.getCollectionById(
+                    element.getCollection().getId());
+            if (validate.entityIsNotNull(result, collection, "collection",
+                    element.getCollection().getId()).hasErrors()) {
+                return response.invalidObject(result);
+            }
+
+            List<Category> categories = new ArrayList<>();
+            for (Category ctgry : element.getCategories()) {
+                Category category = categoryService.getCategoryById(ctgry.getId());
+                if (validate.entityInArrayIsNotNull(result, category, "categories",
+                        "Category", ctgry.getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                categories.add(category);
+            }
+
+            List<ElementComposition> primaries = new ArrayList<>();
+            for (ElementComposition prmry : element.getPrimaries()) {
+                Primary primary = primaryService.getPrimaryById(prmry.getPrimary().getId());
+                if (validate.entityInArrayIsNotNull(result, primary, "primaries",
+                        "Primary", prmry.getPrimary().getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                if (validate.quantityInComposition(result, "Primary", prmry.getQuantity(),
+                        prmry.getPrimary().getId()).hasErrors()) {
+                    return response.invalidObject(result);
+                }
+                prmry.setPrimary(primary);
+                primaries.add(prmry);
+            }
+
+            currentElement.setCollection(collection);
+            currentElement.setCategories(categories);
+            currentElement.setPrimaries(primaries);
             currentElement.setDescription(element.getDescription());
             currentElement.setName(element.getName());
-            currentElement.setPrimaries(element.getPrimaries());
             currentElement.setUpdated(localDateTime.getLocalDateTime());
             return response.updated(elementService.saveElement(currentElement));
         } catch (DataAccessException e) {
@@ -265,7 +299,7 @@ public class ElementRestController {
         }
     }
 
-    @DeleteMapping("/deleteElements")
+    @DeleteMapping("/delete/allElements")
     public ResponseEntity<?> deleteElementById() {
         elementService.deleteAllElements();
         return response.deletedAll(ENTITY);

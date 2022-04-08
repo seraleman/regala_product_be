@@ -135,7 +135,7 @@ public class CategoryRestController {
         }
     }
 
-    @DeleteMapping("/deleteUnusedCategories")
+    @DeleteMapping("/delete/unusedCategories")
     public ResponseEntity<?> deleteUnusedCategories() {
         try {
             List<Category> categories = categoryService.getAllCategories();
@@ -162,7 +162,7 @@ public class CategoryRestController {
         }
     }
 
-    @DeleteMapping("/deleteCategories")
+    @DeleteMapping("/delete/allCategories")
     public ResponseEntity<?> deleteAllCategories() {
         try {
             categoryService.deleteAllCategories();

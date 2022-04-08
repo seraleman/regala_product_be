@@ -58,6 +58,22 @@ public class ResponseImpl implements IResponse {
     }
 
     @Override
+    public ResponseEntity<Map<String, Object>> deletedWithCompromisedEntities(
+            Map<String, Object> updatedCompromisedEntities, String entity) {
+
+        response = new LinkedHashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
+
+        response.put("message", "objeto '"
+                .concat(entity)
+                .concat("' eliminado, entidades comprometidas actualizadas disponibles"));
+        data.put("updatedEntities", updatedCompromisedEntities);
+        response.put("data", data);
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<Map<String, Object>> deletedUnused(
             Integer deletedObjs, List<?> undeletedObjectsList, String entity) {
 
@@ -146,7 +162,7 @@ public class ResponseImpl implements IResponse {
         response.put("message", "no existen objetos '"
                 .concat(entity)
                 .concat("' en la base de datos"));
-        return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.OK);
+        return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -183,9 +199,11 @@ public class ResponseImpl implements IResponse {
     @Override
     public ResponseEntity<Map<String, Object>> list(List<?> objs, String entity) {
         response = new LinkedHashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
         response.put("message", "lista de objetos '".concat(entity).concat("' disponible"));
-        response.put("quantity", objs.size());
-        response.put("data", objs);
+        data.put("quantity", objs.size());
+        data.put("list", objs);
+        response.put("data", data);
         return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.OK);
     }
 
@@ -234,6 +252,7 @@ public class ResponseImpl implements IResponse {
             String id) {
 
         response = new LinkedHashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
 
         response.put("message", "lista de objetos '"
                 .concat(searchedEntity)
@@ -242,7 +261,9 @@ public class ResponseImpl implements IResponse {
                 .concat("' con id '")
                 .concat(id)
                 .concat("' disponible'"));
-        response.put("data", objs);
+        data.put("quantity", objs.size());
+        data.put("list", objs);
+        response.put("data", data);
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
@@ -268,22 +289,6 @@ public class ResponseImpl implements IResponse {
                 .concat(entity)
                 .concat("' y entidades comprometidas actualizados y disponibles"));
         data.put("updated".concat(entity), obj);
-        data.put("updatedEntities", updatedCompromisedEntities);
-        response.put("data", data);
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<Map<String, Object>> deletedWithCompromisedEntities(
-            Map<String, Object> updatedCompromisedEntities, String entity) {
-
-        response = new LinkedHashMap<>();
-        Map<String, Object> data = new LinkedHashMap<>();
-
-        response.put("message", "objeto '"
-                .concat(entity)
-                .concat("' eliminado, entidades comprometidas actualizadas disponibles"));
         data.put("updatedEntities", updatedCompromisedEntities);
         response.put("data", data);
 

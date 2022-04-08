@@ -17,6 +17,9 @@ public interface IResponse {
 
         ResponseEntity<Map<String, Object>> deletedAll(String entity);
 
+        ResponseEntity<Map<String, Object>> deletedWithCompromisedEntities(
+                        Map<String, Object> updatedCompromisedEntities, String entity);
+
         ResponseEntity<Map<String, Object>> deletedUnused(
                         Integer deletedObjs, List<?> undeletedObjectsList, String entity);
 
@@ -48,6 +51,4 @@ public interface IResponse {
         ResponseEntity<Map<String, Object>> updatedWithCompromisedEntities(Object obj,
                         Map<String, Object> updatedCompromisedEntities, String entity);
 
-        ResponseEntity<Map<String, Object>> deletedWithCompromisedEntities(
-                        Map<String, Object> updatedCompromisedEntities, String entity);
 }

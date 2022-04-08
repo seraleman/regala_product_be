@@ -208,7 +208,7 @@ public class PrimaryRestController {
         }
     }
 
-    @DeleteMapping("/deleteUnusedPrimaries")
+    @DeleteMapping("/delete/unusedPrimaries")
     public ResponseEntity<?> deleteUnusedPrimaries() {
         try {
             List<Primary> primaries = primaryService.getAllPrimaries();

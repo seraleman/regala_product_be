@@ -110,7 +110,7 @@ public class OcassionResteController {
         }
     }
 
-    @DeleteMapping("/deleteOcassions")
+    @DeleteMapping("/delete/allOcassions")
     public ResponseEntity<?> deleteAllOcassions() {
         ocassionService.deleteAllOcassions();
         return response.deletedAll("Ocassion");

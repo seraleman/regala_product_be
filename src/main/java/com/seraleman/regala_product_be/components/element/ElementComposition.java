@@ -38,14 +38,14 @@ public class ElementComposition {
         this.quantity = quantity;
     }
 
-    public Float getCost() {
-        Float cost = quantity * primary.getBudget();
-        return cost;
-    }
-
     @Override
     public String toString() {
         return "ElementComposition [primary=" + primary + ", quantity=" + quantity + "]";
+    }
+
+    public Float getCost() {
+        Float cost = quantity * primary.getBudget();
+        return cost;
     }
 
 }

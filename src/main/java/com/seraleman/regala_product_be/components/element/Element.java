@@ -25,6 +25,9 @@ public class Element {
     private String description;
 
     @NotNull
+    private Float utility;
+
+    @NotNull
     private Collection collection;
 
     @NotNull
@@ -87,6 +90,14 @@ public class Element {
         this.description = description;
     }
 
+    public Float getUtility() {
+        return utility;
+    }
+
+    public void setUtility(Float utility) {
+        this.utility = utility;
+    }
+
     public Collection getCollection() {
         return collection;
     }
@@ -138,16 +149,32 @@ public class Element {
         return categories.size();
     }
 
-    public Integer getPrimariesQuantity() {
+    public Integer getDiferentsPrimariesQuantity() {
         return primaries.size();
+    }
+
+    public Integer getPrimariesQuantity() {
+        Integer quantity = 0;
+        for (ElementComposition composition : primaries) {
+            quantity += composition.getQuantity();
+        }
+        return quantity;
     }
 
     public Float getCost() {
         Float cost = 0f;
-        for (ElementComposition primary : primaries) {
-            cost += primary.getCost();
+        for (ElementComposition composition : primaries) {
+            cost += composition.getCost();
         }
         return cost;
+    }
+
+    public Float getPrice() {
+        return getCost() / (1 - utility);
+    }
+
+    public Float getGain() {
+        return getPrice() - getCost();
     }
 
 }

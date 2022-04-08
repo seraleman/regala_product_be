@@ -6,13 +6,17 @@ import com.seraleman.regala_product_be.components.gift.Gift;
 
 public interface IGiftService {
 
-    public List<Gift> getAllGifts();
+    List<Gift> getAllGifts();
 
-    public Gift getGiftById(String id);
+    List<Gift> getAllGiftsByOcassionId(String OcassionId);
 
-    public Gift saveGift(Gift gift);
+    List<Gift> getAllGiftsByElementsElementId(String elementId);
 
-    public void deleteGiftById(String id);
+    Gift getGiftById(String id);
 
-    public void deleteAllGifts();
+    Gift saveGift(Gift gift);
+
+    void deleteGiftById(String id);
+
+    void deleteAllGifts();
 }

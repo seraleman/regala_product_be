@@ -63,13 +63,13 @@ public class ValidateImpl implements IValidate {
 
     @Override
     public BindingResult quantityInComposition(
-            BindingResult result, String entity,
+            BindingResult result, String entityInComposition,
             Integer quantity, String id) {
 
         if (quantity == null) {
             FieldError error = new FieldError("quantity", "quantity",
                     "que acompaña el objeto '"
-                            .concat(entity)
+                            .concat(entityInComposition)
                             .concat("' con id '")
                             .concat(id)
                             .concat("' no debe ser null"));
@@ -79,7 +79,7 @@ public class ValidateImpl implements IValidate {
         if (quantity < 1) {
             FieldError error = new FieldError("ElementComposition",
                     "quantity", "que acompaña el objeto '"
-                            .concat(entity)
+                            .concat(entityInComposition)
                             .concat("' con id '")
                             .concat(id)
                             .concat("' debe ser igual o mayor a 1"));

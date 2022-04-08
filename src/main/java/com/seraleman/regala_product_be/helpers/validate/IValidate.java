@@ -20,7 +20,7 @@ public interface IValidate {
                         String objToValidateId);
 
         BindingResult quantityInComposition(
-                        BindingResult result, String entity,
+                        BindingResult result, String entityInComposition,
                         Integer quantity, String id);
 
 }
