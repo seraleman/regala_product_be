@@ -30,6 +30,11 @@ public class GiftServiceImpl implements IGiftService {
     }
 
     @Override
+    public List<Gift> getAllByElmentsElementCategoriesId(String categoryId) {
+        return giftDao.findAllByElementsElementCategoriesId(categoryId);
+    }
+
+    @Override
     public Gift getGiftById(String id) {
         return giftDao.findById(id).orElse(null);
     }

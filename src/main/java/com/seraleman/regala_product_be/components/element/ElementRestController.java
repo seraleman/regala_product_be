@@ -243,12 +243,14 @@ public class ElementRestController {
                 primaries.add(prmry);
             }
 
-            currentElement.setCollection(collection);
             currentElement.setCategories(categories);
-            currentElement.setPrimaries(primaries);
+            currentElement.setCollection(collection);
             currentElement.setDescription(element.getDescription());
             currentElement.setName(element.getName());
+            currentElement.setPrimaries(primaries);
             currentElement.setUpdated(localDateTime.getLocalDateTime());
+            currentElement.setUtility(element.getUtility());
+
             return response.updated(elementService.saveElement(currentElement));
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);

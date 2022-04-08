@@ -12,6 +12,8 @@ public interface IGiftService {
 
     List<Gift> getAllGiftsByElementsElementId(String elementId);
 
+    List<Gift> getAllByElmentsElementCategoriesId(String categoryId);
+
     Gift getGiftById(String id);
 
     Gift saveGift(Gift gift);

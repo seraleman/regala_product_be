@@ -94,7 +94,7 @@ public class CollectionCompromisedEntitiesImpl implements ICollectionCompromised
         }
 
         @Override
-        public List<Element> updateCollectionOfPrimaryInCompromisedElements(Collection collection) {
+        public List<Element> updateCollectionOfPrimariesInCompromisedElements(Collection collection) {
 
                 Query query = new Query()
                                 .addCriteria(Criteria

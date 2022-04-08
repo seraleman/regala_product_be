@@ -45,23 +45,26 @@ public class Element {
     public Element() {
     }
 
-    public Element(@NotNull Collection collection, @NotNull String description, @NotNull String name,
-            @NotNull List<ElementComposition> primaries, @NotNull List<Category> categories) {
-        this.collection = collection;
-        this.description = description;
+    public Element(@NotNull String name, @NotNull String description, @NotNull Float utility,
+            @NotNull Collection collection, @NotNull List<Category> categories,
+            @NotNull List<ElementComposition> primaries) {
         this.name = name;
-        this.primaries = primaries;
+        this.description = description;
+        this.utility = utility;
+        this.collection = collection;
         this.categories = categories;
+        this.primaries = primaries;
     }
 
-    public Element(@NotNull Collection collection, @NotNull String description, @NotNull String name,
-            @NotNull List<ElementComposition> primaries, @NotNull List<Category> categories,
-            @NotNull LocalDateTime created, @NotNull LocalDateTime updated) {
-        this.collection = collection;
-        this.description = description;
+    public Element(@NotNull String name, @NotNull String description, @NotNull Float utility,
+            @NotNull Collection collection, @NotNull List<Category> categories,
+            @NotNull List<ElementComposition> primaries, LocalDateTime created, LocalDateTime updated) {
         this.name = name;
-        this.primaries = primaries;
+        this.description = description;
+        this.utility = utility;
+        this.collection = collection;
         this.categories = categories;
+        this.primaries = primaries;
         this.created = created;
         this.updated = updated;
     }

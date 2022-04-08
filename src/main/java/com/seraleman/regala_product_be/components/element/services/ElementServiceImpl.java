@@ -75,11 +75,12 @@ public class ElementServiceImpl implements IElementService {
         List<Category> categories = new ArrayList<>();
 
         Element newElement = new Element(
+                primary.getName(),
+                primary.getName(),
+                0.3f,
                 primary.getCollection(),
-                primary.getName(),
-                primary.getName(),
-                primaries,
                 categories,
+                primaries,
                 primary.getCreated(),
                 primary.getUpdated());
 

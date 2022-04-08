@@ -12,5 +12,5 @@ public interface ICollectionCompromisedEntities {
 
     List<Element> updateCollectionInCompromisedElements(Collection collection);
 
-    List<Element> updateCollectionOfPrimaryInCompromisedElements(Collection collection);
+    List<Element> updateCollectionOfPrimariesInCompromisedElements(Collection collection);
 }

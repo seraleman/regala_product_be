@@ -25,6 +25,10 @@ public class CategoryCompromiseImpl implements ICategoryCompromise {
                 response.put("elements", structure.responseUpdatedCompromisedEntities(
                                 categoryCompromisedEntities
                                                 .updateCategoryInCompromisedElements(category)));
+
+                response.put("gifts", structure.responseUpdatedCompromisedEntities(
+                                categoryCompromisedEntities
+                                                .updateCategoryOfElementsInCompromisedGifts(category)));
                 return response;
         }
 

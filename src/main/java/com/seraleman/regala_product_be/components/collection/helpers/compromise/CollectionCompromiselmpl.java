@@ -33,7 +33,7 @@ public class CollectionCompromiselmpl implements ICollectionCompromise {
                                                                 collection)));
                 response.put("primariesIntoElements", structure.responseUpdatedCompromisedEntities(
                                 collectionCompromisedEntities
-                                                .updateCollectionOfPrimaryInCompromisedElements(
+                                                .updateCollectionOfPrimariesInCompromisedElements(
                                                                 collection)));
                 return response;
         }
