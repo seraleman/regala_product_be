@@ -50,7 +50,8 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
                                 .execute()
                                 .getModifiedCount();
 
-                List<Element> updatedElements = elementService.getAllElementsByCategoryId(category.getId());
+                List<Element> updatedElements = elementService
+                                .getAllElementsByCategoryId(category.getId());
 
                 if (UpdatedElementsQuantity == updatedElements.size()) {
                         return updatedElements;
@@ -97,11 +98,10 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
                                 .addCriteria(Criteria
                                                 .where("elements")
                                                 .elemMatch(Criteria
-                                                                .where("element.categories")
-                                                                .elemMatch(Criteria.where("id")
-                                                                                .is(category.getId()))));
+                                                                .where("element.categories.id")
+                                                                .is(category.getId())));
                 Update update = new Update()
-                                .set("elements.$.categories", category)
+                                .set("elements.$[].categories.$", category)
                                 .set("updated", localDateTime.getLocalDateTime());
 
                 Integer updatedGiftsQuantity = mongoTemplate
@@ -110,7 +110,8 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
                                 .execute()
                                 .getModifiedCount();
 
-                List<Gift> updatedGifts = giftService.getAllByElmentsElementCategoriesId(category.getId());
+                List<Gift> updatedGifts = giftService
+                                .getAllByElmentsElementCategoriesId(category.getId());
 
                 if (updatedGiftsQuantity == updatedGifts.size()) {
                         return updatedGifts;
