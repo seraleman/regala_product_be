@@ -10,6 +10,7 @@ import com.seraleman.regala_product_be.components.gift.services.IGiftService;
 import com.seraleman.regala_product_be.helpers.Exceptions.updatedQuantityDoesNotMatchQuery;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -103,10 +104,12 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
                                                 .where("element.categories").elemMatch(Criteria
                                                                 .where("id")
                                                                 .is(category.getId()))));
+                System.out.println(category.getId().getClass());
                 update = new Update()
-                                .set("elements.$[].element.categories.$", category);
-                // .filterArray("category", category.getId());
-                // .set("updated", localDateTime.getLocalDateTime());
+                                .set("elements.$[].element.categories.$[category]", category)
+                                .filterArray(Criteria.where("category._id")
+                                                .is(new ObjectId(category.getId())))
+                                .set("updated", localDateTime.getLocalDateTime());
 
                 Integer cantidad = mongoTemplate.bulkOps(BulkMode.UNORDERED, Gift.class)
                                 .updateMulti(query, update)
