@@ -18,10 +18,12 @@ public class CategoryCompromiseImpl implements ICategoryCompromise {
         @Autowired
         private IStructure structure;
 
+        private Map<String, Object> response;
+
         @Override
         public Map<String, Object> updateCategoryInCompromisedEntities(Category category) {
 
-                Map<String, Object> response = new LinkedHashMap<>();
+                response = new LinkedHashMap<>();
                 response.put("elements", structure.responseUpdatedCompromisedEntities(
                                 categoryCompromisedEntities
                                                 .updateCategoryInCompromisedElements(category)));
@@ -35,10 +37,14 @@ public class CategoryCompromiseImpl implements ICategoryCompromise {
         @Override
         public Map<String, Object> deleteCategoryInCompromisedEntities(Category category) {
 
-                Map<String, Object> response = new LinkedHashMap<>();
+                response = new LinkedHashMap<>();
                 response.put("elements", structure.responseUpdatedCompromisedEntities(
                                 categoryCompromisedEntities
                                                 .deleteCategoryInCompromisedElements(category)));
+
+                response.put("gifts", structure.responseUpdatedCompromisedEntities(
+                                categoryCompromisedEntities
+                                                .deleteCategoryOfElementsInCompromisedGifts(category)));
                 return response;
         }
 

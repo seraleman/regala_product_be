@@ -33,14 +33,18 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
         @Autowired
         private IGiftService giftService;
 
+        private Query query;
+
+        Update update;
+
         @Override
         public List<Element> updateCategoryInCompromisedElements(Category category) {
 
-                Query query = new Query()
-                                .addCriteria(Criteria
-                                                .where("categories.id")
-                                                .is(category.getId()));
-                Update update = new Update()
+                query = new Query()
+                                .addCriteria(Criteria.where("categories").elemMatch(Criteria
+                                                .where("id")
+                                                .is(category.getId())));
+                update = new Update()
                                 .set("categories.$", category)
                                 .set("updated", localDateTime.getLocalDateTime());
 
@@ -65,13 +69,14 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
 
         @Override
         public List<Element> deleteCategoryInCompromisedElements(Category category) {
-                Query query = new Query()
-                                .addCriteria(Criteria
-                                                .where("categories.id")
-                                                .is(category.getId()));
-                Update update = new Update()
+                query = new Query()
+                                .addCriteria(Criteria.where("categories").elemMatch(Criteria
+                                                .where("id")
+                                                .is(category.getId())));
+                update = new Update()
                                 .set("categories.$", null)
                                 .set("updated", localDateTime.getLocalDateTime());
+
                 Integer updatedElementsQuantity = mongoTemplate
                                 .bulkOps(BulkMode.ORDERED, Element.class)
                                 .updateMulti(query, update)
@@ -89,45 +94,49 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
                                                         .concat("la cantidad de objetos comprometidos actualizados ")
                                                         .concat("- revisar integridad de base de datos -"));
                 }
-
         }
 
         @Override
         public List<Gift> updateCategoryOfElementsInCompromisedGifts(Category category) {
-                Query query = new Query()
-                                .addCriteria(Criteria
-                                                .where("elements")
-                                                .elemMatch(Criteria
-                                                                .where("element.categories.id")
-                                                                .is(category.getId())));
-                Update update = new Update()
-                                .set("elements.$[].categories.$", category)
-                                .set("updated", localDateTime.getLocalDateTime());
+                query = new Query()
+                                .addCriteria(Criteria.where("elements").elemMatch(Criteria
+                                                .where("element.categories").elemMatch(Criteria
+                                                                .where("id")
+                                                                .is(category.getId()))));
+                update = new Update()
+                                .set("elements.$[].element.categories.$", category);
+                // .filterArray("category", category.getId());
+                // .set("updated", localDateTime.getLocalDateTime());
 
-                Integer updatedGiftsQuantity = mongoTemplate
-                                .bulkOps(BulkMode.ORDERED, Gift.class)
+                Integer cantidad = mongoTemplate.bulkOps(BulkMode.UNORDERED, Gift.class)
                                 .updateMulti(query, update)
                                 .execute()
                                 .getModifiedCount();
 
+                System.out.println(cantidad);
+
                 List<Gift> updatedGifts = giftService
-                                .getAllByElmentsElementCategoriesId(category.getId());
+                                .getAllGiftsByElementsElementCategoriesId(category.getId());
 
-                if (updatedGiftsQuantity == updatedGifts.size()) {
-                        return updatedGifts;
-                } else {
-                        throw new updatedQuantityDoesNotMatchQuery(
-                                        "La cantidad de objetos actualizados no coincide con "
-                                                        .concat("la cantidad de objetos comprometidos actualizados ")
-                                                        .concat("- revisar integridad de base de datos -"));
-                }
-
+                return updatedGifts;
         }
 
         @Override
         public List<Gift> deleteCategoryOfElementsInCompromisedGifts(Category category) {
-                // TODO Auto-generated method stub
-                return null;
-        }
+                query = new Query()
+                                .addCriteria(Criteria.where("elements").elemMatch(Criteria
+                                                .where("element.categories").elemMatch(Criteria
+                                                                .where("id")
+                                                                .is(category.getId()))));
+                update = new Update()
+                                .set("elements.$[].element.categories.$", null)
+                                .set("updated", localDateTime.getLocalDateTime());
 
+                mongoTemplate.bulkOps(BulkMode.ORDERED, Gift.class)
+                                .updateMulti(query, update)
+                                .execute()
+                                .getModifiedCount();
+
+                return giftService.cleanGiftsOfNullCategories();
+        }
 }

@@ -27,7 +27,7 @@ public class Gift {
     private List<Ocassion> ocassions;
 
     @NotNull
-    private List<GitfComposition> elements;
+    private List<GiftComposition> elements;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
@@ -67,11 +67,11 @@ public class Gift {
         this.ocassions = ocassions;
     }
 
-    public List<GitfComposition> getElements() {
+    public List<GiftComposition> getElements() {
         return elements;
     }
 
-    public void setElements(List<GitfComposition> elements) {
+    public void setElements(List<GiftComposition> elements) {
         this.elements = elements;
     }
 
@@ -107,7 +107,7 @@ public class Gift {
 
     public Integer getElementsQuantity() {
         Integer quantity = 0;
-        for (GitfComposition composition : elements) {
+        for (GiftComposition composition : elements) {
             quantity += composition.getQuantity();
         }
         return quantity;
@@ -115,7 +115,7 @@ public class Gift {
 
     public Float getCost() {
         Float cost = 0f;
-        for (GitfComposition element : elements) {
+        for (GiftComposition element : elements) {
             cost += element.getCost();
         }
         return cost;
@@ -123,7 +123,7 @@ public class Gift {
 
     public Float getPrice() {
         Float price = 0f;
-        for (GitfComposition composition : elements) {
+        for (GiftComposition composition : elements) {
             price += composition.getPrice();
         }
         return price;
@@ -131,7 +131,7 @@ public class Gift {
 
     public Float getGain() {
         Float price = 0f;
-        for (GitfComposition composition : elements) {
+        for (GiftComposition composition : elements) {
             price += composition.getGain();
         }
         return price;

@@ -7,32 +7,32 @@ import com.seraleman.regala_product_be.components.primary.Primary;
 
 public interface IElementService {
 
-    List<Element> getAllElements();
-
-    List<Element> getAllElementsByCollectionId(String collectionId);
-
-    List<Element> getAllElementsByPrimariesPrimaryId(String primaryId);
-
-    List<Element> getAllElementsByPrimariesPrimaryCollectionId(String CollectionId);
-
-    List<Element> getAllElementsByCategoryIsNull();
-
-    List<Element> getAllElementsByCategoryId(String categoryId);
-
-    Element getElementById(String id);
-
-    Element saveElement(Element element);
-
-    Element createElementFromPrimary(Primary primary);
-
     List<Element> cleanElementsOfNullPrimaries();
 
     List<Element> cleanElementsOfNullCategories();
+
+    Element createElementFromPrimary(Primary primary);
+
+    void deleteAllElements(); // borrar
 
     void deleteElementById(String id);
 
     Integer deleteElementsWithoutPrimaries();
 
-    void deleteAllElements(); // borrar
+    Element getElementById(String id);
+
+    List<Element> getAllElements();
+
+    List<Element> getAllElementsByCategoryId(String categoryId);
+
+    List<Element> getAllElementsByCategoryIsNull();
+
+    List<Element> getAllElementsByCollectionId(String collectionId);
+
+    List<Element> getAllElementsByPrimariesPrimaryCollectionId(String CollectionId);
+
+    List<Element> getAllElementsByPrimariesPrimaryId(String primaryId);
+
+    Element saveElement(Element element);
 
 }

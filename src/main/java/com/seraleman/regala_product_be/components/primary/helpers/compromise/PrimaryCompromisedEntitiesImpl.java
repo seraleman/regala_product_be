@@ -32,9 +32,8 @@ public class PrimaryCompromisedEntitiesImpl implements IPrimaryCompromisedEntiti
         @Override
         public List<Element> updatePrimaryInCompromisedElements(Primary primary) {
 
-                Query query = new Query().addCriteria(Criteria
-                                .where("primaries")
-                                .elemMatch(Criteria
+                Query query = new Query()
+                                .addCriteria(Criteria.where("primaries").elemMatch(Criteria
                                                 .where("primary.id")
                                                 .is(primary.getId())));
                 Update update = new Update()
@@ -58,9 +57,8 @@ public class PrimaryCompromisedEntitiesImpl implements IPrimaryCompromisedEntiti
 
         @Override
         public List<Element> deletePrimaryInCompromisedElements(Primary primary) {
-                Query query = new Query().addCriteria(Criteria
-                                .where("primaries")
-                                .elemMatch(Criteria
+                Query query = new Query()
+                                .addCriteria(Criteria.where("primaries").elemMatch(Criteria
                                                 .where("primary.id")
                                                 .is(primary.getId())));
                 Update update = new Update()

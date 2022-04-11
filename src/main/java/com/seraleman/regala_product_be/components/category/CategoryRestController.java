@@ -61,19 +61,6 @@ public class CategoryRestController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryById(@PathVariable String id) {
-        try {
-            Category category = categoryService.getCategoryById(id);
-            if (category == null) {
-                return response.notFound(id, ENTITY);
-            }
-            return response.found(category);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
     @PostMapping("/")
     public ResponseEntity<?> createCategory(@Valid @RequestBody Category category,
             BindingResult result) {
@@ -127,7 +114,7 @@ public class CategoryRestController {
             Map<String, Object> responseCompromisedEntities = categoryCompromise
                     .deleteCategoryInCompromisedEntities(category);
 
-            categoryService.deleteCategoryById(id);
+            // categoryService.deleteCategoryById(id);
 
             return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {

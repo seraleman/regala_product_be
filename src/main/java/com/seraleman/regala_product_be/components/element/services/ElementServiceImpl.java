@@ -26,43 +26,41 @@ public class ElementServiceImpl implements IElementService {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public List<Element> getAllElements() {
-        return elementDao.findAll();
+    public List<Element> cleanElementsOfNullCategories() {
+
+        List<Element> elements = elementDao.findAllByCategoriesIsNull();
+        List<Element> updatedElements = new ArrayList<>();
+
+        for (Element element : elements) {
+            List<Category> categories = new ArrayList<>();
+            for (Category category : element.getCategories()) {
+                if (category != null) {
+                    categories.add(category);
+                }
+            }
+            element.setCategories(categories);
+            updatedElements.add(elementDao.save(element));
+        }
+        return updatedElements;
     }
 
     @Override
-    public List<Element> getAllElementsByCollectionId(String collectionId) {
-        return elementDao.findAllByCollectionId(collectionId);
-    }
+    public List<Element> cleanElementsOfNullPrimaries() {
 
-    @Override
-    public List<Element> getAllElementsByPrimariesPrimaryId(String primaryId) {
-        return elementDao.findAllByPrimariesPrimaryId(primaryId);
-    }
+        List<Element> elements = elementDao.findAllByPrimariesIsNull();
+        List<Element> updatedElements = new ArrayList<>();
 
-    @Override
-    public List<Element> getAllElementsByPrimariesPrimaryCollectionId(String CollectionId) {
-        return elementDao.findAllElementsByPrimariesPrimaryCollectionId(CollectionId);
-    }
-
-    @Override
-    public List<Element> getAllElementsByCategoryIsNull() {
-        return elementDao.findAllByCategoriesIsNull();
-    }
-
-    @Override
-    public List<Element> getAllElementsByCategoryId(String categoryId) {
-        return elementDao.findAllByCategoriesId(categoryId);
-    }
-
-    @Override
-    public Element getElementById(String id) {
-        return elementDao.findById(id).orElse(null);
-    }
-
-    @Override
-    public Element saveElement(Element element) {
-        return elementDao.save(element);
+        for (Element element : elements) {
+            List<ElementComposition> newPrimaries = new ArrayList<>();
+            for (ElementComposition composition : element.getPrimaries()) {
+                if (composition != null) {
+                    newPrimaries.add(composition);
+                }
+            }
+            element.setPrimaries(newPrimaries);
+            updatedElements.add(elementDao.save(element));
+        }
+        return updatedElements;
     }
 
     @Override
@@ -88,41 +86,8 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
-    public List<Element> cleanElementsOfNullPrimaries() {
-
-        List<Element> elements = elementDao.findAllByPrimariesIsNull();
-        List<Element> updatedElements = new ArrayList<>();
-
-        for (Element element : elements) {
-            List<ElementComposition> newPrimaries = new ArrayList<>();
-            for (ElementComposition composition : element.getPrimaries()) {
-                if (composition != null) {
-                    newPrimaries.add(composition);
-                }
-            }
-            element.setPrimaries(newPrimaries);
-            updatedElements.add(elementDao.save(element));
-        }
-        return updatedElements;
-    }
-
-    @Override
-    public List<Element> cleanElementsOfNullCategories() {
-
-        List<Element> elements = elementDao.findAllByCategoriesIsNull();
-        List<Element> updatedElements = new ArrayList<>();
-
-        for (Element element : elements) {
-            List<Category> newCategories = new ArrayList<>();
-            for (Category category : element.getCategories()) {
-                if (category != null) {
-                    newCategories.add(category);
-                }
-            }
-            element.setCategories(newCategories);
-            updatedElements.add(elementDao.save(element));
-        }
-        return updatedElements;
+    public void deleteAllElements() {
+        elementDao.deleteAll();
     }
 
     @Override
@@ -142,8 +107,43 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
-    public void deleteAllElements() {
-        elementDao.deleteAll();
+    public Element getElementById(String id) {
+        return elementDao.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Element> getAllElements() {
+        return elementDao.findAll();
+    }
+
+    @Override
+    public List<Element> getAllElementsByCategoryId(String categoryId) {
+        return elementDao.findAllByCategoriesId(categoryId);
+    }
+
+    @Override
+    public List<Element> getAllElementsByCategoryIsNull() {
+        return elementDao.findAllByCategoriesIsNull();
+    }
+
+    @Override
+    public List<Element> getAllElementsByCollectionId(String collectionId) {
+        return elementDao.findAllByCollectionId(collectionId);
+    }
+
+    @Override
+    public List<Element> getAllElementsByPrimariesPrimaryId(String primaryId) {
+        return elementDao.findAllByPrimariesPrimaryId(primaryId);
+    }
+
+    @Override
+    public List<Element> getAllElementsByPrimariesPrimaryCollectionId(String CollectionId) {
+        return elementDao.findAllElementsByPrimariesPrimaryCollectionId(CollectionId);
+    }
+
+    @Override
+    public Element saveElement(Element element) {
+        return elementDao.save(element);
     }
 
 }

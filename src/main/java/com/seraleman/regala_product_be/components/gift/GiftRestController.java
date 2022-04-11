@@ -93,6 +93,33 @@ public class GiftRestController {
         }
     }
 
+    @GetMapping("/byCategory/{categoryId}")
+    public ResponseEntity<?> getAllGiftsByCategoryId(@PathVariable String categoryId) {
+        try {
+            String searchByEntity = "Category";
+            List<Gift> gifts = giftService.getAllGiftsByElementsElementCategoriesId(categoryId);
+            if (gifts.isEmpty()) {
+                return response.isNotPartOf(ENTITY, searchByEntity, categoryId);
+            }
+            return response.parameterizedList(gifts, ENTITY, searchByEntity, categoryId);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/byCategoryNull")
+    public ResponseEntity<?> getAllGiftsByCategoryIsNull() {
+        try {
+            List<Gift> gifts = giftService.GetAllGiftsByElementsElementCategoriesIsNull();
+            if (gifts.isEmpty()) {
+                return response.empty(ENTITY);
+            }
+            return response.list(gifts, ENTITY);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getGiftById(@PathVariable String id) {
         try {
@@ -122,12 +149,12 @@ public class GiftRestController {
                 ocassions.add(ocassion);
             }
 
-            List<GitfComposition> elements = new ArrayList<>();
+            List<GiftComposition> elements = new ArrayList<>();
             if (validate.arrayIsNotEmpty(result, gift.getElements(), "elements",
                     "Element").hasErrors()) {
                 return response.invalidObject(result);
             }
-            for (GitfComposition component : gift.getElements()) {
+            for (GiftComposition component : gift.getElements()) {
                 Element element = elementService
                         .getElementById(component.getElement().getId());
                 if (validate.entityInArrayIsNotNull(result, element, "elements",
@@ -184,8 +211,8 @@ public class GiftRestController {
                 return response.invalidObject(result);
             }
 
-            List<GitfComposition> elements = new ArrayList<>();
-            for (GitfComposition component : gift.getElements()) {
+            List<GiftComposition> elements = new ArrayList<>();
+            for (GiftComposition component : gift.getElements()) {
                 Element element = elementService.getElementById(
                         component.getElement().getId());
 

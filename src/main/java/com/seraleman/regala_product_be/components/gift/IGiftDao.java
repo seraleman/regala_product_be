@@ -11,4 +11,7 @@ public interface IGiftDao extends MongoRepository<Gift, String> {
     List<Gift> findAllByElementsElementId(String elementId);
 
     List<Gift> findAllByElementsElementCategoriesId(String categoryId);
+
+    List<Gift> findAllByElementsElementCategoriesIsNull();
+
 }
