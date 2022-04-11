@@ -16,9 +16,15 @@ public interface IGiftService {
 
     List<Gift> getAllGiftsByElementsElementCategoriesId(String categoryId);
 
-    List<Gift> GetAllGiftsByElementsElementCategoriesIsNull();
+    List<Gift> getAllGiftsByElementsElementCategoriesIsNull();
+
+    List<Gift> getAllGiftsByElementsElementCollectionId(String collectionId);
 
     List<Gift> getAllGiftsByElementsElementId(String elementId);
+
+    List<Gift> getAllGiftsByElementsElementPrimariesPrimaryCollectionId(String collectionId);
+
+    List<Gift> getAllGiftsByElementsElementPrimariesPrimaryId(String primaryId);
 
     List<Gift> getAllGiftsByOcassionId(String OcassionId);
 

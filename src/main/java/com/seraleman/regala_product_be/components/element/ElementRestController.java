@@ -159,6 +159,9 @@ public class ElementRestController {
                         ctgry.getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
+                if (categories.contains(category)) {
+                    return response.repeated(category, category.getId(), ENTITY);
+                }
                 categories.add(category);
             }
 
@@ -179,6 +182,9 @@ public class ElementRestController {
                     return response.invalidObject(result);
                 }
                 component.setPrimary(primary);
+                if (primaries.contains(component)) {
+                    return response.repeated(primary, primary.getId(), ENTITY);
+                }
                 primaries.add(component);
             }
 
@@ -225,22 +231,32 @@ public class ElementRestController {
                         "Category", ctgry.getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
+                if (categories.contains(category)) {
+                    return response.repeated(category, category.getId(), ENTITY);
+                }
                 categories.add(category);
             }
 
             List<ElementComposition> primaries = new ArrayList<>();
-            for (ElementComposition prmry : element.getPrimaries()) {
-                Primary primary = primaryService.getPrimaryById(prmry.getPrimary().getId());
+            if (validate.arrayIsNotEmpty(result, element.getPrimaries(), "primaries",
+                    "Primary").hasErrors()) {
+                return response.invalidObject(result);
+            }
+            for (ElementComposition component : element.getPrimaries()) {
+                Primary primary = primaryService.getPrimaryById(component.getPrimary().getId());
                 if (validate.entityInArrayIsNotNull(result, primary, "primaries",
-                        "Primary", prmry.getPrimary().getId()).hasErrors()) {
+                        "Primary", component.getPrimary().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
-                if (validate.quantityInComposition(result, "Primary", prmry.getQuantity(),
-                        prmry.getPrimary().getId()).hasErrors()) {
+                if (validate.quantityInComposition(result, "Primary", component.getQuantity(),
+                        component.getPrimary().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
-                prmry.setPrimary(primary);
-                primaries.add(prmry);
+                component.setPrimary(primary);
+                if (primaries.contains(component)) {
+                    return response.repeated(primary, primary.getId(), ENTITY);
+                }
+                primaries.add(component);
             }
 
             currentElement.setCategories(categories);

@@ -115,7 +115,8 @@ public class CollectionRestController {
 
             return response.updatedWithCompromisedEntities(
                     collectionService.saveCollection(currentCollection),
-                    collectionCompromise.updateCollectionInCompromisedEntities(currentCollection), ENTITY);
+                    collectionCompromise.updateCollectionInCompromisedEntities(currentCollection),
+                    ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

@@ -39,6 +39,31 @@ public class ElementComposition {
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((primary == null) ? 0 : primary.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ElementComposition other = (ElementComposition) obj;
+        if (primary == null) {
+            if (other.primary != null)
+                return false;
+        } else if (!primary.equals(other.primary))
+            return false;
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "ElementComposition [primary=" + primary + ", quantity=" + quantity + "]";
     }

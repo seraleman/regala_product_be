@@ -59,7 +59,7 @@ public class GiftServiceImpl implements IGiftService {
     }
 
     @Override
-    public List<Gift> GetAllGiftsByElementsElementCategoriesIsNull() {
+    public List<Gift> getAllGiftsByElementsElementCategoriesIsNull() {
         return giftDao.findAllByElementsElementCategoriesIsNull();
     }
 
@@ -69,8 +69,23 @@ public class GiftServiceImpl implements IGiftService {
     }
 
     @Override
+    public List<Gift> getAllGiftsByElementsElementCollectionId(String collectionId) {
+        return giftDao.findAllByElementsElementCollectionId(collectionId);
+    }
+
+    @Override
     public List<Gift> getAllGiftsByElementsElementId(String elementId) {
         return giftDao.findAllByElementsElementId(elementId);
+    }
+
+    @Override
+    public List<Gift> getAllGiftsByElementsElementPrimariesPrimaryCollectionId(String collectionId) {
+        return giftDao.findAllByElementsElementPrimariesPrimaryCollectionId(collectionId);
+    }
+
+    @Override
+    public List<Gift> getAllGiftsByElementsElementPrimariesPrimaryId(String primaryId) {
+        return giftDao.findAllByElementsElementPrimariesPrimaryId(primaryId);
     }
 
     @Override

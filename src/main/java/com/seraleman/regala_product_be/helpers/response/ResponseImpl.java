@@ -269,6 +269,20 @@ public class ResponseImpl implements IResponse {
     }
 
     @Override
+    public ResponseEntity<Map<String, Object>> repeated(
+            Object repeatedObj, String repeatedObjId, String entityToCreate) {
+        response = new LinkedHashMap<>();
+        response.put("message", "objeto '"
+                .concat(repeatedObj.getClass().getSimpleName())
+                .concat("' con id '")
+                .concat(repeatedObjId)
+                .concat("' existe más de una vez en el objeto '")
+                .concat(entityToCreate)
+                .concat("' que se pretende guardar"));
+        return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.CREATED);
+    }
+
+    @Override
     public ResponseEntity<Map<String, Object>> updated(Object obj) {
         response = new LinkedHashMap<>();
         response.put("message", "objeto '"

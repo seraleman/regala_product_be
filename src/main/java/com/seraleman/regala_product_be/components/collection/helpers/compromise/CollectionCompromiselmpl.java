@@ -27,13 +27,19 @@ public class CollectionCompromiselmpl implements ICollectionCompromise {
                                 collectionCompromisedEntities
                                                 .updateCollectionInCompromisedPrimaries(
                                                                 collection)));
+                collectionCompromisedEntities
+                                .updateCollectionOfPrimariesInCompromisedElements(collection);
+
                 response.put("elements", structure.responseUpdatedCompromisedEntities(
                                 collectionCompromisedEntities
                                                 .updateCollectionInCompromisedElements(
                                                                 collection)));
-                response.put("primariesIntoElements", structure.responseUpdatedCompromisedEntities(
+                collectionCompromisedEntities
+                                .updatedCollectionOfPrimariesOfElementsInCompromisedGifts(collection);
+
+                response.put("gifts", structure.responseUpdatedCompromisedEntities(
                                 collectionCompromisedEntities
-                                                .updateCollectionOfPrimariesInCompromisedElements(
+                                                .updateCollectionOfElementsInCompromisedGifts(
                                                                 collection)));
                 return response;
         }

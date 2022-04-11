@@ -69,6 +69,30 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
         }
 
         @Override
+        public List<Gift> updateCategoryOfElementsInCompromisedGifts(Category category) {
+                query = new Query()
+                                .addCriteria(Criteria.where("elements").elemMatch(Criteria
+                                                .where("element.categories").elemMatch(Criteria
+                                                                .where("id")
+                                                                .is(category.getId()))));
+                update = new Update()
+                                .set("elements.$[].element.categories.$[category]", category)
+                                .filterArray(Criteria.where("category._id")
+                                                .is(new ObjectId(category.getId())))
+                                .set("updated", localDateTime.getLocalDateTime());
+
+                mongoTemplate.bulkOps(BulkMode.UNORDERED, Gift.class)
+                                .updateMulti(query, update)
+                                .execute()
+                                .getModifiedCount();
+
+                List<Gift> updatedGifts = giftService
+                                .getAllGiftsByElementsElementCategoriesId(category.getId());
+
+                return updatedGifts;
+        }
+
+        @Override
         public List<Element> deleteCategoryInCompromisedElements(Category category) {
                 query = new Query()
                                 .addCriteria(Criteria.where("categories").elemMatch(Criteria
@@ -98,33 +122,6 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
         }
 
         @Override
-        public List<Gift> updateCategoryOfElementsInCompromisedGifts(Category category) {
-                query = new Query()
-                                .addCriteria(Criteria.where("elements").elemMatch(Criteria
-                                                .where("element.categories").elemMatch(Criteria
-                                                                .where("id")
-                                                                .is(category.getId()))));
-                System.out.println(category.getId().getClass());
-                update = new Update()
-                                .set("elements.$[].element.categories.$[category]", category)
-                                .filterArray(Criteria.where("category._id")
-                                                .is(new ObjectId(category.getId())))
-                                .set("updated", localDateTime.getLocalDateTime());
-
-                Integer cantidad = mongoTemplate.bulkOps(BulkMode.UNORDERED, Gift.class)
-                                .updateMulti(query, update)
-                                .execute()
-                                .getModifiedCount();
-
-                System.out.println(cantidad);
-
-                List<Gift> updatedGifts = giftService
-                                .getAllGiftsByElementsElementCategoriesId(category.getId());
-
-                return updatedGifts;
-        }
-
-        @Override
         public List<Gift> deleteCategoryOfElementsInCompromisedGifts(Category category) {
                 query = new Query()
                                 .addCriteria(Criteria.where("elements").elemMatch(Criteria
@@ -132,7 +129,9 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
                                                                 .where("id")
                                                                 .is(category.getId()))));
                 update = new Update()
-                                .set("elements.$[].element.categories.$", null)
+                                .set("elements.$[].element.categories.$[category]", null)
+                                .filterArray(Criteria.where("category._id")
+                                                .is(new ObjectId(category.getId())))
                                 .set("updated", localDateTime.getLocalDateTime());
 
                 mongoTemplate.bulkOps(BulkMode.ORDERED, Gift.class)

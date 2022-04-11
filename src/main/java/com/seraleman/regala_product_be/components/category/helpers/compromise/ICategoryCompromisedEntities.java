@@ -10,9 +10,9 @@ public interface ICategoryCompromisedEntities {
 
     List<Element> updateCategoryInCompromisedElements(Category category);
 
-    List<Element> deleteCategoryInCompromisedElements(Category category);
-
     List<Gift> updateCategoryOfElementsInCompromisedGifts(Category category);
+
+    List<Element> deleteCategoryInCompromisedElements(Category category);
 
     List<Gift> deleteCategoryOfElementsInCompromisedGifts(Category category);
 

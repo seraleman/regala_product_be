@@ -52,87 +52,6 @@ public class GiftRestController {
     @Autowired
     private IElementService elementService;
 
-    @GetMapping("/")
-    public ResponseEntity<?> getAllGifts() {
-        try {
-            List<Gift> gifts = giftService.getAllGifts();
-            if (gifts.isEmpty()) {
-                return response.empty(ENTITY);
-            }
-            return response.list(gifts, ENTITY);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @GetMapping("/byOcassion/{ocassionId}")
-    public ResponseEntity<?> getAllGiftsByOcassionId(@PathVariable String ocassionId) {
-        try {
-            String searchByEntity = "Ocassion";
-            List<Gift> gifts = giftService.getAllGiftsByOcassionId(ocassionId);
-            if (gifts.isEmpty()) {
-                return response.isNotPartOf(ENTITY, "Ocassion", ocassionId);
-            }
-            return response.parameterizedList(gifts, ENTITY, searchByEntity, ocassionId);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @GetMapping("/byElement/{elementId}")
-    public ResponseEntity<?> getAllGiftsByElementId(@PathVariable String elementId) {
-        try {
-            String searchByEntity = "Element";
-            List<Gift> gifts = giftService.getAllGiftsByElementsElementId(elementId);
-            if (gifts.isEmpty()) {
-                return response.isNotPartOf(ENTITY, searchByEntity, elementId);
-            }
-            return response.parameterizedList(gifts, ENTITY, searchByEntity, elementId);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @GetMapping("/byCategory/{categoryId}")
-    public ResponseEntity<?> getAllGiftsByCategoryId(@PathVariable String categoryId) {
-        try {
-            String searchByEntity = "Category";
-            List<Gift> gifts = giftService.getAllGiftsByElementsElementCategoriesId(categoryId);
-            if (gifts.isEmpty()) {
-                return response.isNotPartOf(ENTITY, searchByEntity, categoryId);
-            }
-            return response.parameterizedList(gifts, ENTITY, searchByEntity, categoryId);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @GetMapping("/byCategoryNull")
-    public ResponseEntity<?> getAllGiftsByCategoryIsNull() {
-        try {
-            List<Gift> gifts = giftService.GetAllGiftsByElementsElementCategoriesIsNull();
-            if (gifts.isEmpty()) {
-                return response.empty(ENTITY);
-            }
-            return response.list(gifts, ENTITY);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getGiftById(@PathVariable String id) {
-        try {
-            Gift gift = giftService.getGiftById(id);
-            if (gift == null) {
-                return response.notFound(id, ENTITY);
-            }
-            return response.found(gift);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
     @PostMapping("/")
     public ResponseEntity<?> createGift(@Valid @RequestBody Gift gift, BindingResult result) {
         if (result.hasErrors()) {
@@ -145,6 +64,9 @@ public class GiftRestController {
                 if (validate.entityInArrayIsNotNull(result, ocassion, "ocassions",
                         "Ocassion", ocssn.getId()).hasErrors()) {
                     return response.invalidObject(result);
+                }
+                if (ocassions.contains(ocassion)) {
+                    return response.repeated(ocassion, ocassion.getId(), ENTITY);
                 }
                 ocassions.add(ocassion);
             }
@@ -166,6 +88,9 @@ public class GiftRestController {
                     return response.invalidObject(result);
                 }
                 component.setElement(element);
+                if (elements.contains(component)) {
+                    return response.repeated(element, element.getId(), ENTITY);
+                }
                 elements.add(component);
             }
 
@@ -175,6 +100,19 @@ public class GiftRestController {
             gift.setCreated(ldt);
             gift.setUpdated(ldt);
             return response.created(giftService.saveGift(gift));
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<?> getAllGifts() {
+        try {
+            List<Gift> gifts = giftService.getAllGifts();
+            if (gifts.isEmpty()) {
+                return response.empty(ENTITY);
+            }
+            return response.list(gifts, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -203,6 +141,9 @@ public class GiftRestController {
                         "Ocassion", ocassion.getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
+                if (ocassions.contains(ocassion)) {
+                    return response.repeated(ocassion, ocassion.getId(), ENTITY);
+                }
                 ocassions.add(ocassion);
             }
 
@@ -210,7 +151,6 @@ public class GiftRestController {
                     "Element").hasErrors()) {
                 return response.invalidObject(result);
             }
-
             List<GiftComposition> elements = new ArrayList<>();
             for (GiftComposition component : gift.getElements()) {
                 Element element = elementService.getElementById(
@@ -226,7 +166,11 @@ public class GiftRestController {
                         component.getElement().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
+
                 component.setElement(element);
+                if (elements.contains(component)) {
+                    return response.repeated(element, element.getId(), ENTITY);
+                }
                 elements.add(component);
             }
 
@@ -251,6 +195,117 @@ public class GiftRestController {
             }
             giftService.deleteGiftById(id);
             return response.deleted(ENTITY);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getGiftById(@PathVariable String id) {
+        try {
+            Gift gift = giftService.getGiftById(id);
+            if (gift == null) {
+                return response.notFound(id, ENTITY);
+            }
+            return response.found(gift);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/byElement/{elementId}")
+    public ResponseEntity<?> getAllGiftsByElementId(@PathVariable String elementId) {
+        try {
+            String searchByEntity = "Element";
+            List<Gift> gifts = giftService.getAllGiftsByElementsElementId(elementId);
+            if (gifts.isEmpty()) {
+                return response.isNotPartOf(ENTITY, searchByEntity, elementId);
+            }
+            return response.parameterizedList(gifts, ENTITY, searchByEntity, elementId);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/byElement/category/{categoryId}")
+    public ResponseEntity<?> getAllGiftsByElementCategoryId(@PathVariable String categoryId) {
+        try {
+            String searchByEntity = "Category";
+            List<Gift> gifts = giftService.getAllGiftsByElementsElementCategoriesId(categoryId);
+            if (gifts.isEmpty()) {
+                return response.isNotPartOf(ENTITY, searchByEntity, categoryId);
+            }
+            return response.parameterizedList(gifts, ENTITY, searchByEntity, categoryId);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/byElement/category/null")
+    public ResponseEntity<?> getAllGiftsByElementCategoryIsNull() {
+        try {
+            List<Gift> gifts = giftService.getAllGiftsByElementsElementCategoriesIsNull();
+            if (gifts.isEmpty()) {
+                return response.empty(ENTITY);
+            }
+            return response.list(gifts, ENTITY);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/byElement/collection/{collectionId}")
+    public ResponseEntity<?> getAllGiftsByElementCollectionId(@PathVariable String collectionId) {
+        try {
+            String searchByEntity = "Collection";
+            List<Gift> gifts = giftService.getAllGiftsByElementsElementCollectionId(collectionId);
+            if (gifts.isEmpty()) {
+                return response.isNotPartOf(ENTITY, searchByEntity, collectionId);
+            }
+            return response.parameterizedList(gifts, ENTITY, searchByEntity, collectionId);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/byElement/primary/{primaryId}")
+    public ResponseEntity<?> getAllGiftsByElementPrimaryId(@PathVariable String primaryId) {
+        try {
+            String searchByEntity = "Primary";
+            List<Gift> gifts = giftService.getAllGiftsByElementsElementPrimariesPrimaryId(primaryId);
+            if (gifts.isEmpty()) {
+                return response.isNotPartOf(ENTITY, "Ocassion", primaryId);
+            }
+            return response.parameterizedList(gifts, ENTITY, searchByEntity, primaryId);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/byElement/primary/collection/{collectionId}")
+    public ResponseEntity<?> getAllGiftsByElementPrimaryCollectionId(@PathVariable String collectionId) {
+        try {
+            String searchByEntity = "Collection";
+            List<Gift> gifts = giftService
+                    .getAllGiftsByElementsElementPrimariesPrimaryCollectionId(collectionId);
+            if (gifts.isEmpty()) {
+                return response.isNotPartOf(ENTITY, searchByEntity, collectionId);
+            }
+            return response.parameterizedList(gifts, ENTITY, searchByEntity, collectionId);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/byOcassion/{ocassionId}")
+    public ResponseEntity<?> getAllGiftsByOcassionId(@PathVariable String ocassionId) {
+        try {
+            String searchByEntity = "Ocassion";
+            List<Gift> gifts = giftService.getAllGiftsByOcassionId(ocassionId);
+            if (gifts.isEmpty()) {
+                return response.isNotPartOf(ENTITY, "Ocassion", ocassionId);
+            }
+            return response.parameterizedList(gifts, ENTITY, searchByEntity, ocassionId);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

@@ -46,6 +46,9 @@ public interface IResponse {
         ResponseEntity<Map<String, Object>> parameterizedList(
                         List<?> objs, String searchedEntity, String searchByEntity, String id);
 
+        ResponseEntity<Map<String, Object>> repeated(
+                        Object repeatedObj, String repeatedObjId, String entityToCreate);
+
         ResponseEntity<Map<String, Object>> updated(Object obj);
 
         ResponseEntity<Map<String, Object>> updatedWithCompromisedEntities(Object obj,
