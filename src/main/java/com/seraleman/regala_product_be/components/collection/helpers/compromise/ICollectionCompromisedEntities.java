@@ -9,14 +9,14 @@ import com.seraleman.regala_product_be.components.primary.Primary;
 
 public interface ICollectionCompromisedEntities {
 
+    List<Element> updateCollectionInCompromisedElements(Collection collection);
+
     List<Primary> updateCollectionInCompromisedPrimaries(Collection collection);
+
+    List<Gift> updateCollectionOfElementsInCompromisedGifts(Collection collection);
 
     void updateCollectionOfPrimariesInCompromisedElements(Collection collection);
 
-    List<Element> updateCollectionInCompromisedElements(Collection collection);
-
-    void updatedCollectionOfPrimariesOfElementsInCompromisedGifts(Collection collection);
-
-    List<Gift> updateCollectionOfElementsInCompromisedGifts(Collection collection);
+    void updateCollectionOfPrimariesOfElementsInCompromisedGifts(Collection collection);
 
 }

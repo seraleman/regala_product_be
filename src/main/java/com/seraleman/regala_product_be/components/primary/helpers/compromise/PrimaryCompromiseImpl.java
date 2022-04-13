@@ -14,24 +14,13 @@ import org.springframework.stereotype.Service;
 public class PrimaryCompromiseImpl implements IPrimaryCompromise {
 
     @Autowired
-    private IPrimaryCompromisedEntities primaryCompromisedEntities;
-
-    @Autowired
     private IElementService elementService;
 
     @Autowired
+    private IPrimaryCompromisedEntities primaryCompromisedEntities;
+
+    @Autowired
     private IStructure structure;
-
-    @Override
-    public Map<String, Object> updatePrimaryInCompromisedEntities(Primary primary) {
-
-        Map<String, Object> response = new LinkedHashMap<>();
-
-        response.put("elements", structure.responseUpdatedCompromisedEntities(
-                primaryCompromisedEntities.updatePrimaryInCompromisedElements(primary)));
-
-        return response;
-    }
 
     @Override
     public Map<String, Object> deletePrimaryInCompromisedEntities(Primary primary) {
@@ -43,6 +32,17 @@ public class PrimaryCompromiseImpl implements IPrimaryCompromise {
                         .deletePrimaryInCompromisedElements(primary),
                 elementService
                         .deleteElementsWithoutPrimaries()));
+
+        return response;
+    }
+
+    @Override
+    public Map<String, Object> updatePrimaryInCompromisedEntities(Primary primary) {
+
+        Map<String, Object> response = new LinkedHashMap<>();
+
+        response.put("elements", structure.responseUpdatedCompromisedEntities(
+                primaryCompromisedEntities.updatePrimaryInCompromisedElements(primary)));
 
         return response;
     }

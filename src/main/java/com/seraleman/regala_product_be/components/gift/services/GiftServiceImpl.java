@@ -54,48 +54,48 @@ public class GiftServiceImpl implements IGiftService {
     }
 
     @Override
-    public List<Gift> getAllGifts() {
+    public Gift getGiftById(String id) {
+        return giftDao.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Gift> getGifts() {
         return giftDao.findAll();
     }
 
     @Override
-    public List<Gift> getAllGiftsByElementsElementCategoriesIsNull() {
+    public List<Gift> getGiftsByElementsElementCategoriesIsNull() {
         return giftDao.findAllByElementsElementCategoriesIsNull();
     }
 
     @Override
-    public List<Gift> getAllGiftsByElementsElementCategoriesId(String categoryId) {
+    public List<Gift> getGiftsByElementsElementCategoriesId(String categoryId) {
         return giftDao.findAllByElementsElementCategoriesId(categoryId);
     }
 
     @Override
-    public List<Gift> getAllGiftsByElementsElementCollectionId(String collectionId) {
+    public List<Gift> getGiftsByElementsElementCollectionId(String collectionId) {
         return giftDao.findAllByElementsElementCollectionId(collectionId);
     }
 
     @Override
-    public List<Gift> getAllGiftsByElementsElementId(String elementId) {
+    public List<Gift> getGiftsByElementsElementId(String elementId) {
         return giftDao.findAllByElementsElementId(elementId);
     }
 
     @Override
-    public List<Gift> getAllGiftsByElementsElementPrimariesPrimaryCollectionId(String collectionId) {
+    public List<Gift> getGiftsByElementsElementPrimariesPrimaryCollectionId(String collectionId) {
         return giftDao.findAllByElementsElementPrimariesPrimaryCollectionId(collectionId);
     }
 
     @Override
-    public List<Gift> getAllGiftsByElementsElementPrimariesPrimaryId(String primaryId) {
+    public List<Gift> getGiftsByElementsElementPrimariesPrimaryId(String primaryId) {
         return giftDao.findAllByElementsElementPrimariesPrimaryId(primaryId);
     }
 
     @Override
-    public List<Gift> getAllGiftsByOcassionId(String OcassionId) {
+    public List<Gift> getGiftsByOcassionId(String OcassionId) {
         return giftDao.findAllByOcassionsId(OcassionId);
-    }
-
-    @Override
-    public Gift getGiftById(String id) {
-        return giftDao.findById(id).orElse(null);
     }
 
     @Override

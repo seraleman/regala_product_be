@@ -6,13 +6,14 @@ import com.seraleman.regala_product_be.components.category.Category;
 
 public interface ICategoryService {
 
-    public List<Category> getAllCategories();
+    void deleteCategories(); // temporal
 
-    public Category getCategoryById(String id);
+    void deleteCategoryById(String id);
 
-    public Category saveCategory(Category category);
+    Category getCategoryById(String id);
 
-    public void deleteCategoryById(String id);
+    List<Category> getCategories();
 
-    public void deleteAllCategories(); // temporal
+    Category saveCategory(Category category);
+
 }

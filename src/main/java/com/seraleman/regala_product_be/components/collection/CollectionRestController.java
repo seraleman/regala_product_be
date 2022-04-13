@@ -35,48 +35,22 @@ public class CollectionRestController {
     private static final String ENTITY = "Collection";
 
     @Autowired
+    private ICollectionCompromise collectionCompromise;
+
+    @Autowired
     private ICollectionService collectionService;
 
     @Autowired
-    private ICollectionCompromise collectionCompromise;
+    private IElementService elementService;
 
     @Autowired
     private ILocalDateTime localDateTime;
 
     @Autowired
-    private IResponse response;
-
-    @Autowired
     private IPrimaryService primaryService;
 
     @Autowired
-    private IElementService elementService;
-
-    @GetMapping("/")
-    public ResponseEntity<?> getAllCollections() {
-        try {
-            List<Collection> collections = collectionService.getAllCollections();
-            if (collections.isEmpty()) {
-                return response.empty(ENTITY);
-            }
-            return response.list(collections, ENTITY);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getCollectionById(@PathVariable String id) {
-        try {
-            Collection collection = collectionService.getCollectionById(id);
-            if (collection == null) {
-                return response.notFound(id, ENTITY);
-            }
-            return response.found(collection);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
+    private IResponse response;
 
     @PostMapping("/")
     public ResponseEntity<?> createCollection(
@@ -90,6 +64,53 @@ public class CollectionRestController {
             collection.setCreated(ldt);
             collection.setUpdated(ldt);
             return response.created(collectionService.saveCollection(collection));
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<?> getCollections() {
+        try {
+            List<Collection> collections = collectionService.getCollections();
+            if (collections.isEmpty()) {
+                return response.empty(ENTITY);
+            }
+            return response.list(collections, ENTITY);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCollectionById(@PathVariable String id) {
+
+        try {
+            if (collectionService.getCollectionById(id) == null) {
+                return response.notFound(id, ENTITY);
+            }
+            List<Primary> primaries = primaryService.getPrimariesByCollectionId(id);
+            List<Element> elements = elementService.getElementsByCollectionId(id);
+            if (!primaries.isEmpty() || !elements.isEmpty()) {
+                return response.notDeleted(primaries, "primaries",
+                        elements, "elements",
+                        ENTITY);
+            }
+            collectionService.deleteCollectionById(id);
+            return response.deleted(ENTITY);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCollectionById(@PathVariable String id) {
+        try {
+            Collection collection = collectionService.getCollectionById(id);
+            if (collection == null) {
+                return response.notFound(id, ENTITY);
+            }
+            return response.found(collection);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -122,32 +143,11 @@ public class CollectionRestController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCollectionById(@PathVariable String id) {
-
-        try {
-            if (collectionService.getCollectionById(id) == null) {
-                return response.notFound(id, ENTITY);
-            }
-            List<Primary> primaries = primaryService.getAllPrimariesByCollectionId(id);
-            List<Element> elements = elementService.getAllElementsByCollectionId(id);
-            if (!primaries.isEmpty() || !elements.isEmpty()) {
-                return response.notDeleted(primaries, "primaries",
-                        elements, "elements",
-                        ENTITY);
-            }
-            collectionService.deleteCollectionById(id);
-            return response.deleted(ENTITY);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
     @DeleteMapping("/delete/unusedCollections")
     public ResponseEntity<?> deleteUnusedCollections() {
         try {
 
-            List<Collection> collections = collectionService.getAllCollections();
+            List<Collection> collections = collectionService.getCollections();
             if (collections.isEmpty()) {
                 return response.empty(ENTITY);
             }
@@ -155,9 +155,9 @@ public class CollectionRestController {
             List<Collection> undeletedCollections = new ArrayList<>();
             for (Collection collection : collections) {
                 List<Primary> primaries = primaryService
-                        .getAllPrimariesByCollectionId(collection.getId());
+                        .getPrimariesByCollectionId(collection.getId());
                 List<Element> elements = elementService
-                        .getAllElementsByCollectionId(collection.getId());
+                        .getElementsByCollectionId(collection.getId());
                 if (elements.isEmpty() && primaries.isEmpty()) {
                     collectionService.deleteCollectionById(collection.getId());
                 } else {

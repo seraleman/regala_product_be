@@ -34,32 +34,19 @@ public class CategoryRestController {
     private static final String ENTITY = "Category";
 
     @Autowired
+    private ICategoryCompromise categoryCompromise;
+
+    @Autowired
     private ICategoryService categoryService;
 
     @Autowired
-    private ICategoryCompromise categoryCompromise;
+    private IElementService elementService;
 
     @Autowired
     private ILocalDateTime localDateTime;
 
     @Autowired
     private IResponse response;
-
-    @Autowired
-    private IElementService elementService;
-
-    @GetMapping("/")
-    public ResponseEntity<?> getAllCategories() {
-        try {
-            List<Category> categories = categoryService.getAllCategories();
-            if (categories.isEmpty()) {
-                return response.empty(ENTITY);
-            }
-            return response.list(categories, ENTITY);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
 
     @PostMapping("/")
     public ResponseEntity<?> createCategory(@Valid @RequestBody Category category,
@@ -72,6 +59,37 @@ public class CategoryRestController {
             category.setCreated(ldt);
             category.setUpdated(ldt);
             return response.created(categoryService.saveCategory(category));
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<?> getCategories() {
+        try {
+            List<Category> categories = categoryService.getCategories();
+            if (categories.isEmpty()) {
+                return response.empty(ENTITY);
+            }
+            return response.list(categories, ENTITY);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategoryById(@PathVariable String id) {
+        try {
+            Category category = categoryService.getCategoryById(id);
+            if (category == null) {
+                return response.notFound(id, ENTITY);
+            }
+            Map<String, Object> responseCompromisedEntities = categoryCompromise
+                    .deleteCategoryInCompromisedEntities(category);
+
+            categoryService.deleteCategoryById(id);
+
+            return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -104,19 +122,11 @@ public class CategoryRestController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCategoryById(@PathVariable String id) {
+    @DeleteMapping("/delete/allCategories")
+    public ResponseEntity<?> deleteAllCategories() {
         try {
-            Category category = categoryService.getCategoryById(id);
-            if (category == null) {
-                return response.notFound(id, ENTITY);
-            }
-            Map<String, Object> responseCompromisedEntities = categoryCompromise
-                    .deleteCategoryInCompromisedEntities(category);
-
-            categoryService.deleteCategoryById(id);
-
-            return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
+            categoryService.deleteCategories();
+            return response.deletedAll(ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -125,7 +135,7 @@ public class CategoryRestController {
     @DeleteMapping("/delete/unusedCategories")
     public ResponseEntity<?> deleteUnusedCategories() {
         try {
-            List<Category> categories = categoryService.getAllCategories();
+            List<Category> categories = categoryService.getCategories();
             if (categories.isEmpty()) {
                 return response.empty(ENTITY);
             }
@@ -133,7 +143,7 @@ public class CategoryRestController {
             List<Category> undeletedCategories = new ArrayList<>();
             for (Category category : categories) {
                 List<Element> elements = elementService
-                        .getAllElementsByCategoryId(category.getId());
+                        .getElementsByCategoryId(category.getId());
                 if (elements.isEmpty()) {
                     categoryService.deleteCategoryById(category.getId());
                 } else {
@@ -149,13 +159,4 @@ public class CategoryRestController {
         }
     }
 
-    @DeleteMapping("/delete/allCategories")
-    public ResponseEntity<?> deleteAllCategories() {
-        try {
-            categoryService.deleteAllCategories();
-            return response.deletedAll(ENTITY);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
 }

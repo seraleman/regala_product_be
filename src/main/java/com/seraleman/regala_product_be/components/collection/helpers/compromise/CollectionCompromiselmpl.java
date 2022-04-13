@@ -35,7 +35,7 @@ public class CollectionCompromiselmpl implements ICollectionCompromise {
                                                 .updateCollectionInCompromisedElements(
                                                                 collection)));
                 collectionCompromisedEntities
-                                .updatedCollectionOfPrimariesOfElementsInCompromisedGifts(collection);
+                                .updateCollectionOfPrimariesOfElementsInCompromisedGifts(collection);
 
                 response.put("gifts", structure.responseUpdatedCompromisedEntities(
                                 collectionCompromisedEntities

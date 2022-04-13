@@ -15,8 +15,8 @@ public class CollectionServiceImpl implements ICollectionService {
     private ICollectionDao collectionDao;
 
     @Override
-    public List<Collection> getAllCollections() {
-        return collectionDao.findAll();
+    public void deleteCollectionById(String id) {
+        collectionDao.deleteById(id);
     }
 
     @Override
@@ -25,13 +25,13 @@ public class CollectionServiceImpl implements ICollectionService {
     }
 
     @Override
-    public Collection saveCollection(Collection collection) {
-        return collectionDao.save(collection);
+    public List<Collection> getCollections() {
+        return collectionDao.findAll();
     }
 
     @Override
-    public void deleteCollectionById(String id) {
-        collectionDao.deleteById(id);
+    public Collection saveCollection(Collection collection) {
+        return collectionDao.save(collection);
     }
 
 }

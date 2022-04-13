@@ -6,16 +6,16 @@ import com.seraleman.regala_product_be.components.primary.Primary;
 
 public interface IPrimaryService {
 
-    List<Primary> getAllPrimaries();
+    void deleteAllPrimaries();
 
-    List<Primary> getAllPrimariesByCollectionId(String collectionId);
+    void deletePrimaryById(String id);
+
+    List<Primary> getPrimaries();
+
+    List<Primary> getPrimariesByCollectionId(String collectionId);
 
     Primary getPrimaryById(String id);
 
     Primary savePrimary(Primary primary);
-
-    void deletePrimaryById(String id);
-
-    void deleteAllPrimaries();
 
 }

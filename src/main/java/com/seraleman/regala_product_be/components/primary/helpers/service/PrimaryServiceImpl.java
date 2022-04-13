@@ -15,12 +15,22 @@ public class PrimaryServiceImpl implements IPrimaryService {
     private IPrimaryDao primaryDao;
 
     @Override
-    public List<Primary> getAllPrimaries() {
+    public void deleteAllPrimaries() {
+        primaryDao.deleteAll();
+    }
+
+    @Override
+    public void deletePrimaryById(String id) {
+        primaryDao.deleteById(id);
+    }
+
+    @Override
+    public List<Primary> getPrimaries() {
         return primaryDao.findAll();
     }
 
     @Override
-    public List<Primary> getAllPrimariesByCollectionId(String collectionId) {
+    public List<Primary> getPrimariesByCollectionId(String collectionId) {
         return primaryDao.findAllByCollectionId(collectionId);
     }
 
@@ -32,16 +42,6 @@ public class PrimaryServiceImpl implements IPrimaryService {
     @Override
     public Primary savePrimary(Primary primary) {
         return primaryDao.save(primary);
-    }
-
-    @Override
-    public void deletePrimaryById(String id) {
-        primaryDao.deleteById(id);
-    }
-
-    @Override
-    public void deleteAllPrimaries() {
-        primaryDao.deleteAll();
     }
 
 }

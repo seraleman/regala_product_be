@@ -15,18 +15,8 @@ public class CategoryServiceImpl implements ICategoryService {
     private ICategoryDao categoryDao;
 
     @Override
-    public List<Category> getAllCategories() {
-        return categoryDao.findAll();
-    }
-
-    @Override
-    public Category getCategoryById(String id) {
-        return categoryDao.findById(id).orElse(null);
-    }
-
-    @Override
-    public Category saveCategory(Category category) {
-        return categoryDao.save(category);
+    public void deleteCategories() {
+        categoryDao.deleteAll();
     }
 
     @Override
@@ -35,8 +25,18 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public void deleteAllCategories() {
-        categoryDao.deleteAll();
+    public Category getCategoryById(String id) {
+        return categoryDao.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Category> getCategories() {
+        return categoryDao.findAll();
+    }
+
+    @Override
+    public Category saveCategory(Category category) {
+        return categoryDao.save(category);
     }
 
 }

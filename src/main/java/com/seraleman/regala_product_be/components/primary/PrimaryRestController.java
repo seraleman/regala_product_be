@@ -38,7 +38,13 @@ public class PrimaryRestController {
     private static final String ENTITY = "Primary";
 
     @Autowired
-    private IPrimaryService primaryService;
+    private ICollectionService collectionService;
+
+    @Autowired
+    private IElementService elementService;
+
+    @Autowired
+    private ILocalDateTime localDateTime;
 
     @Autowired
     private IPrimaryCompromise primaryCompromise;
@@ -47,63 +53,13 @@ public class PrimaryRestController {
     private IPrimaryResponse primaryResponse;
 
     @Autowired
+    private IPrimaryService primaryService;
+
+    @Autowired
     private IResponse response;
 
     @Autowired
-    private ILocalDateTime localDateTime;
-
-    @Autowired
     private IValidate validate;
-
-    @Autowired
-    private ICollectionService collectionService;
-
-    @Autowired
-    private IElementService elementService;
-
-    @GetMapping("/")
-    public ResponseEntity<?> getAllPrimaries() {
-        try {
-            List<Primary> primaries = primaryService.getAllPrimaries();
-            if (primaries.isEmpty()) {
-                return response.empty(ENTITY);
-            }
-            return response.list(primaries, ENTITY);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @GetMapping("/byCollection/{collectionId}")
-    public ResponseEntity<?> getAllPrimariesByCollectionId(@PathVariable String collectionId) {
-        try {
-            String searchByEntity = "Collection";
-            Collection collection = collectionService.getCollectionById(collectionId);
-            if (collection == null) {
-                return response.cannotBeSearched(searchByEntity, collectionId);
-            }
-            List<Primary> primaries = (List<Primary>) primaryService.getAllPrimariesByCollectionId(collectionId);
-            if (primaries.isEmpty()) {
-                return response.isNotPartOf(ENTITY, searchByEntity, collectionId);
-            }
-            return response.parameterizedList(primaries, ENTITY, searchByEntity, collectionId);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getPrimaryById(@PathVariable String id) {
-        try {
-            Primary primary = primaryService.getPrimaryById(id);
-            if (primary == null) {
-                return response.notFound(id, ENTITY);
-            }
-            return response.found(primary);
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
 
     @PostMapping("/")
     public ResponseEntity<?> createPrimary(
@@ -127,27 +83,45 @@ public class PrimaryRestController {
         }
     }
 
-    @PostMapping("/withElement")
-    public ResponseEntity<?> createPrimaryWithElement(
-            @Valid @RequestBody Primary primary,
-            BindingResult result) {
-
+    @GetMapping("/")
+    public ResponseEntity<?> getPrimaries() {
         try {
-            Collection collection = collectionService
-                    .getCollectionById(primary.getCollection().getId());
-            if (validate.entityIsNotNull(result, collection, "collection",
-                    primary.getCollection().getId()).hasErrors()) {
-                return response.invalidObject(result);
+            List<Primary> primaries = primaryService.getPrimaries();
+            if (primaries.isEmpty()) {
+                return response.empty(ENTITY);
             }
-            LocalDateTime ldt = localDateTime.getLocalDateTime();
-            primary.setCollection(collection);
-            primary.setCreated(ldt);
-            primary.setUpdated(ldt);
-            Primary createdPrimary = primaryService.savePrimary(primary);
+            return response.list(primaries, ENTITY);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
 
-            return primaryResponse.created(
-                    createdPrimary,
-                    elementService.createElementFromPrimary(createdPrimary));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePrimaryById(@PathVariable String id) {
+        try {
+            Primary primary = primaryService.getPrimaryById(id);
+            if (primary == null) {
+                return response.notFound(id, ENTITY);
+            }
+            Map<String, Object> responseCompromisedEntities = primaryCompromise
+                    .deletePrimaryInCompromisedEntities(primary);
+
+            primaryService.deletePrimaryById(id);
+
+            return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPrimaryById(@PathVariable String id) {
+        try {
+            Primary primary = primaryService.getPrimaryById(id);
+            if (primary == null) {
+                return response.notFound(id, ENTITY);
+            }
+            return response.found(primary);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -190,19 +164,20 @@ public class PrimaryRestController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePrimaryById(@PathVariable String id) {
+    @GetMapping("/byCollection/{collectionId}")
+    public ResponseEntity<?> getPrimariesByCollectionId(@PathVariable String collectionId) {
         try {
-            Primary primary = primaryService.getPrimaryById(id);
-            if (primary == null) {
-                return response.notFound(id, ENTITY);
+            String searchByEntity = "Collection";
+            Collection collection = collectionService.getCollectionById(collectionId);
+            if (collection == null) {
+                return response.cannotBeSearched(searchByEntity, collectionId);
             }
-            Map<String, Object> responseCompromisedEntities = primaryCompromise
-                    .deletePrimaryInCompromisedEntities(primary);
-
-            primaryService.deletePrimaryById(id);
-
-            return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
+            List<Primary> primaries = (List<Primary>) primaryService
+                    .getPrimariesByCollectionId(collectionId);
+            if (primaries.isEmpty()) {
+                return response.isNotPartOf(ENTITY, searchByEntity, collectionId);
+            }
+            return response.parameterizedList(primaries, ENTITY, searchByEntity, collectionId);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -211,7 +186,7 @@ public class PrimaryRestController {
     @DeleteMapping("/delete/unusedPrimaries")
     public ResponseEntity<?> deleteUnusedPrimaries() {
         try {
-            List<Primary> primaries = primaryService.getAllPrimaries();
+            List<Primary> primaries = primaryService.getPrimaries();
             if (primaries.isEmpty()) {
                 return response.empty(ENTITY);
             }
@@ -219,7 +194,7 @@ public class PrimaryRestController {
             List<Primary> undeletedPrimaries = new ArrayList<>();
             for (Primary primary : primaries) {
                 List<Element> elements = elementService
-                        .getAllElementsByPrimariesPrimaryId(primary.getId());
+                        .getElementsByPrimariesPrimaryId(primary.getId());
                 if (elements.isEmpty()) {
                     primaryService.deletePrimaryById(primary.getId());
                 } else {
@@ -234,4 +209,31 @@ public class PrimaryRestController {
             return response.errorDataAccess(e);
         }
     }
+
+    @PostMapping("/withElement")
+    public ResponseEntity<?> createPrimaryWithElement(
+            @Valid @RequestBody Primary primary,
+            BindingResult result) {
+
+        try {
+            Collection collection = collectionService
+                    .getCollectionById(primary.getCollection().getId());
+            if (validate.entityIsNotNull(result, collection, "collection",
+                    primary.getCollection().getId()).hasErrors()) {
+                return response.invalidObject(result);
+            }
+            LocalDateTime ldt = localDateTime.getLocalDateTime();
+            primary.setCollection(collection);
+            primary.setCreated(ldt);
+            primary.setUpdated(ldt);
+            Primary createdPrimary = primaryService.savePrimary(primary);
+
+            return primaryResponse.created(
+                    createdPrimary,
+                    elementService.createElementFromPrimary(createdPrimary));
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
 }

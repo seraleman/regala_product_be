@@ -112,33 +112,33 @@ public class ElementServiceImpl implements IElementService {
     }
 
     @Override
-    public List<Element> getAllElements() {
+    public List<Element> getElements() {
         return elementDao.findAll();
     }
 
     @Override
-    public List<Element> getAllElementsByCategoryId(String categoryId) {
+    public List<Element> getElementsByCategoryId(String categoryId) {
         return elementDao.findAllByCategoriesId(categoryId);
     }
 
     @Override
-    public List<Element> getAllElementsByCategoryIsNull() {
+    public List<Element> getElementsByCategoryIsNull() {
         return elementDao.findAllByCategoriesIsNull();
     }
 
     @Override
-    public List<Element> getAllElementsByCollectionId(String collectionId) {
+    public List<Element> getElementsByCollectionId(String collectionId) {
         return elementDao.findAllByCollectionId(collectionId);
     }
 
     @Override
-    public List<Element> getAllElementsByPrimariesPrimaryId(String primaryId) {
+    public List<Element> getElementsByPrimariesPrimaryId(String primaryId) {
         return elementDao.findAllByPrimariesPrimaryId(primaryId);
     }
 
     @Override
-    public List<Element> getAllElementsByPrimariesPrimaryCollectionId(String CollectionId) {
-        return elementDao.findAllElementsByPrimariesPrimaryCollectionId(CollectionId);
+    public List<Element> getElementsByPrimariesPrimaryCollectionId(String CollectionId) {
+        return elementDao.findAllByPrimariesPrimaryCollectionId(CollectionId);
     }
 
     @Override

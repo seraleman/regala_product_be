@@ -21,39 +21,13 @@ import org.springframework.stereotype.Service;
 public class PrimaryCompromisedEntitiesImpl implements IPrimaryCompromisedEntities {
 
         @Autowired
+        private IElementService elementService;
+
+        @Autowired
         private ILocalDateTime localDateTime;
 
         @Autowired
         private MongoTemplate mongoTemplate;
-
-        @Autowired
-        private IElementService elementService;
-
-        @Override
-        public List<Element> updatePrimaryInCompromisedElements(Primary primary) {
-
-                Query query = new Query()
-                                .addCriteria(Criteria.where("primaries").elemMatch(Criteria
-                                                .where("primary.id")
-                                                .is(primary.getId())));
-                Update update = new Update()
-                                .set("primaries.$.primary", primary)
-                                .set("updated", localDateTime.getLocalDateTime());
-                Integer updatedELementQuantity = mongoTemplate
-                                .bulkOps(BulkMode.ORDERED, Element.class)
-                                .updateMulti(query, update)
-                                .execute().getModifiedCount();
-
-                List<Element> elements = elementService.getAllElementsByPrimariesPrimaryId(primary.getId());
-                if (updatedELementQuantity == elements.size()) {
-                        return elements;
-                } else {
-                        throw new updatedQuantityDoesNotMatchQuery(
-                                        "La cantidad de objetos actualizados no coincide con "
-                                                        .concat("la cantidad de objetos contenedores actualizados ")
-                                                        .concat("- revisar integridad de base de datos -"));
-                }
-        }
 
         @Override
         public List<Element> deletePrimaryInCompromisedElements(Primary primary) {
@@ -84,6 +58,32 @@ public class PrimaryCompromisedEntitiesImpl implements IPrimaryCompromisedEntiti
 
                 if (updatedElementsQuantity == updatedElementWithoutNullPrimaries.size()) {
                         return updatedElement;
+                } else {
+                        throw new updatedQuantityDoesNotMatchQuery(
+                                        "La cantidad de objetos actualizados no coincide con "
+                                                        .concat("la cantidad de objetos contenedores actualizados ")
+                                                        .concat("- revisar integridad de base de datos -"));
+                }
+        }
+
+        @Override
+        public List<Element> updatePrimaryInCompromisedElements(Primary primary) {
+
+                Query query = new Query()
+                                .addCriteria(Criteria.where("primaries").elemMatch(Criteria
+                                                .where("primary.id")
+                                                .is(primary.getId())));
+                Update update = new Update()
+                                .set("primaries.$.primary", primary)
+                                .set("updated", localDateTime.getLocalDateTime());
+                Integer updatedELementQuantity = mongoTemplate
+                                .bulkOps(BulkMode.ORDERED, Element.class)
+                                .updateMulti(query, update)
+                                .execute().getModifiedCount();
+
+                List<Element> elements = elementService.getElementsByPrimariesPrimaryId(primary.getId());
+                if (updatedELementQuantity == elements.size()) {
+                        return elements;
                 } else {
                         throw new updatedQuantityDoesNotMatchQuery(
                                         "La cantidad de objetos actualizados no coincide con "

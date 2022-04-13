@@ -27,22 +27,52 @@ import org.springframework.web.bind.annotation.RestController;
 public class OcassionResteController {
 
     @Autowired
+    private ILocalDateTime localDateTime;
+
+    @Autowired
     private IOcassionService ocassionService;
 
     @Autowired
     private IResponse response;
 
-    @Autowired
-    private ILocalDateTime localDateTime;
+    @PostMapping("/")
+    public ResponseEntity<?> createOcassion(@Valid @RequestBody Ocassion ocassion,
+            BindingResult result) {
+        if (result.hasErrors()) {
+            return response.invalidObject(result);
+        }
+        try {
+            LocalDateTime ldt = localDateTime.getLocalDateTime();
+            ocassion.setCreated(ldt);
+            ocassion.setUpdated(localDateTime.getLocalDateTime());
+            return response.created(ocassionService.saveOcassion(ocassion));
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
 
     @GetMapping("/")
-    public ResponseEntity<?> getAllOcassions() {
+    public ResponseEntity<?> getOcassions() {
         try {
             List<Ocassion> ocassions = ocassionService.getAllOcassions();
             if (ocassions.isEmpty()) {
                 return response.empty("Ocassion");
             }
             return response.list(ocassions, "Ocassion");
+        } catch (DataAccessException e) {
+            return response.errorDataAccess(e);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteOcassionById(@PathVariable String id) {
+        try {
+            Ocassion ocassion = ocassionService.getOcassionById(id);
+            if (ocassion == null) {
+                return response.notFound(id, "Ocassion");
+            }
+            ocassionService.deleteOcassionById(id);
+            return response.deleted("Ocassion");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -61,23 +91,9 @@ public class OcassionResteController {
         }
     }
 
-    @PostMapping("/")
-    public ResponseEntity<?> createOcassion(@Valid @RequestBody Ocassion ocassion, BindingResult result) {
-        if (result.hasErrors()) {
-            return response.invalidObject(result);
-        }
-        try {
-            LocalDateTime ldt = localDateTime.getLocalDateTime();
-            ocassion.setCreated(ldt);
-            ocassion.setUpdated(localDateTime.getLocalDateTime());
-            return response.created(ocassionService.saveOcassion(ocassion));
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOcassionById(@PathVariable String id, @Valid @RequestBody Ocassion ocassion,
+    public ResponseEntity<?> updateOcassionById(@PathVariable String id,
+            @Valid @RequestBody Ocassion ocassion,
             BindingResult result) {
         if (result.hasErrors()) {
             return response.invalidObject(result);
@@ -91,20 +107,6 @@ public class OcassionResteController {
             currentOcassion.setName(ocassion.getName());
             currentOcassion.setUpdated(localDateTime.getLocalDateTime());
             return response.updated(ocassionService.saveOcassion(ocassion));
-        } catch (DataAccessException e) {
-            return response.errorDataAccess(e);
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOcassionById(@PathVariable String id) {
-        try {
-            Ocassion ocassion = ocassionService.getOcassionById(id);
-            if (ocassion == null) {
-                return response.notFound(id, "Ocassion");
-            }
-            ocassionService.deleteOcassionById(id);
-            return response.deleted("Ocassion");
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

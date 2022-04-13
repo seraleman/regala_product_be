@@ -6,12 +6,12 @@ import com.seraleman.regala_product_be.components.collection.Collection;
 
 public interface ICollectionService {
 
-    public List<Collection> getAllCollections();
+    void deleteCollectionById(String id);
 
-    public Collection getCollectionById(String id);
+    List<Collection> getCollections();
 
-    public Collection saveCollection(Collection collection);
+    Collection getCollectionById(String id);
 
-    public void deleteCollectionById(String id);
+    Collection saveCollection(Collection collection);
 
 }

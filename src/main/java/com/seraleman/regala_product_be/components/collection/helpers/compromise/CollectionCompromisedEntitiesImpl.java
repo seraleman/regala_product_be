@@ -24,6 +24,12 @@ import org.springframework.stereotype.Service;
 public class CollectionCompromisedEntitiesImpl implements ICollectionCompromisedEntities {
 
         @Autowired
+        private IElementService elementService;
+
+        @Autowired
+        private IGiftService giftService;
+
+        @Autowired
         private ILocalDateTime localDateTime;
 
         @Autowired
@@ -32,11 +38,34 @@ public class CollectionCompromisedEntitiesImpl implements ICollectionCompromised
         @Autowired
         private IPrimaryService primaryService;
 
-        @Autowired
-        private IElementService elementService;
+        @Override
+        public List<Element> updateCollectionInCompromisedElements(Collection collection) {
 
-        @Autowired
-        private IGiftService giftService;
+                Query query = new Query()
+                                .addCriteria(Criteria.where("collection.id")
+                                                .is(collection.getId()));
+                Update update = new Update()
+                                .set("collection", collection)
+                                .set("updated", localDateTime.getLocalDateTime());
+
+                Integer updatedPrimariesQuantity = mongoTemplate
+                                .bulkOps(BulkMode.ORDERED, Element.class)
+                                .updateMulti(query, update)
+                                .execute()
+                                .getModifiedCount();
+
+                List<Element> updatedElements = elementService
+                                .getElementsByCollectionId(collection.getId());
+
+                if (updatedPrimariesQuantity == updatedElements.size()) {
+                        return updatedElements;
+                } else {
+                        throw new updatedQuantityDoesNotMatchQuery(
+                                        "La cantidad de objetos actualizados no coincide con "
+                                                        .concat("la cantidad de objetos contenedores actualizados ")
+                                                        .concat("- revisar integridad de base de datos -"));
+                }
+        }
 
         @Override
         public List<Primary> updateCollectionInCompromisedPrimaries(Collection collection) {
@@ -55,7 +84,7 @@ public class CollectionCompromisedEntitiesImpl implements ICollectionCompromised
                                 .getModifiedCount();
 
                 List<Primary> updatedPrimaries = primaryService
-                                .getAllPrimariesByCollectionId(collection.getId());
+                                .getPrimariesByCollectionId(collection.getId());
 
                 if (updatedPrimariesQuantity == updatedPrimaries.size()) {
                         return updatedPrimaries;
@@ -65,6 +94,26 @@ public class CollectionCompromisedEntitiesImpl implements ICollectionCompromised
                                                         .concat("la cantidad de objetos contenedores actualizados ")
                                                         .concat("- revisar integridad de base de datos -"));
                 }
+        }
+
+        @Override
+        public List<Gift> updateCollectionOfElementsInCompromisedGifts(Collection collection) {
+                Query query = new Query()
+                                .addCriteria(Criteria.where("elements").elemMatch(Criteria
+                                                .where("element.collection.id")
+                                                .is(collection.getId())));
+                Update update = new Update()
+                                .set("elements.$[].element.collection", collection)
+                                .set("updated", localDateTime.getLocalDateTime());
+
+                mongoTemplate.bulkOps(BulkMode.ORDERED, Gift.class)
+                                .updateMulti(query, update)
+                                .execute();
+
+                List<Gift> updatedGifts = giftService
+                                .getGiftsByElementsElementCollectionId(
+                                                collection.getId());
+                return updatedGifts;
         }
 
         @Override
@@ -84,36 +133,7 @@ public class CollectionCompromisedEntitiesImpl implements ICollectionCompromised
         }
 
         @Override
-        public List<Element> updateCollectionInCompromisedElements(Collection collection) {
-
-                Query query = new Query()
-                                .addCriteria(Criteria.where("collection.id")
-                                                .is(collection.getId()));
-                Update update = new Update()
-                                .set("collection", collection)
-                                .set("updated", localDateTime.getLocalDateTime());
-
-                Integer updatedPrimariesQuantity = mongoTemplate
-                                .bulkOps(BulkMode.ORDERED, Element.class)
-                                .updateMulti(query, update)
-                                .execute()
-                                .getModifiedCount();
-
-                List<Element> updatedElements = elementService
-                                .getAllElementsByCollectionId(collection.getId());
-
-                if (updatedPrimariesQuantity == updatedElements.size()) {
-                        return updatedElements;
-                } else {
-                        throw new updatedQuantityDoesNotMatchQuery(
-                                        "La cantidad de objetos actualizados no coincide con "
-                                                        .concat("la cantidad de objetos contenedores actualizados ")
-                                                        .concat("- revisar integridad de base de datos -"));
-                }
-        }
-
-        @Override
-        public void updatedCollectionOfPrimariesOfElementsInCompromisedGifts(Collection collection) {
+        public void updateCollectionOfPrimariesOfElementsInCompromisedGifts(Collection collection) {
 
                 Query query = new Query()
                                 .addCriteria(Criteria.where("elements").elemMatch(Criteria
@@ -127,26 +147,6 @@ public class CollectionCompromisedEntitiesImpl implements ICollectionCompromised
                 mongoTemplate.bulkOps(BulkMode.ORDERED, Gift.class)
                                 .updateMulti(query, update)
                                 .execute();
-        }
-
-        @Override
-        public List<Gift> updateCollectionOfElementsInCompromisedGifts(Collection collection) {
-                Query query = new Query()
-                                .addCriteria(Criteria.where("elements").elemMatch(Criteria
-                                                .where("element.collection.id")
-                                                .is(collection.getId())));
-                Update update = new Update()
-                                .set("elements.$[].element.collection", collection)
-                                .set("updated", localDateTime.getLocalDateTime());
-
-                mongoTemplate.bulkOps(BulkMode.ORDERED, Gift.class)
-                                .updateMulti(query, update)
-                                .execute();
-
-                List<Gift> updatedGifts = giftService
-                                .getAllGiftsByElementsElementCollectionId(
-                                                collection.getId());
-                return updatedGifts;
         }
 
 }

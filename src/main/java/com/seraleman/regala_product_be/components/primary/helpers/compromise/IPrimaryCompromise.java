@@ -6,8 +6,8 @@ import com.seraleman.regala_product_be.components.primary.Primary;
 
 public interface IPrimaryCompromise {
 
-    Map<String, Object> updatePrimaryInCompromisedEntities(Primary primary);
-
     Map<String, Object> deletePrimaryInCompromisedEntities(Primary primary);
+
+    Map<String, Object> updatePrimaryInCompromisedEntities(Primary primary);
 
 }

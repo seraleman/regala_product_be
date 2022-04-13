@@ -23,74 +23,20 @@ import org.springframework.stereotype.Service;
 public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEntities {
 
         @Autowired
-        private MongoTemplate mongoTemplate;
-
-        @Autowired
-        private ILocalDateTime localDateTime;
-
-        @Autowired
         private IElementService elementService;
 
         @Autowired
         private IGiftService giftService;
 
+        @Autowired
+        private ILocalDateTime localDateTime;
+
+        @Autowired
+        private MongoTemplate mongoTemplate;
+
         private Query query;
 
-        Update update;
-
-        @Override
-        public List<Element> updateCategoryInCompromisedElements(Category category) {
-
-                query = new Query()
-                                .addCriteria(Criteria.where("categories").elemMatch(Criteria
-                                                .where("id")
-                                                .is(category.getId())));
-                update = new Update()
-                                .set("categories.$", category)
-                                .set("updated", localDateTime.getLocalDateTime());
-
-                Integer UpdatedElementsQuantity = mongoTemplate
-                                .bulkOps(BulkMode.ORDERED, Element.class)
-                                .updateMulti(query, update)
-                                .execute()
-                                .getModifiedCount();
-
-                List<Element> updatedElements = elementService
-                                .getAllElementsByCategoryId(category.getId());
-
-                if (UpdatedElementsQuantity == updatedElements.size()) {
-                        return updatedElements;
-                } else {
-                        throw new updatedQuantityDoesNotMatchQuery(
-                                        "La cantidad de objetos actualizados no coincide con "
-                                                        .concat("la cantidad de objetos comprometidos actualizados ")
-                                                        .concat("- revisar integridad de base de datos -"));
-                }
-        }
-
-        @Override
-        public List<Gift> updateCategoryOfElementsInCompromisedGifts(Category category) {
-                query = new Query()
-                                .addCriteria(Criteria.where("elements").elemMatch(Criteria
-                                                .where("element.categories").elemMatch(Criteria
-                                                                .where("id")
-                                                                .is(category.getId()))));
-                update = new Update()
-                                .set("elements.$[].element.categories.$[category]", category)
-                                .filterArray(Criteria.where("category._id")
-                                                .is(new ObjectId(category.getId())))
-                                .set("updated", localDateTime.getLocalDateTime());
-
-                mongoTemplate.bulkOps(BulkMode.UNORDERED, Gift.class)
-                                .updateMulti(query, update)
-                                .execute()
-                                .getModifiedCount();
-
-                List<Gift> updatedGifts = giftService
-                                .getAllGiftsByElementsElementCategoriesId(category.getId());
-
-                return updatedGifts;
-        }
+        private Update update;
 
         @Override
         public List<Element> deleteCategoryInCompromisedElements(Category category) {
@@ -141,4 +87,59 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
 
                 return giftService.cleanGiftsOfNullCategories();
         }
+
+        @Override
+        public List<Element> updateCategoryInCompromisedElements(Category category) {
+
+                query = new Query()
+                                .addCriteria(Criteria.where("categories").elemMatch(Criteria
+                                                .where("id")
+                                                .is(category.getId())));
+                update = new Update()
+                                .set("categories.$", category)
+                                .set("updated", localDateTime.getLocalDateTime());
+
+                Integer UpdatedElementsQuantity = mongoTemplate
+                                .bulkOps(BulkMode.ORDERED, Element.class)
+                                .updateMulti(query, update)
+                                .execute()
+                                .getModifiedCount();
+
+                List<Element> updatedElements = elementService
+                                .getElementsByCategoryId(category.getId());
+
+                if (UpdatedElementsQuantity == updatedElements.size()) {
+                        return updatedElements;
+                } else {
+                        throw new updatedQuantityDoesNotMatchQuery(
+                                        "La cantidad de objetos actualizados no coincide con "
+                                                        .concat("la cantidad de objetos comprometidos actualizados ")
+                                                        .concat("- revisar integridad de base de datos -"));
+                }
+        }
+
+        @Override
+        public List<Gift> updateCategoryOfElementsInCompromisedGifts(Category category) {
+                query = new Query()
+                                .addCriteria(Criteria.where("elements").elemMatch(Criteria
+                                                .where("element.categories").elemMatch(Criteria
+                                                                .where("id")
+                                                                .is(category.getId()))));
+                update = new Update()
+                                .set("elements.$[].element.categories.$[category]", category)
+                                .filterArray(Criteria.where("category._id")
+                                                .is(new ObjectId(category.getId())))
+                                .set("updated", localDateTime.getLocalDateTime());
+
+                mongoTemplate.bulkOps(BulkMode.UNORDERED, Gift.class)
+                                .updateMulti(query, update)
+                                .execute()
+                                .getModifiedCount();
+
+                List<Gift> updatedGifts = giftService
+                                .getGiftsByElementsElementCategoriesId(category.getId());
+
+                return updatedGifts;
+        }
+
 }

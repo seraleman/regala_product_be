@@ -21,17 +21,17 @@ public interface IElementService {
 
     Element getElementById(String id);
 
-    List<Element> getAllElements();
+    List<Element> getElements();
 
-    List<Element> getAllElementsByCategoryId(String categoryId);
+    List<Element> getElementsByCategoryId(String categoryId);
 
-    List<Element> getAllElementsByCategoryIsNull();
+    List<Element> getElementsByCategoryIsNull();
 
-    List<Element> getAllElementsByCollectionId(String collectionId);
+    List<Element> getElementsByCollectionId(String collectionId);
 
-    List<Element> getAllElementsByPrimariesPrimaryCollectionId(String CollectionId);
+    List<Element> getElementsByPrimariesPrimaryCollectionId(String CollectionId);
 
-    List<Element> getAllElementsByPrimariesPrimaryId(String primaryId);
+    List<Element> getElementsByPrimariesPrimaryId(String primaryId);
 
     Element saveElement(Element element);
 

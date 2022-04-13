@@ -21,20 +21,6 @@ public class CategoryCompromiseImpl implements ICategoryCompromise {
         private Map<String, Object> response;
 
         @Override
-        public Map<String, Object> updateCategoryInCompromisedEntities(Category category) {
-
-                response = new LinkedHashMap<>();
-                response.put("elements", structure.responseUpdatedCompromisedEntities(
-                                categoryCompromisedEntities
-                                                .updateCategoryInCompromisedElements(category)));
-
-                response.put("gifts", structure.responseUpdatedCompromisedEntities(
-                                categoryCompromisedEntities
-                                                .updateCategoryOfElementsInCompromisedGifts(category)));
-                return response;
-        }
-
-        @Override
         public Map<String, Object> deleteCategoryInCompromisedEntities(Category category) {
 
                 response = new LinkedHashMap<>();
@@ -45,6 +31,20 @@ public class CategoryCompromiseImpl implements ICategoryCompromise {
                 response.put("gifts", structure.responseUpdatedCompromisedEntities(
                                 categoryCompromisedEntities
                                                 .deleteCategoryOfElementsInCompromisedGifts(category)));
+                return response;
+        }
+
+        @Override
+        public Map<String, Object> updateCategoryInCompromisedEntities(Category category) {
+
+                response = new LinkedHashMap<>();
+                response.put("elements", structure.responseUpdatedCompromisedEntities(
+                                categoryCompromisedEntities
+                                                .updateCategoryInCompromisedElements(category)));
+
+                response.put("gifts", structure.responseUpdatedCompromisedEntities(
+                                categoryCompromisedEntities
+                                                .updateCategoryOfElementsInCompromisedGifts(category)));
                 return response;
         }
 
