@@ -106,7 +106,7 @@ public class PrimaryRestController {
             Map<String, Object> responseCompromisedEntities = primaryCompromise
                     .deletePrimaryInCompromisedEntities(primary);
 
-            primaryService.deletePrimaryById(id);
+            // primaryService.deletePrimaryById(id);
 
             return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {

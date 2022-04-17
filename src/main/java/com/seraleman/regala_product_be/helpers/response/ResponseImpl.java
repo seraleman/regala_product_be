@@ -19,16 +19,6 @@ public class ResponseImpl implements IResponse {
     private Map<String, Object> response;
 
     @Override
-    public ResponseEntity<Map<String, Object>> created(Object obj) {
-        response = new LinkedHashMap<>();
-        response.put("message", "objeto '"
-                .concat(obj.getClass().getSimpleName())
-                .concat("' creado y disponible"));
-        response.put("data", obj);
-        return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.CREATED);
-    }
-
-    @Override
     public ResponseEntity<Map<String, Object>> cannotBeSearched(String searchByEntity, String id) {
         response = new HashMap<>();
         response.put("message", "objeto '"
@@ -37,6 +27,16 @@ public class ResponseImpl implements IResponse {
                 .concat(id)
                 .concat("', el cual es parámetro para la búsqueda, no existe en la base de datos"));
         return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public ResponseEntity<Map<String, Object>> created(Object obj) {
+        response = new LinkedHashMap<>();
+        response.put("message", "objeto '"
+                .concat(obj.getClass().getSimpleName())
+                .concat("' creado y disponible"));
+        response.put("data", obj);
+        return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.CREATED);
     }
 
     @Override
@@ -55,22 +55,6 @@ public class ResponseImpl implements IResponse {
                 .concat(entity)
                 .concat("' eliminados"));
         return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<Map<String, Object>> deletedWithCompromisedEntities(
-            Map<String, Object> updatedCompromisedEntities, String entity) {
-
-        response = new LinkedHashMap<>();
-        Map<String, Object> data = new LinkedHashMap<>();
-
-        response.put("message", "objeto '"
-                .concat(entity)
-                .concat("' eliminado, entidades comprometidas actualizadas disponibles"));
-        data.put("updatedEntities", updatedCompromisedEntities);
-        response.put("data", data);
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     @Override
@@ -142,18 +126,19 @@ public class ResponseImpl implements IResponse {
     }
 
     @Override
-    public ResponseEntity<Map<String, Object>> isNotPartOf(
-            String searchedEntity, String searchByEntity, String id) {
+    public ResponseEntity<Map<String, Object>> deletedWithCompromisedEntities(
+            Map<String, Object> updatedCompromisedEntities, String entity) {
 
-        response = new HashMap<>();
-        response.put("message", "el objeto '"
-                .concat(searchByEntity)
-                .concat("' con id '")
-                .concat(id)
-                .concat("' no hace parte de ningún objeto '")
-                .concat(searchedEntity)
-                .concat("'"));
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        response = new LinkedHashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
+
+        response.put("message", "objeto '"
+                .concat(entity)
+                .concat("' eliminado, entidades comprometidas actualizadas disponibles"));
+        data.put("updatedEntities", updatedCompromisedEntities);
+        response.put("data", data);
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     @Override
@@ -197,6 +182,21 @@ public class ResponseImpl implements IResponse {
     }
 
     @Override
+    public ResponseEntity<Map<String, Object>> isNotPartOf(
+            String searchedEntity, String searchByEntity, String id) {
+
+        response = new HashMap<>();
+        response.put("message", "el objeto '"
+                .concat(searchByEntity)
+                .concat("' con id '")
+                .concat(id)
+                .concat("' no hace parte de ningún objeto '")
+                .concat(searchedEntity)
+                .concat("'"));
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @Override
     public ResponseEntity<Map<String, Object>> list(List<?> objs, String entity) {
         response = new LinkedHashMap<>();
         Map<String, Object> data = new LinkedHashMap<>();
@@ -205,17 +205,6 @@ public class ResponseImpl implements IResponse {
         data.put("list", objs);
         response.put("data", data);
         return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<Map<String, Object>> notFound(Object id, String entity) {
-        response = new HashMap<>();
-        response.put("message", "objeto '"
-                .concat(entity)
-                .concat("' con id '")
-                .concat(id.toString())
-                .concat("' no existe en la base de datos"));
-        return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -242,6 +231,17 @@ public class ResponseImpl implements IResponse {
         response.put("data", data);
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.PRECONDITION_REQUIRED);
+    }
+
+    @Override
+    public ResponseEntity<Map<String, Object>> notFound(Object id, String entity) {
+        response = new HashMap<>();
+        response.put("message", "objeto '"
+                .concat(entity)
+                .concat("' con id '")
+                .concat(id.toString())
+                .concat("' no existe en la base de datos"));
+        return new ResponseEntity<Map<String, Object>>(this.response, HttpStatus.NOT_FOUND);
     }
 
     @Override

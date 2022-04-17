@@ -1,7 +1,9 @@
 package com.seraleman.regala_product_be.components.category.helpers.compromise;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.mongodb.BasicDBObject;
 import com.seraleman.regala_product_be.components.category.Category;
 import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
@@ -40,52 +42,54 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
 
         @Override
         public List<Element> deleteCategoryInCompromisedElements(Category category) {
+
+                List<String> ids = new ArrayList<>();
+                elementService.getElementsByCategoryId(category.getId())
+                                .forEach((element) -> {
+                                        ids.add(element.getId());
+                                });
+
+                // eliminando categoria de elementos
                 query = new Query()
                                 .addCriteria(Criteria.where("categories").elemMatch(Criteria
                                                 .where("id")
                                                 .is(category.getId())));
                 update = new Update()
-                                .set("categories.$", null)
+                                .pull("categories",
+                                                new BasicDBObject("id", category.getId()))
                                 .set("updated", localDateTime.getLocalDateTime());
 
-                Integer updatedElementsQuantity = mongoTemplate
-                                .bulkOps(BulkMode.ORDERED, Element.class)
+                mongoTemplate.bulkOps(BulkMode.ORDERED, Element.class)
                                 .updateMulti(query, update)
-                                .execute()
-                                .getModifiedCount();
+                                .execute();
 
-                List<Element> elementsWithoutNullCategories = elementService
-                                .cleanElementsOfNullCategories();
-
-                if (updatedElementsQuantity == elementsWithoutNullCategories.size()) {
-                        return elementsWithoutNullCategories;
-                } else {
-                        throw new updatedQuantityDoesNotMatchQuery(
-                                        "La cantidad de objetos actualizados no coincide con "
-                                                        .concat("la cantidad de objetos comprometidos actualizados ")
-                                                        .concat("- revisar integridad de base de datos -"));
-                }
+                return elementService.getElementsByIds(ids);
         }
 
         @Override
         public List<Gift> deleteCategoryOfElementsInCompromisedGifts(Category category) {
+
+                List<String> ids = new ArrayList<>();
+                giftService.getGiftsByElementsElementCategoriesId(category.getId())
+                                .forEach((gift) -> {
+                                        ids.add(gift.getId());
+                                });
+
                 query = new Query()
                                 .addCriteria(Criteria.where("elements").elemMatch(Criteria
                                                 .where("element.categories").elemMatch(Criteria
                                                                 .where("id")
                                                                 .is(category.getId()))));
                 update = new Update()
-                                .set("elements.$[].element.categories.$[category]", null)
-                                .filterArray(Criteria.where("category._id")
-                                                .is(new ObjectId(category.getId())))
+                                .pull("elements.$[].element.categories",
+                                                new BasicDBObject("id", category.getId()))
                                 .set("updated", localDateTime.getLocalDateTime());
 
                 mongoTemplate.bulkOps(BulkMode.ORDERED, Gift.class)
                                 .updateMulti(query, update)
-                                .execute()
-                                .getModifiedCount();
+                                .execute();
 
-                return giftService.cleanGiftsOfNullCategories();
+                return giftService.getGiftsByIds(ids);
         }
 
         @Override

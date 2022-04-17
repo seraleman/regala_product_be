@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.seraleman.regala_product_be.components.element.services.IElementService;
+import com.seraleman.regala_product_be.components.gift.services.IGiftService;
 import com.seraleman.regala_product_be.components.primary.Primary;
 import com.seraleman.regala_product_be.helpers.structure.IStructure;
 
@@ -13,38 +14,50 @@ import org.springframework.stereotype.Service;
 @Service
 public class PrimaryCompromiseImpl implements IPrimaryCompromise {
 
-    @Autowired
-    private IElementService elementService;
+        @Autowired
+        private IElementService elementService;
 
-    @Autowired
-    private IPrimaryCompromisedEntities primaryCompromisedEntities;
+        @Autowired
+        private IGiftService giftService;
 
-    @Autowired
-    private IStructure structure;
+        @Autowired
+        private IPrimaryCompromisedEntities primaryCompromisedEntities;
 
-    @Override
-    public Map<String, Object> deletePrimaryInCompromisedEntities(Primary primary) {
+        @Autowired
+        private IStructure structure;
 
-        Map<String, Object> response = new LinkedHashMap<>();
+        @Override
+        public Map<String, Object> deletePrimaryInCompromisedEntities(Primary primary) {
 
-        response.put("elements", structure.responseDeletedCompromisedEntities(
-                primaryCompromisedEntities
-                        .deletePrimaryInCompromisedElements(primary),
-                elementService
-                        .deleteElementsWithoutPrimaries()));
+                Map<String, Object> response = new LinkedHashMap<>();
 
-        return response;
-    }
+                response.put("elements", structure.responseDeletedCompromisedEntities(
+                                primaryCompromisedEntities
+                                                .deletePrimaryInCompromisedElements(primary),
+                                elementService.deleteElementsWithoutPrimaries()));
 
-    @Override
-    public Map<String, Object> updatePrimaryInCompromisedEntities(Primary primary) {
+                response.put("gifts", structure.responseDeletedCompromisedEntities(
+                                primaryCompromisedEntities
+                                                .deletePrimaryOfElementsInCompromisedGifts(primary),
+                                giftService.deleteGiftsWithoutElements()));
 
-        Map<String, Object> response = new LinkedHashMap<>();
+                return response;
+        }
 
-        response.put("elements", structure.responseUpdatedCompromisedEntities(
-                primaryCompromisedEntities.updatePrimaryInCompromisedElements(primary)));
+        @Override
+        public Map<String, Object> updatePrimaryInCompromisedEntities(Primary primary) {
 
-        return response;
-    }
+                Map<String, Object> response = new LinkedHashMap<>();
+
+                response.put("elements", structure.responseUpdatedCompromisedEntities(
+                                primaryCompromisedEntities
+                                                .updatePrimaryInCompromisedElements(primary)));
+
+                response.put("gifts", structure.responseUpdatedCompromisedEntities(
+                                primaryCompromisedEntities
+                                                .updatePrimaryOfElementsInCompromisedGifts(primary)));
+
+                return response;
+        }
 
 }

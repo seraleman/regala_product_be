@@ -10,9 +10,9 @@ public interface ICategoryService {
 
     void deleteCategoryById(String id);
 
-    Category getCategoryById(String id);
-
     List<Category> getCategories();
+
+    Category getCategoryById(String id);
 
     Category saveCategory(Category category);
 

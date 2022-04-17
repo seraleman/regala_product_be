@@ -10,14 +10,14 @@ public interface IValidate {
                         BindingResult result, List<?> arrayToValidate,
                         String affectedField, String entityInArray);
 
-        BindingResult entityIsNotNull(
-                        BindingResult result, Object objToValidate,
-                        String affectedField, String objToValidateId);
-
         BindingResult entityInArrayIsNotNull(
                         BindingResult result, Object objToValidate,
                         String affectedField, String entity,
                         String objToValidateId);
+
+        BindingResult entityIsNotNull(
+                        BindingResult result, Object objToValidate,
+                        String affectedField, String objToValidateId);
 
         BindingResult quantityInComposition(
                         BindingResult result, String entityInComposition,

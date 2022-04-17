@@ -10,8 +10,8 @@ import com.seraleman.regala_product_be.components.category.Category;
 
 public interface ICategoryCompromise {
 
-    Map<String, Object> updateCategoryInCompromisedEntities(Category category);
-
     Map<String, Object> deleteCategoryInCompromisedEntities(Category category);
+
+    Map<String, Object> updateCategoryInCompromisedEntities(Category category);
 
 }

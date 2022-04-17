@@ -12,6 +12,7 @@ import com.seraleman.regala_product_be.components.category.Category;
 import com.seraleman.regala_product_be.components.category.helpers.service.ICategoryService;
 import com.seraleman.regala_product_be.components.collection.Collection;
 import com.seraleman.regala_product_be.components.collection.helpers.service.ICollectionService;
+import com.seraleman.regala_product_be.components.element.compromise.IElementCompromise;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.components.primary.Primary;
 import com.seraleman.regala_product_be.components.primary.helpers.service.IPrimaryService;
@@ -44,6 +45,9 @@ public class ElementRestController {
 
     @Autowired
     private ICollectionService collectionService;
+
+    @Autowired
+    private IElementCompromise elementCompromise;
 
     @Autowired
     private IElementService elementService;
@@ -97,7 +101,8 @@ public class ElementRestController {
                         component.getPrimary().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
-                if (validate.quantityInComposition(result, "Primary", component.getQuantity(),
+                if (validate.quantityInComposition(result, "Primary",
+                        component.getQuantity(),
                         component.getPrimary().getId()).hasErrors()) {
                     return response.invalidObject(result);
                 }
@@ -141,8 +146,14 @@ public class ElementRestController {
             if (element == null) {
                 return response.notFound(id, ENTITY);
             }
+
+            Map<String, Object> updatedCompromisedEntities = elementCompromise
+                    .deleteElementInCompromisedEntities(element);
+
             elementService.deleteElementById(id);
-            return response.deleted(ENTITY);
+
+            return response.deletedWithCompromisedEntities(
+                    updatedCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -227,7 +238,10 @@ public class ElementRestController {
             currentElement.setUpdated(localDateTime.getLocalDateTime());
             currentElement.setUtility(element.getUtility());
 
-            return response.updated(elementService.saveElement(currentElement));
+            return response.updatedWithCompromisedEntities(
+                    elementService.saveElement(currentElement),
+                    elementCompromise.updateElementInCompromisedEntities(currentElement),
+                    ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }

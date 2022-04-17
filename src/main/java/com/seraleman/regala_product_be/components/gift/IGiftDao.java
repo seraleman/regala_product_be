@@ -18,6 +18,10 @@ public interface IGiftDao extends MongoRepository<Gift, String> {
 
     List<Gift> findAllByElementsElementPrimariesPrimaryId(String PrimaryId);
 
+    List<Gift> findAllByElementsElementPrimariesIsNull();
+
+    List<Gift> findAllByElementsIsNull();
+
     List<Gift> findAllByOcassionsId(String ocassionId);
 
 }

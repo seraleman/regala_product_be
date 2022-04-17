@@ -7,10 +7,6 @@ import com.seraleman.regala_product_be.components.primary.Primary;
 
 public interface IElementService {
 
-    List<Element> cleanElementsOfNullPrimaries();
-
-    List<Element> cleanElementsOfNullCategories();
-
     Element createElementFromPrimary(Primary primary);
 
     void deleteAllElements(); // borrar
@@ -28,6 +24,8 @@ public interface IElementService {
     List<Element> getElementsByCategoryIsNull();
 
     List<Element> getElementsByCollectionId(String collectionId);
+
+    List<Element> getElementsByIds(List<String> ids);
 
     List<Element> getElementsByPrimariesPrimaryCollectionId(String CollectionId);
 

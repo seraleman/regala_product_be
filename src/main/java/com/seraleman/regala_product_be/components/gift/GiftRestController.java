@@ -106,7 +106,7 @@ public class GiftRestController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> getAllGifts() {
+    public ResponseEntity<?> getGifts() {
         try {
             List<Gift> gifts = giftService.getGifts();
             if (gifts.isEmpty()) {
@@ -214,7 +214,7 @@ public class GiftRestController {
     }
 
     @GetMapping("/byElement/{elementId}")
-    public ResponseEntity<?> getAllGiftsByElementId(@PathVariable String elementId) {
+    public ResponseEntity<?> getGiftsByElementId(@PathVariable String elementId) {
         try {
             String searchByEntity = "Element";
             List<Gift> gifts = giftService.getGiftsByElementsElementId(elementId);
@@ -228,7 +228,7 @@ public class GiftRestController {
     }
 
     @GetMapping("/byElement/category/{categoryId}")
-    public ResponseEntity<?> getAllGiftsByElementCategoryId(@PathVariable String categoryId) {
+    public ResponseEntity<?> getGiftsByElementCategoryId(@PathVariable String categoryId) {
         try {
             String searchByEntity = "Category";
             List<Gift> gifts = giftService.getGiftsByElementsElementCategoriesId(categoryId);
@@ -242,7 +242,7 @@ public class GiftRestController {
     }
 
     @GetMapping("/byElement/category/null")
-    public ResponseEntity<?> getAllGiftsByElementCategoryIsNull() {
+    public ResponseEntity<?> getGiftsByElementCategoryIsNull() {
         try {
             List<Gift> gifts = giftService.getGiftsByElementsElementCategoriesIsNull();
             if (gifts.isEmpty()) {
@@ -255,7 +255,7 @@ public class GiftRestController {
     }
 
     @GetMapping("/byElement/collection/{collectionId}")
-    public ResponseEntity<?> getAllGiftsByElementCollectionId(@PathVariable String collectionId) {
+    public ResponseEntity<?> getGiftsByElementCollectionId(@PathVariable String collectionId) {
         try {
             String searchByEntity = "Collection";
             List<Gift> gifts = giftService.getGiftsByElementsElementCollectionId(collectionId);
@@ -269,12 +269,12 @@ public class GiftRestController {
     }
 
     @GetMapping("/byElement/primary/{primaryId}")
-    public ResponseEntity<?> getAllGiftsByElementPrimaryId(@PathVariable String primaryId) {
+    public ResponseEntity<?> getGiftsByElementPrimaryId(@PathVariable String primaryId) {
         try {
             String searchByEntity = "Primary";
             List<Gift> gifts = giftService.getGiftsByElementsElementPrimariesPrimaryId(primaryId);
             if (gifts.isEmpty()) {
-                return response.isNotPartOf(ENTITY, "Ocassion", primaryId);
+                return response.isNotPartOf(ENTITY, searchByEntity, primaryId);
             }
             return response.parameterizedList(gifts, ENTITY, searchByEntity, primaryId);
         } catch (DataAccessException e) {
@@ -283,7 +283,7 @@ public class GiftRestController {
     }
 
     @GetMapping("/byElement/primary/collection/{collectionId}")
-    public ResponseEntity<?> getAllGiftsByElementPrimaryCollectionId(@PathVariable String collectionId) {
+    public ResponseEntity<?> getGiftsByElementPrimaryCollectionId(@PathVariable String collectionId) {
         try {
             String searchByEntity = "Collection";
             List<Gift> gifts = giftService
@@ -298,12 +298,12 @@ public class GiftRestController {
     }
 
     @GetMapping("/byOcassion/{ocassionId}")
-    public ResponseEntity<?> getAllGiftsByOcassionId(@PathVariable String ocassionId) {
+    public ResponseEntity<?> getGiftsByOcassionId(@PathVariable String ocassionId) {
         try {
             String searchByEntity = "Ocassion";
             List<Gift> gifts = giftService.getGiftsByOcassionId(ocassionId);
             if (gifts.isEmpty()) {
-                return response.isNotPartOf(ENTITY, "Ocassion", ocassionId);
+                return response.isNotPartOf(ENTITY, searchByEntity, ocassionId);
             }
             return response.parameterizedList(gifts, ENTITY, searchByEntity, ocassionId);
         } catch (DataAccessException e) {

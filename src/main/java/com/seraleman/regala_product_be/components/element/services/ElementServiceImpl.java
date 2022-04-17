@@ -26,44 +26,6 @@ public class ElementServiceImpl implements IElementService {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public List<Element> cleanElementsOfNullCategories() {
-
-        List<Element> elements = elementDao.findAllByCategoriesIsNull();
-        List<Element> updatedElements = new ArrayList<>();
-
-        for (Element element : elements) {
-            List<Category> categories = new ArrayList<>();
-            for (Category category : element.getCategories()) {
-                if (category != null) {
-                    categories.add(category);
-                }
-            }
-            element.setCategories(categories);
-            updatedElements.add(elementDao.save(element));
-        }
-        return updatedElements;
-    }
-
-    @Override
-    public List<Element> cleanElementsOfNullPrimaries() {
-
-        List<Element> elements = elementDao.findAllByPrimariesIsNull();
-        List<Element> updatedElements = new ArrayList<>();
-
-        for (Element element : elements) {
-            List<ElementComposition> newPrimaries = new ArrayList<>();
-            for (ElementComposition composition : element.getPrimaries()) {
-                if (composition != null) {
-                    newPrimaries.add(composition);
-                }
-            }
-            element.setPrimaries(newPrimaries);
-            updatedElements.add(elementDao.save(element));
-        }
-        return updatedElements;
-    }
-
-    @Override
     public Element createElementFromPrimary(Primary primary) {
 
         ElementComposition component = new ElementComposition(primary, 1);
@@ -129,6 +91,11 @@ public class ElementServiceImpl implements IElementService {
     @Override
     public List<Element> getElementsByCollectionId(String collectionId) {
         return elementDao.findAllByCollectionId(collectionId);
+    }
+
+    @Override
+    public List<Element> getElementsByIds(List<String> ids) {
+        return (List<Element>) elementDao.findAllById(ids);
     }
 
     @Override

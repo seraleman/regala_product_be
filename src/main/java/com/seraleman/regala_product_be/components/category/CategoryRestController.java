@@ -87,7 +87,7 @@ public class CategoryRestController {
             Map<String, Object> responseCompromisedEntities = categoryCompromise
                     .deleteCategoryInCompromisedEntities(category);
 
-            categoryService.deleteCategoryById(id);
+            // categoryService.deleteCategoryById(id);
 
             return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {

@@ -5,9 +5,9 @@ import java.util.Map;
 
 public interface IStructure {
 
-    Map<String, Object> responseUpdatedCompromisedEntities(List<?> objcs);
-
     Map<String, Object> responseDeletedCompromisedEntities(
             List<?> objcs, Integer deletedObjcsQuantity);
+
+    Map<String, Object> responseUpdatedCompromisedEntities(List<?> objcs);
 
 }

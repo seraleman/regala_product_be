@@ -9,22 +9,19 @@ import org.springframework.validation.BindingResult;
 
 public interface IResponse {
 
-        ResponseEntity<Map<String, Object>> created(Object obj);
-
         ResponseEntity<Map<String, Object>> cannotBeSearched(String searchByEntity, String id);
+
+        ResponseEntity<Map<String, Object>> created(Object obj);
 
         ResponseEntity<Map<String, Object>> deleted(String entity);
 
         ResponseEntity<Map<String, Object>> deletedAll(String entity);
 
-        ResponseEntity<Map<String, Object>> deletedWithCompromisedEntities(
-                        Map<String, Object> updatedCompromisedEntities, String entity);
-
         ResponseEntity<Map<String, Object>> deletedUnused(
                         Integer deletedObjs, List<?> undeletedObjectsList, String entity);
 
-        ResponseEntity<Map<String, Object>> isNotPartOf(
-                        String searchedEntity, String searchByEntity, String id);
+        ResponseEntity<Map<String, Object>> deletedWithCompromisedEntities(
+                        Map<String, Object> updatedCompromisedEntities, String entity);
 
         ResponseEntity<Map<String, Object>> empty(String entity);
 
@@ -34,14 +31,17 @@ public interface IResponse {
 
         ResponseEntity<Map<String, Object>> invalidObject(BindingResult result);
 
-        ResponseEntity<Map<String, Object>> list(List<?> objs, String entity);
+        ResponseEntity<Map<String, Object>> isNotPartOf(
+                        String searchedEntity, String searchByEntity, String id);
 
-        ResponseEntity<Map<String, Object>> notFound(Object id, String entity);
+        ResponseEntity<Map<String, Object>> list(List<?> objs, String entity);
 
         ResponseEntity<Map<String, Object>> notDeleted(
                         List<?> objs, String entityObjs,
                         List<?> secObjs, String entitySecObjs,
                         String entity);
+
+        ResponseEntity<Map<String, Object>> notFound(Object id, String entity);
 
         ResponseEntity<Map<String, Object>> parameterizedList(
                         List<?> objs, String searchedEntity, String searchByEntity, String id);
