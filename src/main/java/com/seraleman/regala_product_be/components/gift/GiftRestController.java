@@ -129,8 +129,10 @@ public class GiftRestController {
             if (currentGift == null) {
                 return response.notFound(id, ENTITY);
             }
-
             if (result.hasErrors()) {
+                return response.invalidObject(result);
+            }
+            if (validate.createdIsNotNull(result, gift.getCreated()).hasErrors()) {
                 return response.invalidObject(result);
             }
 

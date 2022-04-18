@@ -30,6 +30,8 @@ public interface IGiftService {
 
     List<Gift> getGiftsByIds(List<String> ids);
 
+    List<Gift> getGiftsByOcassionsId(String ocassionId);
+
     List<Gift> getGiftsByOcassionId(String OcassionId);
 
     Gift saveGift(Gift gift);

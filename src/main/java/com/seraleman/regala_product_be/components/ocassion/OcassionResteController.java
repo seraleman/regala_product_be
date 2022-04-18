@@ -2,9 +2,11 @@ package com.seraleman.regala_product_be.components.ocassion;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
+import com.seraleman.regala_product_be.components.ocassion.compromise.IOcassionCompromise;
 import com.seraleman.regala_product_be.components.ocassion.services.IOcassionService;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 import com.seraleman.regala_product_be.helpers.response.IResponse;
@@ -26,8 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/ocassion")
 public class OcassionResteController {
 
+    private static final String ENTITY = "Ocassion";
+
     @Autowired
     private ILocalDateTime localDateTime;
+
+    @Autowired
+    private IOcassionCompromise ocassionCompromise;
 
     @Autowired
     private IOcassionService ocassionService;
@@ -54,11 +61,11 @@ public class OcassionResteController {
     @GetMapping("/")
     public ResponseEntity<?> getOcassions() {
         try {
-            List<Ocassion> ocassions = ocassionService.getAllOcassions();
+            List<Ocassion> ocassions = ocassionService.getOcassions();
             if (ocassions.isEmpty()) {
-                return response.empty("Ocassion");
+                return response.empty(ENTITY);
             }
-            return response.list(ocassions, "Ocassion");
+            return response.list(ocassions, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -69,10 +76,15 @@ public class OcassionResteController {
         try {
             Ocassion ocassion = ocassionService.getOcassionById(id);
             if (ocassion == null) {
-                return response.notFound(id, "Ocassion");
+                return response.notFound(id, ENTITY);
             }
-            ocassionService.deleteOcassionById(id);
-            return response.deleted("Ocassion");
+            Map<String, Object> responseCompromisedEntities = ocassionCompromise
+                    .deleteOcassionInCompromisedEntities(ocassion);
+
+            // ocassionService.deleteOcassionById(id);
+
+            return response.deletedWithCompromisedEntities(
+                    responseCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -83,7 +95,7 @@ public class OcassionResteController {
         try {
             Ocassion ocassion = ocassionService.getOcassionById(id);
             if (ocassion == null) {
-                return response.notFound(id, "Ocassion");
+                return response.notFound(id, ENTITY);
             }
             return response.found(ocassion);
         } catch (DataAccessException e) {
@@ -101,12 +113,17 @@ public class OcassionResteController {
         try {
             Ocassion currentOcassion = ocassionService.getOcassionById(id);
             if (currentOcassion == null) {
-                return response.notFound(id, "Ocassion");
+                return response.notFound(id, ENTITY);
             }
             currentOcassion.setDescription(ocassion.getDescription());
             currentOcassion.setName(ocassion.getName());
+            currentOcassion.setCreated(ocassion.getCreated());
             currentOcassion.setUpdated(localDateTime.getLocalDateTime());
-            return response.updated(ocassionService.saveOcassion(ocassion));
+
+            return response.updatedWithCompromisedEntities(
+                    ocassionService.saveOcassion(currentOcassion),
+                    ocassionCompromise.updateOcassionInCompromisedEntities(currentOcassion),
+                    ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -115,7 +132,7 @@ public class OcassionResteController {
     @DeleteMapping("/delete/allOcassions")
     public ResponseEntity<?> deleteAllOcassions() {
         ocassionService.deleteAllOcassions();
-        return response.deletedAll("Ocassion");
+        return response.deletedAll(ENTITY);
     }
 
 }

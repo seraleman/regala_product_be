@@ -14,6 +14,7 @@ import com.seraleman.regala_product_be.components.primary.Primary;
 import com.seraleman.regala_product_be.components.primary.helpers.service.IPrimaryService;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 import com.seraleman.regala_product_be.helpers.response.IResponse;
+import com.seraleman.regala_product_be.helpers.validate.IValidate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -48,6 +49,9 @@ public class CollectionRestController {
 
     @Autowired
     private IPrimaryService primaryService;
+
+    @Autowired
+    private IValidate validate;
 
     @Autowired
     private IResponse response;
@@ -122,10 +126,13 @@ public class CollectionRestController {
             @Valid @RequestBody Collection collection,
             BindingResult result) {
 
-        if (result.hasErrors()) {
-            return response.invalidObject(result);
-        }
         try {
+            if (result.hasErrors()) {
+                return response.invalidObject(result);
+            }
+            if (validate.createdIsNotNull(result, collection.getCreated()).hasErrors()) {
+                return response.invalidObject(result);
+            }
             Collection currentCollection = collectionService.getCollectionById(id);
             if (currentCollection == null) {
                 return response.notFound(id, ENTITY);

@@ -55,9 +55,9 @@ public class PrimaryCompromisedEntitiesImpl implements IPrimaryCompromisedEntiti
                                                 .where("primary.id")
                                                 .is(primary.getId())));
                 update = new Update()
-                                .pull("primaries",
-                                                new BasicDBObject("primary.id", primary.getId()))
+                                .pull("primaries", new BasicDBObject("primary.id", primary.getId()))
                                 .set("updated", localDateTime.getLocalDateTime());
+
                 mongoTemplate.bulkOps(BulkMode.ORDERED, Element.class)
                                 .updateMulti(query, update)
                                 .execute()

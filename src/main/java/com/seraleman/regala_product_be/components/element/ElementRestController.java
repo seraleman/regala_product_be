@@ -183,11 +183,12 @@ public class ElementRestController {
             if (currentElement == null) {
                 return response.notFound(id, ENTITY);
             }
-
             if (result.hasErrors()) {
                 return response.invalidObject(result);
             }
-
+            if (validate.createdIsNotNull(result, element.getCreated()).hasErrors()) {
+                return response.invalidObject(result);
+            }
             Collection collection = collectionService.getCollectionById(
                     element.getCollection().getId());
             if (validate.entityIsNotNull(result, collection, "collection",

@@ -6,7 +6,7 @@ import com.seraleman.regala_product_be.components.ocassion.Ocassion;
 
 public interface IOcassionService {
 
-    public List<Ocassion> getAllOcassions();
+    public List<Ocassion> getOcassions();
 
     public Ocassion getOcassionById(String id);
 

@@ -52,11 +52,9 @@ public class CategoryCompromisedEntitiesImpl implements ICategoryCompromisedEnti
                 // eliminando categoria de elementos
                 query = new Query()
                                 .addCriteria(Criteria.where("categories").elemMatch(Criteria
-                                                .where("id")
-                                                .is(category.getId())));
+                                                .where("id").is(category.getId())));
                 update = new Update()
-                                .pull("categories",
-                                                new BasicDBObject("id", category.getId()))
+                                .pull("categories", new BasicDBObject("id", category.getId()))
                                 .set("updated", localDateTime.getLocalDateTime());
 
                 mongoTemplate.bulkOps(BulkMode.ORDERED, Element.class)

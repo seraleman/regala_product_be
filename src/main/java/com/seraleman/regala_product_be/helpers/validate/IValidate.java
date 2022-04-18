@@ -1,5 +1,6 @@
 package com.seraleman.regala_product_be.helpers.validate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.validation.BindingResult;
@@ -9,6 +10,8 @@ public interface IValidate {
         BindingResult arrayIsNotEmpty(
                         BindingResult result, List<?> arrayToValidate,
                         String affectedField, String entityInArray);
+
+        BindingResult createdIsNotNull(BindingResult result, LocalDateTime updated);
 
         BindingResult entityInArrayIsNotNull(
                         BindingResult result, Object objToValidate,

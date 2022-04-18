@@ -15,18 +15,8 @@ public class OcassionServiceImpl implements IOcassionService {
     private IOcassionDao ocassionDao;
 
     @Override
-    public List<Ocassion> getAllOcassions() {
-        return ocassionDao.findAll();
-    }
-
-    @Override
-    public Ocassion getOcassionById(String id) {
-        return ocassionDao.findById(id).orElse(null);
-    }
-
-    @Override
-    public Ocassion saveOcassion(Ocassion ocassion) {
-        return ocassionDao.save(ocassion);
+    public void deleteAllOcassions() {
+        ocassionDao.deleteAll();
     }
 
     @Override
@@ -35,8 +25,18 @@ public class OcassionServiceImpl implements IOcassionService {
     }
 
     @Override
-    public void deleteAllOcassions() {
-        ocassionDao.deleteAll();
+    public Ocassion getOcassionById(String id) {
+        return ocassionDao.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Ocassion> getOcassions() {
+        return ocassionDao.findAll();
+    }
+
+    @Override
+    public Ocassion saveOcassion(Ocassion ocassion) {
+        return ocassionDao.save(ocassion);
     }
 
 }

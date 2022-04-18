@@ -1,5 +1,6 @@
 package com.seraleman.regala_product_be.helpers.validate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -25,6 +26,16 @@ public class ValidateImpl implements IValidate {
     }
 
     @Override
+    public BindingResult createdIsNotNull(BindingResult result, LocalDateTime updated) {
+        if (updated == null) {
+            FieldError error = new FieldError("created", "created",
+                    "no debe ser nulo'");
+            result.addError(error);
+        }
+        return result;
+    }
+
+    @Override
     public BindingResult entityInArrayIsNotNull(
             BindingResult result, Object objToValidate,
             String affectedField, String entity,
@@ -32,7 +43,7 @@ public class ValidateImpl implements IValidate {
 
         if (objToValidate == null) {
             FieldError error = new FieldError(affectedField, affectedField,
-                    "no puede tener un objeto nulo, asegúrese de que el objeto '"
+                    "no debe tener un objeto nulo, asegúrese de que el objeto '"
                             .concat(entity)
                             .concat("' con id '")
                             .concat(objToValidateId)

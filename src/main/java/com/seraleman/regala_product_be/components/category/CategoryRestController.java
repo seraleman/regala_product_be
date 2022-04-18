@@ -13,6 +13,7 @@ import com.seraleman.regala_product_be.components.element.Element;
 import com.seraleman.regala_product_be.components.element.services.IElementService;
 import com.seraleman.regala_product_be.helpers.localDataTime.ILocalDateTime;
 import com.seraleman.regala_product_be.helpers.response.IResponse;
+import com.seraleman.regala_product_be.helpers.validate.IValidate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -47,6 +48,9 @@ public class CategoryRestController {
 
     @Autowired
     private IResponse response;
+
+    @Autowired
+    private IValidate validate;
 
     @PostMapping("/")
     public ResponseEntity<?> createCategory(@Valid @RequestBody Category category,
@@ -87,9 +91,10 @@ public class CategoryRestController {
             Map<String, Object> responseCompromisedEntities = categoryCompromise
                     .deleteCategoryInCompromisedEntities(category);
 
-            // categoryService.deleteCategoryById(id);
+            categoryService.deleteCategoryById(id);
 
-            return response.deletedWithCompromisedEntities(responseCompromisedEntities, ENTITY);
+            return response.deletedWithCompromisedEntities(
+                    responseCompromisedEntities, ENTITY);
         } catch (DataAccessException e) {
             return response.errorDataAccess(e);
         }
@@ -105,6 +110,9 @@ public class CategoryRestController {
             Category currentCategory = categoryService.getCategoryById(id);
             if (currentCategory == null) {
                 return response.notFound(id, ENTITY);
+            }
+            if (validate.createdIsNotNull(result, category.getCreated()).hasErrors()) {
+                return response.invalidObject(result);
             }
             if (result.hasErrors()) {
                 return response.invalidObject(result);

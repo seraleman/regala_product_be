@@ -94,6 +94,11 @@ public class GiftServiceImpl implements IGiftService {
     }
 
     @Override
+    public List<Gift> getGiftsByOcassionsId(String ocassionId) {
+        return giftDao.findAllByOcassionsId(ocassionId);
+    }
+
+    @Override
     public Gift saveGift(Gift gift) {
         return giftDao.save(gift);
     }
